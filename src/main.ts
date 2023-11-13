@@ -2,7 +2,7 @@
 import { PlaywrightCrawler } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import { config } from "../config";
+import { config } from "../config.js";
 
 if (process.env.NO_CRAWL !== "true") {
   // PlaywrightCrawler crawls the web using a headless
@@ -27,7 +27,7 @@ if (process.env.NO_CRAWL !== "true") {
       // Extract links from the current page
       // and add them to the crawling queue.
       await enqueueLinks({
-        globs: [config.glob],
+        globs: [config.match],
       });
     },
     // Comment this option to scrape the full website.

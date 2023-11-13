@@ -1,15 +1,15 @@
 type Config = {
   url: string;
-  glob: string;
+  match: string;
   selector: string;
   maxPagesToCrawl: number;
   outputFileName: string;
 };
 
 export const config = {
-  url: "https://www.builder.io/c/docs/developer",
-  glob: "https://www.builder.io/c/docs/*",
-  selector: ".docs-builder-container",
-  maxPagesToCrawl: 500,
-  outputFileName: "output.json",
+  url: "https://forum.builder.io",
+  match: "https://forum.builder.io/t/**",
+  selector: ".posts-wrapper",
+  maxPagesToCrawl: 1000,
+  outputFileName: "forum.json",
 } satisfies Config;
