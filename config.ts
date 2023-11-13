@@ -7,9 +7,9 @@ type Config = {
 };
 
 export const config = {
-  url: "https://forum.builder.io",
-  match: "https://forum.builder.io/t/**",
-  selector: ".posts-wrapper",
+  url: "https://github.com/builderio/builder",
+  match: "https://github.com/BuilderIO/builder/tree/main/**",
+  selector: `#readme,[data-selector="repos-split-pane-content"]`,
   maxPagesToCrawl: 1000,
-  outputFileName: "forum.json",
+  outputFileName: "github.json",
 } satisfies Config;
