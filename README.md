@@ -2,6 +2,16 @@
 
 Crawl a site to generate knowledge files to create your own custom GPT
 
+## Example
+
+[Here is a custom GPT](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) that I quickly made to help answer questions about how to use and integrate [Builder.io](https://www.builder.io) by simply providing the URL to the Builder docs. 
+
+This project crawled the docs and generated the file that I uploaded as the basis for the custom GPT.
+
+[Try it out yourself](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) by asking questions about how to integrate Builder.io into a site. 
+
+> Note that you may need a paid ChatGPT plan to access this feature
+
 ## Get started
 
 ### Prerequisites
