@@ -62,6 +62,11 @@ type Config = {
 };
 ```
 
+### Install the playwright healess browser
+```sh
+npx playwright install --with-deps
+```
+
 ### Run your crawler
 
 ```sh
