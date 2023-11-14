@@ -75,6 +75,9 @@ Use this option for UI access to your generated knowledge that you can easily sh
 5. Choose "Configure"
 6. Under "Knowledge" choose "Upload a file" and upload the file you generated
 
+![Gif of how to upload a custom GPT](https://github.com/BuilderIO/gpt-crawler/assets/844291/22f27fb5-6ca5-4748-9edd-6bcf00b408cf)
+
+
 #### Create a custom assistant
 
 Use this option for API access to your generated knowledge that you can integrate into your product.
@@ -82,6 +85,10 @@ Use this option for API access to your generated knowledge that you can integrat
 1. Go to [https://platform.openai.com/assistants](https://platform.openai.com/assistants)
 2. Click "+ Create"
 3. Choose "upload" and upload the file you generated
+
+![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
+
+
 
 ## Contributing
 
