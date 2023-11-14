@@ -24,6 +24,17 @@ Be sure you have Node.js >= 16 installed
 git clone https://github.com/builderio/gpt-crawler
 ```
 
+### Install Dependencies
+
+```sh
+npm i
+```
+
+If you do not have Playwright installed:
+```sh
+npx playwright install
+```
+
 ### Configure the crawler
 
 Open [config.ts](config.ts) and edit the `url` and `selectors` properties to match your needs.
