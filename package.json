@@ -2,7 +2,7 @@
   "name": "@builder.io/gpt-crawler",
   "version": "0.0.1",
   "type": "module",
-  "description": "Scrape ",
+  "description": "Crawl a site to generate knowledge files to create your own custom GPT",
   "dependencies": {
     "crawlee": "^3.0.0",
     "glob": "^10.3.10",

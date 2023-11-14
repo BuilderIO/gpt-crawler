@@ -11,7 +11,7 @@ Be sure you have Node.js >= 16 installed
 ### Clone the repo
 
 ```sh
-git clone https://github.com/bridgeproject/gpt-crawler
+git clone https://github.com/builderio/gpt-crawler
 ```
 
 ### Configure the crawler
