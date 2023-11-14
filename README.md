@@ -60,7 +60,28 @@ npm start
 
 ### Upload your data to OpenAI
 
-The crawl will generate a file called `output.json` at the root of this project. Upload that [to OpenAI](https://platform.openai.com/docs/assistants/overview) to create your custom GPT or custom GPT.
+The crawl will generate a file called `output.json` at the root of this project. Upload that [to OpenAI](https://platform.openai.com/docs/assistants/overview) to create your custom assistant or custom GPT.
+
+#### Create a custom GPT
+
+Use this option for UI access to your generated knowledge that you can easily share with others
+
+> Note: you may need a paid ChatGPT plan to create and use custom GPTs right now
+
+1. Go to [https://chat.openai.com/](https://chat.openai.com/)
+2. Click your name in the bottom left corner
+3. Choose "My GPTs" in the menu
+4. Choose "Create a GPT"
+5. Choose "Configure"
+6. Under "Knowledge" choose "Upload a file" and upload the file you generated
+
+#### Create a custom assistant
+
+Use this option for API access to your generated knowledge that you can integrate into your product.
+
+1. Go to [https://platform.openai.com/assistants](https://platform.openai.com/assistants)
+2. Click "+ Create"
+3. Choose "upload" and upload the file you generated
 
 ## Contributing
 
