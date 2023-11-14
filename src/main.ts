@@ -3,6 +3,14 @@ import { PlaywrightCrawler } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { config } from "../config.js";
+import { Page } from "playwright";
+
+export function getPageHtml(page: Page) {
+  return page.evaluate((selector) => {
+    const el = document.querySelector(selector) as HTMLElement | null;
+    return el?.innerText || "";
+  }, config.selector);
+}
 
 if (process.env.NO_CRAWL !== "true") {
   // PlaywrightCrawler crawls the web using a headless
@@ -11,18 +19,20 @@ if (process.env.NO_CRAWL !== "true") {
     // Use the requestHandler to process each of the crawled pages.
     async requestHandler({ request, page, enqueueLinks, log, pushData }) {
       const title = await page.title();
-      log.info(`Title of ${request.loadedUrl} is '${title}'`);
+      log.info(`Crawling ${request.loadedUrl}...`);
 
-      const html = await page.evaluate(() => {
-        const el = document.querySelector(
-          ".docs-builder-container"
-        ) as HTMLElement | null;
-
-        return el?.innerText || "";
+      await page.waitForSelector(config.selector, {
+        timeout: 1000,
       });
+
+      const html = await getPageHtml(page);
 
       // Save results as JSON to ./storage/datasets/default
       await pushData({ title, url: request.loadedUrl, html });
+
+      if (config.onVisitPage) {
+        await config.onVisitPage({ page, pushData });
+      }
 
       // Extract links from the current page
       // and add them to the crawling queue.
