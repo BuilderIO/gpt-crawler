@@ -19,7 +19,7 @@ if (process.env.NO_CRAWL !== "true") {
     // Use the requestHandler to process each of the crawled pages.
     async requestHandler({ request, page, enqueueLinks, log, pushData }) {
 
-      if(config.cookie) {
+      if (config.cookie) {
         // Set the cookie for the specific URL
         const cookie = {
           name: config.cookie.name,
