@@ -11,6 +11,8 @@ type Config = {
   maxPagesToCrawl: number;
   /** File name for the finished data */
   outputFileName: string;
+  /** Optional cookie to be set. E.g. for Cookie Consent */
+  cookie?: {name: string; value: string}
   /** Optional function to run for each page found */
   onVisitPage?: (options: {
     page: Page;

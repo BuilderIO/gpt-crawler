@@ -18,6 +18,17 @@ if (process.env.NO_CRAWL !== "true") {
   const crawler = new PlaywrightCrawler({
     // Use the requestHandler to process each of the crawled pages.
     async requestHandler({ request, page, enqueueLinks, log, pushData }) {
+
+      if(config.cookie) {
+        // Set the cookie for the specific URL
+        const cookie = {
+          name: config.cookie.name,
+          value: config.cookie.value,
+          url: request.loadedUrl, 
+        };
+        await page.context().addCookies([cookie]);
+      }
+
       const title = await page.title();
       log.info(`Crawling ${request.loadedUrl}...`);
 
