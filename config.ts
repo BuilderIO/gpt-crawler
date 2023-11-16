@@ -22,6 +22,6 @@ export const config: Config = {
   url: "https://www.builder.io/c/docs/developers",
   match: "https://www.builder.io/c/docs/**",
   selector: `.docs-builder-container`,
-  maxPagesToCrawl: 5,
+  maxPagesToCrawl: 50,
   outputFileName: "output.json",
 };
