@@ -24,7 +24,7 @@ if (process.env.NO_CRAWL !== "true") {
         const cookie = {
           name: config.cookie.name,
           value: config.cookie.value,
-          url: request.loadedUrl, 
+          url: request.loadedUrl,
         };
         await page.context().addCookies([cookie]);
       }
