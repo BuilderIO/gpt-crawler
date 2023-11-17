@@ -4,6 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { config } from "../config.js";
 import { Page } from "playwright";
+import { URL } from "url";
 
 export function getPageHtml(page: Page) {
   return page.evaluate((selector) => {
@@ -47,10 +48,20 @@ if (process.env.NO_CRAWL !== "true") {
 
       // Extract links from the current page
       // and add them to the crawling queue.
+      const links = await page.$$eval('a', (as) => as.map(a => a.href));
+      const filteredLinks = links.filter(link => {
+        // Check if the link matches the exclude pattern
+        const excludePattern = new RegExp(config.exclude || "");
+        return !excludePattern.test(link);
+      });
+
+      // Enqueue filtered links
       await enqueueLinks({
+        urls: filteredLinks,
         globs: [config.match],
       });
     },
+    
     // Comment this option to scrape the full website.
     maxRequestsPerCrawl: config.maxPagesToCrawl,
     // Uncomment this option to see the browser window.
