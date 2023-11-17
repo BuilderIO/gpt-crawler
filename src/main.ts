@@ -33,7 +33,7 @@ if (process.env.NO_CRAWL !== "true") {
       log.info(`Crawling ${request.loadedUrl}...`);
 
       await page.waitForSelector(config.selector, {
-        timeout: 1000,
+        timeout: config.waitForSelectorTimeout ?? 1000,
       });
 
       const html = await getPageHtml(page);
