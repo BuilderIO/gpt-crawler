@@ -8,7 +8,14 @@ import { Page } from "playwright";
 export function getPageHtml(page: Page) {
   return page.evaluate((selector) => {
     const el = document.querySelector(selector) as HTMLElement | null;
-    return el?.innerText || "";
+    // If the selector is not found, fall back to the body
+    const defaultSelector = "body";
+    if (!el) {
+      console.warn(
+        `Selector "${selector}" not found, falling back to "${defaultSelector}"`
+      );
+    }
+    return el?.innerText ?? document.querySelector(defaultSelector)?.innerText;
   }, config.selector);
 }
 
@@ -32,9 +39,9 @@ if (process.env.NO_CRAWL !== "true") {
       const title = await page.title();
       log.info(`Crawling ${request.loadedUrl}...`);
 
-      await page.waitForSelector(config.selector, {
-        timeout: config.waitForSelectorTimeout ?? 1000,
-      });
+        await page.waitForSelector(config.selector, {
+          timeout: config.waitForSelectorTimeout ?? 1000,
+        });
 
       const html = await getPageHtml(page);
 
