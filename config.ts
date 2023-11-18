@@ -12,7 +12,13 @@ type Config = {
   /** File name for the finished data */
   outputFileName: string;
   /** Optional cookie to be set. E.g. for Cookie Consent */
-  cookie?: {name: string; value: string}
+  cookie?: { name: string; value: string };
+  /** Selector for the area of the page that should be processed. */
+  withoutSelector: string;
+  /** List of HTML attributes to retain during content processing. */
+  attributeWhitelist: string[];
+  /** Flag to determine if content links should be crawled. */
+  isContentLink: boolean;
   /** Optional function to run for each page found */
   onVisitPage?: (options: {
     page: Page;
@@ -23,9 +29,12 @@ type Config = {
 };
 
 export const config: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
+  url: "https://react.dev/learn",
+  match: "https://react.dev/learn",
+  selector: `main`,
+  isContentLink: false,
+  withoutSelector: `main`,
+  attributeWhitelist: ["href", "title"],
   maxPagesToCrawl: 50,
-  outputFileName: "output.json",
+  outputFileName: "nuxt.json",
 };
