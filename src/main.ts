@@ -39,9 +39,18 @@ if (process.env.NO_CRAWL !== "true") {
       const title = await page.title();
       log.info(`Crawling ${request.loadedUrl}...`);
 
+      try {
         await page.waitForSelector(config.selector, {
           timeout: config.waitForSelectorTimeout ?? 1000,
         });
+      } catch (e) {
+        // If the selector is not found, let the user know
+        log.warning(`Selector "${config.selector}" not found on ${request.loadedUrl}, Falling back to "body"`);
+        // using body as a fallback
+        await page.waitForSelector("body", {
+          timeout: config.waitForSelectorTimeout ?? 1000,
+        });
+      }
 
       const html = await getPageHtml(page);
 
