@@ -12,6 +12,23 @@ export function getPageHtml(page: Page) {
   }, config.selector);
 }
 
+function shouldCrawl(url: string): boolean {
+  // This function checks if a given URL should be crawled or not.
+  // It returns false if the URL contains any of the directories specified in the exclude array of the config object.
+  // Otherwise, it returns true.
+
+  // Iterate over each directory in the exclude array of the config object
+  for (const dir of config.exclude) {
+    // If the URL contains the current directory, return false
+    if (url.includes(dir)) {
+      return false;
+    }
+  }
+
+  // If the URL does not contain any excluded directories, return true
+  return true;
+}
+
 if (process.env.NO_CRAWL !== "true") {
   // PlaywrightCrawler crawls the web using a headless
   // browser controlled by the Playwright library.
@@ -45,9 +62,15 @@ if (process.env.NO_CRAWL !== "true") {
         await config.onVisitPage({ page, pushData });
       }
 
-      // Extract links from the current page
-      // and add them to the crawling queue.
+      // Extract all the href attributes from the anchor tags on the current page
+      const links = await page.$$eval('a', links => links.map(a => a.href));
+      
+      // Filter out the links that should not be crawled based on the configuration
+      const filteredLinks = links.filter(shouldCrawl);
+      
+      // Add the filtered links to the crawling queue, only if they match the pattern specified in the configuration
       await enqueueLinks({
+        urls: filteredLinks,
         globs: [config.match],
       });
     },
