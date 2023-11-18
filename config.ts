@@ -1,7 +1,7 @@
 import { Page } from "playwright";
 
 type Config = {
-  /** URL to start the crawl */
+  /** URL to start the crawl, could be a sitemap and if so, all pages of the sitemap will be crawled */
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
   match: string;
@@ -23,7 +23,7 @@ type Config = {
 };
 
 export const config: Config = {
-  url: "https://www.builder.io/c/docs/developers",
+  url: "https://builder.io/sitemap.xml",
   match: "https://www.builder.io/c/docs/**",
   selector: `.docs-builder-container`,
   maxPagesToCrawl: 50,
