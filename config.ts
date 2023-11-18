@@ -24,6 +24,8 @@ type Config = {
     page: Page;
     pushData: (data: any) => Promise<void>;
   }) => Promise<void>;
+    /** Optional timeout for waiting for a selector to appear */
+  waitForSelectorTimeout?: number;
 };
 
 export const config: Config = {
