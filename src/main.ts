@@ -1,5 +1,5 @@
 // For more information, see https://crawlee.dev/
-import { PlaywrightCrawler } from "crawlee";
+import { PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { config } from "../config.js";
@@ -73,8 +73,20 @@ if (process.env.NO_CRAWL !== "true") {
     // headless: false,
   });
 
-  // Add first URL to the queue and start the crawl.
-  await crawler.run([config.url]);
+  const isUrlASitemap = config.url.endsWith("sitemap.xml");
+
+  if (isUrlASitemap) {
+    const listOfUrls = await downloadListOfUrls({ url: config.url });
+
+    // Add the initial URL to the crawling queue.
+    await crawler.addRequests(listOfUrls);
+
+    // Run the crawler
+    await crawler.run();
+  } else {
+    // Add first URL to the queue and start the crawl.
+    await crawler.run([config.url]);
+  }
 }
 
 const jsonFiles = await glob("storage/datasets/default/*.json", {
