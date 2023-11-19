@@ -22,6 +22,7 @@ export function getPageHtml(page: Page) {
 if (process.env.NO_CRAWL !== "true") {
   // PlaywrightCrawler crawls the web using a headless
   // browser controlled by the Playwright library.
+  const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
   const crawler = new PlaywrightCrawler({
     // Use the requestHandler to process each of the crawled pages.
     async requestHandler({ request, page, enqueueLinks, log, pushData }) {
@@ -31,7 +32,7 @@ if (process.env.NO_CRAWL !== "true") {
         const cookie = {
           name: config.cookie.name,
           value: config.cookie.value,
-          url: request.loadedUrl, 
+          url: request.loadedUrl,
         };
         await page.context().addCookies([cookie]);
       }
@@ -71,6 +72,17 @@ if (process.env.NO_CRAWL !== "true") {
     maxRequestsPerCrawl: config.maxPagesToCrawl,
     // Uncomment this option to see the browser window.
     // headless: false,
+    preNavigationHooks: [
+      // Abort requests for certain resource types
+      async ({ page, log }) => {
+        // If there are no resource exclusions, return
+        if (RESOURCE_EXCLUSTIONS.length === 0) {
+          return;
+        }
+        await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, route => route.abort());
+        log.info(`Aborting requests for as this is a resource excluded route`);
+      }
+    ],
   });
 
   const SITEMAP_SUFFIX = "sitemap.xml";
