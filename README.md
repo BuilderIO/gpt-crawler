@@ -58,7 +58,7 @@ See the top of the file for the type definition for what you can configure:
 
 ```ts
 type Config = {
-  /** URL to start the crawl, if sitemap is providedm then it will be used instead and download all pages in the sitemap */
+  /** URL to start the crawl, if sitemap is provided then it will be used instead and download all pages in the sitemap */
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
   match: string;
