@@ -39,18 +39,18 @@ if (process.env.NO_CRAWL !== "true") {
       const title = await page.title();
       log.info(`Crawling ${request.loadedUrl}...`);
 
-      try {
-        await page.waitForSelector(config.selector, {
-          timeout: config.waitForSelectorTimeout ?? 1000,
-        });
-      } catch (e) {
-        // If the selector is not found, let the user know
-        log.warning(`Selector "${config.selector}" not found on ${request.loadedUrl}, Falling back to "body"`);
-        // using body as a fallback
-        await page.waitForSelector("body", {
-          timeout: config.waitForSelectorTimeout ?? 1000,
-        });
+      // Wait for the selector to appear on the page
+      async function waitForSelectorOrFallback(page: Page, selector: string, fallbackSelector: string, timeout: number) {
+        try {
+          await page.waitForSelector(selector, { timeout });
+        } catch (e) {
+          // If the selector is not found, fall back to the fallbackSelector
+          log.warning(`Selector "${selector}" not found, Falling back to "${fallbackSelector}"`);
+          await page.waitForSelector(fallbackSelector, { timeout });
+        }
       }
+
+      await waitForSelectorOrFallback(page, config.selector, "body", config.waitForSelectorTimeout ?? 1000);
 
       const html = await getPageHtml(page);
 
@@ -73,7 +73,8 @@ if (process.env.NO_CRAWL !== "true") {
     // headless: false,
   });
 
-  const isUrlASitemap = config.url.endsWith("sitemap.xml");
+  const SITEMAP_SUFFIX = "sitemap.xml";
+  const isUrlASitemap = config.url.endsWith(SITEMAP_SUFFIX);
 
   if (isUrlASitemap) {
     const listOfUrls = await downloadListOfUrls({ url: config.url });
