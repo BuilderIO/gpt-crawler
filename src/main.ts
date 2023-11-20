@@ -1,2 +1,5 @@
-export * from "./core.js";
-export * from "./cli.js";
+import { defaultConfig } from "../config.js";
+import { crawl, write } from "./core.js";
+
+await crawl(defaultConfig);
+await write(defaultConfig);

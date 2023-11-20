@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { program } from "commander";
-import { Config } from "./config.js";
+import { Config } from "../config.js";
 import { crawl, write } from "./core.js";
 import { createRequire } from "node:module";
 import inquirer from "inquirer";
 
 const require = createRequire(import.meta.url);
-const { version, description } = require("../package.json");
+const { version, description } = require("../../package.json");
 
 const messages = {
   url: "What is the first URL of the website you want to crawl?",

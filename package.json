@@ -21,9 +21,10 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "preinstall": "bunx playwright install",
-    "start": "bun run start:dev",
-    "start:dev": "NODE_ENV=development bun run build && node dist/cli.js",
+    "preinstall": "npx playwright install",
+    "start": "npm run start:dev",
+    "start:cli": "NODE_ENV=development npm run build && node dist/src/cli.js",
+    "start:dev": "NODE_ENV=development npm run build && node dist/src/main.js",
     "start:prod": "node dist/main.js",
     "build": "tsc"
   },

@@ -1,24 +1,26 @@
-# GPT Crawler
+<!-- Markdown written with https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one -->
+
+# GPT Crawler <!-- omit from toc -->
 
 Crawl a site to generate knowledge files to create your own custom GPT from one or multiple URLs
 
 ![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
 
-- [GPT Crawler](#gpt-crawler)
-  - [Example](#example)
-  - [Get started](#get-started)
-    - [Install](#install)
-    - [Run](#run)
-    - [(Alternate method) Running in a container with Docker](#alternate-method-running-in-a-container-with-docker)
-    - [Upload your data to OpenAI](#upload-your-data-to-openai)
-      - [Create a custom GPT](#create-a-custom-gpt)
-      - [Create a custom assistant](#create-a-custom-assistant)
-  - [Development](#development)
-    - [Prerequisites](#prerequisites)
-    - [Clone the repo](#clone-the-repo)
+- [Example](#example)
+- [Get started](#get-started)
+  - [Running locally](#running-locally)
+    - [Clone the repository](#clone-the-repository)
     - [Install dependencies](#install-dependencies)
-    - [Make changes](#make-changes)
-  - [Contributing](#contributing)
+    - [Configure the crawler](#configure-the-crawler)
+    - [Run your crawler](#run-your-crawler)
+  - [Alternative methods](#alternative-methods)
+    - [Running in a container with Docker](#running-in-a-container-with-docker)
+    - [Running as a CLI](#running-as-a-cli)
+      - [Development](#development)
+  - [Upload your data to OpenAI](#upload-your-data-to-openai)
+    - [Create a custom GPT](#create-a-custom-gpt)
+    - [Create a custom assistant](#create-a-custom-assistant)
+- [Contributing](#contributing)
 
 ## Example
 
@@ -32,21 +34,97 @@ This project crawled the docs and generated the file that I uploaded as the basi
 
 ## Get started
 
-### Install
+### Running locally
+
+#### Clone the repository
+
+Be sure you have Node.js >= 16 installed.
+
+```sh
+git clone https://github.com/builderio/gpt-crawler
+```
+
+#### Install dependencies
+
+```sh
+npm i
+```
+
+#### Configure the crawler
+
+Open [config.ts](config.ts) and edit the `url` and `selectors` properties to match your needs.
+
+E.g. to crawl the Builder.io docs to make our custom GPT you can use:
+
+```ts
+export const defaultConfig: Config = {
+  url: "https://www.builder.io/c/docs/developers",
+  match: "https://www.builder.io/c/docs/**",
+  selector: `.docs-builder-container`,
+  maxPagesToCrawl: 50,
+  outputFileName: "output.json",
+};
+```
+
+See the top of the file for the type definition for what you can configure:
+
+```ts
+type Config = {
+  /** URL to start the crawl */
+  url: string;
+  /** Pattern to match against for links on a page to subsequently crawl */
+  match: string;
+  /** Selector to grab the inner text from */
+  selector: string;
+  /** Don't crawl more than this many pages */
+  maxPagesToCrawl: number;
+  /** File name for the finished data */
+  outputFileName: string;
+  /** Optional cookie to be set. E.g. for Cookie Consent */
+  cookie?: { name: string; value: string };
+  /** Optional function to run for each page found */
+  onVisitPage?: (options: {
+    page: Page;
+    pushData: (data: any) => Promise<void>;
+  }) => Promise<void>;
+  /** Optional timeout for waiting for a selector to appear */
+  waitForSelectorTimeout?: number;
+};
+```
+
+#### Run your crawler
+
+```sh
+npm start
+```
+
+### Alternative methods
+
+#### [Running in a container with Docker](./containerapp/README.md)
+
+To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
+
+#### Running as a CLI
+
+<!-- TODO: Needs to be actually published -->
 
 ```sh
 npm i -g @builder.io/gpt-crawler
 ```
 
-### Run
+Then run:
 
 ```sh
 gpt-crawler --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
 ```
 
-### (Alternate method) Running in a container with Docker
+##### Development
 
-To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
+To run the CLI locally while developing it:
+  
+```sh
+npm run start:cli
+```
 
 ### Upload your data to OpenAI
 
@@ -76,32 +154,6 @@ Use this option for API access to your generated knowledge that you can integrat
 3. Choose "upload" and upload the file you generated
 
 ![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
-
-## Development
-
-### Prerequisites
-
-Be sure you have Node.js >= 16 installed along with [bun](https://bun.sh/)
-
-### Clone the repo
-
-```sh
-git clone https://github.com/builderio/gpt-crawler
-```
-
-### Install dependencies
-
-```sh
-bun i
-```
-
-### Make changes
-
-After making changes, run the following to test them out:
-
-```sh
-bun start
-```
 
 ## Contributing
 
