@@ -4,6 +4,22 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
 
 ![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
 
+- [GPT Crawler](#gpt-crawler)
+  - [Example](#example)
+  - [Get started](#get-started)
+    - [Install](#install)
+    - [Run](#run)
+    - [(Alternate method) Running in a container with Docker](#alternate-method-running-in-a-container-with-docker)
+    - [Upload your data to OpenAI](#upload-your-data-to-openai)
+      - [Create a custom GPT](#create-a-custom-gpt)
+      - [Create a custom assistant](#create-a-custom-assistant)
+  - [Development](#development)
+    - [Prerequisites](#prerequisites)
+    - [Clone the repo](#clone-the-repo)
+    - [Install dependencies](#install-dependencies)
+    - [Make changes](#make-changes)
+  - [Contributing](#contributing)
+
 ## Example
 
 [Here is a custom GPT](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) that I quickly made to help answer questions about how to use and integrate [Builder.io](https://www.builder.io) by simply providing the URL to the Builder docs.
@@ -27,6 +43,10 @@ npm i -g @builder.io/gpt-crawler
 ```sh
 gpt-crawler --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
 ```
+
+### (Alternate method) Running in a container with Docker
+
+To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
 
 ### Upload your data to OpenAI
 
@@ -57,15 +77,7 @@ Use this option for API access to your generated knowledge that you can integrat
 
 ![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
 
-## (Alternate method) Running in a container with Docker
-
-To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
-
-## Contributing
-
-Know how to make this project better? Send a PR!
-
-## Get started developing
+## Development
 
 ### Prerequisites
 
@@ -77,57 +89,23 @@ Be sure you have Node.js >= 16 installed along with [bun](https://bun.sh/)
 git clone https://github.com/builderio/gpt-crawler
 ```
 
-### Install Dependencies
+### Install dependencies
 
 ```sh
 bun i
 ```
 
-### Running GPT Crawler with a hardcoded configuration file
+### Make changes
 
-Open [hardcoded.ts](./src/hardcoded.ts) and edit the `url`, `match` and `selectors` properties to match your needs.
-
-E.g. to crawl the Builder.io docs to make our custom GPT you can use:
-
-```ts
-export const config: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
-  maxPagesToCrawl: 50,
-  outputFileName: "output.json",
-};
-```
-
-See the top of the [config.ts](./config.ts) file for the type definition for what you can configure:
-
-```ts
-type Config = {
-  /** URL to start the crawl */
-  url: string;
-  /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
-  /** Selector to grab the inner text from */
-  selector: string;
-  /** Don't crawl more than this many pages */
-  maxPagesToCrawl: number;
-  /** File name for the finished data */
-  outputFileName: string;
-  /** Optional function to run for each page found */
-  onVisitPage?: (options: {
-    page: Page;
-    pushData: (data: any) => Promise<void>;
-  }) => Promise<void>;
-  /** Optional timeout for waiting for a selector to appear */
-  waitForSelectorTimeout?: number;
-};
-```
-
-#### Run your crawler
+After making changes, run the following to test them out:
 
 ```sh
 bun start
 ```
+
+## Contributing
+
+Know how to make this project better? Send a PR!
 
 <br>
 <br>
