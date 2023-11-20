@@ -116,6 +116,8 @@ Use this option for API access to your generated knowledge that you can integrat
 
 ![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
 
+## (Alternate method) Running in a container with Docker
+To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container. 
 
 
 ## Contributing
