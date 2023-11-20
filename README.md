@@ -4,86 +4,28 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
 
 ![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
 
-
 ## Example
 
-[Here is a custom GPT](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) that I quickly made to help answer questions about how to use and integrate [Builder.io](https://www.builder.io) by simply providing the URL to the Builder docs. 
+[Here is a custom GPT](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) that I quickly made to help answer questions about how to use and integrate [Builder.io](https://www.builder.io) by simply providing the URL to the Builder docs.
 
 This project crawled the docs and generated the file that I uploaded as the basis for the custom GPT.
 
-[Try it out yourself](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) by asking questions about how to integrate Builder.io into a site. 
+[Try it out yourself](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) by asking questions about how to integrate Builder.io into a site.
 
 > Note that you may need a paid ChatGPT plan to access this feature
 
 ## Get started
 
-### Prerequisites
-
-Be sure you have Node.js >= 16 installed
-
-### Clone the repo
+### Install
 
 ```sh
-git clone https://github.com/builderio/gpt-crawler
+npm i -g @builder.io/gpt-crawler
 ```
 
-### Install Dependencies
+### Run
 
 ```sh
-npm i
-```
-
-If you do not have Playwright installed:
-```sh
-npx playwright install
-```
-
-### Configure the crawler
-
-Open [config.ts](config.ts) and edit the `url` and `selectors` properties to match your needs.
-
-E.g. to crawl the Builder.io docs to make our custom GPT you can use:
-
-```ts
-export const config: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
-  maxPagesToCrawl: 50,
-  outputFileName: "output.json",
-};
-```
-
-See the top of the file for the type definition for what you can configure:
-
-```ts
-type Config = {
-  /** URL to start the crawl */
-  url: string;
-  /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
-  /** Selector to grab the inner text from */
-  selector: string;
-  /** Don't crawl more than this many pages */
-  maxPagesToCrawl: number;
-  /** File name for the finished data */
-  outputFileName: string;
-  /** Optional cookie to be set. E.g. for Cookie Consent */
-  cookie?: {name: string; value: string}
-  /** Optional function to run for each page found */
-  onVisitPage?: (options: {
-    page: Page;
-    pushData: (data: any) => Promise<void>;
-  }) => Promise<void>;
-    /** Optional timeout for waiting for a selector to appear */
-    waitForSelectorTimeout?: number;
-};
-```
-
-### Run your crawler
-
-```sh
-npm start
+gpt-crawler --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
 ```
 
 ### Upload your data to OpenAI
@@ -105,7 +47,6 @@ Use this option for UI access to your generated knowledge that you can easily sh
 
 ![Gif of how to upload a custom GPT](https://github.com/BuilderIO/gpt-crawler/assets/844291/22f27fb5-6ca5-4748-9edd-6bcf00b408cf)
 
-
 #### Create a custom assistant
 
 Use this option for API access to your generated knowledge that you can integrate into your product.
@@ -117,12 +58,76 @@ Use this option for API access to your generated knowledge that you can integrat
 ![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
 
 ## (Alternate method) Running in a container with Docker
-To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container. 
 
+To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
 
 ## Contributing
 
 Know how to make this project better? Send a PR!
+
+## Get started developing
+
+### Prerequisites
+
+Be sure you have Node.js >= 16 installed along with [bun](https://bun.sh/)
+
+### Clone the repo
+
+```sh
+git clone https://github.com/builderio/gpt-crawler
+```
+
+### Install Dependencies
+
+```sh
+bun i
+```
+
+### Running GPT Crawler with a hardcoded configuration file
+
+Open [hardcoded.ts](./src/hardcoded.ts) and edit the `url`, `match` and `selectors` properties to match your needs.
+
+E.g. to crawl the Builder.io docs to make our custom GPT you can use:
+
+```ts
+export const config: Config = {
+  url: "https://www.builder.io/c/docs/developers",
+  match: "https://www.builder.io/c/docs/**",
+  selector: `.docs-builder-container`,
+  maxPagesToCrawl: 50,
+  outputFileName: "output.json",
+};
+```
+
+See the top of the [config.ts](./config.ts) file for the type definition for what you can configure:
+
+```ts
+type Config = {
+  /** URL to start the crawl */
+  url: string;
+  /** Pattern to match against for links on a page to subsequently crawl */
+  match: string;
+  /** Selector to grab the inner text from */
+  selector: string;
+  /** Don't crawl more than this many pages */
+  maxPagesToCrawl: number;
+  /** File name for the finished data */
+  outputFileName: string;
+  /** Optional function to run for each page found */
+  onVisitPage?: (options: {
+    page: Page;
+    pushData: (data: any) => Promise<void>;
+  }) => Promise<void>;
+  /** Optional timeout for waiting for a selector to appear */
+  waitForSelectorTimeout?: number;
+};
+```
+
+#### Run your crawler
+
+```sh
+bun start
+```
 
 <br>
 <br>

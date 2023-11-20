@@ -2,22 +2,30 @@
   "name": "@builder.io/gpt-crawler",
   "version": "0.0.1",
   "type": "module",
+  "bin": {
+    "gpt-crawler": "./dist/src/cli.js"
+  },
   "description": "Crawl a site to generate knowledge files to create your own custom GPT",
   "dependencies": {
+    "commander": "^11.1.0",
     "crawlee": "^3.0.0",
     "glob": "^10.3.10",
+    "inquirer": "^9.2.12",
     "playwright": "*"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.0.0",
     "ts-node": "^10.8.0",
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "start": "npm run start:dev",
-    "start:prod": "node dist/main.js",
-    "start:dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only src/main.ts",
+    "preinstall": "bunx playwright install",
+    "start": "bun run start:dev",
+    "start:cli": "NODE_ENV=development bun run build && node dist/src/cli.js",
+    "start:prod": "node dist/src/main.js",
+    "start:dev": "bun run build && node --no-warnings=ExperimentalWarning dist/src/main.js",
     "build": "tsc"
   },
   "author": "It's not you it's me",

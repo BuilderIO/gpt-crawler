@@ -8,7 +8,7 @@ FROM apify/actor-node-playwright-chrome:18 AS builder
 COPY --chown=myuser package*.json ./
 
 # Install all dependencies. Don't audit to speed up the installation.
-RUN npm install --include=dev --audit=false
+RUN bun install --include=dev --audit=false
 
 # Next, copy the source files using the user set
 # in the base image.
@@ -16,7 +16,7 @@ COPY --chown=myuser . ./
 
 # Install all dependencies and build the project.
 # Don't audit to speed up the installation.
-RUN npm run build
+RUN bun run build
 
 # Create final image
 FROM apify/actor-node-playwright-chrome:18
@@ -31,14 +31,14 @@ COPY --chown=myuser package*.json ./
 # Install NPM packages, skip optional and development dependencies to
 # keep the image small. Avoid logging too much and print the dependency
 # tree for debugging
-RUN npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
+RUN bun --quiet set progress=false \
+    && bun install --omit=dev --omit=optional \
     && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
+    && (bun list --omit=dev --all || true) \
     && echo "Node.js version:" \
     && node --version \
     && echo "NPM version:" \
-    && npm --version
+    && bun --version
 
 # Next, copy the remaining files and directories with the source code.
 # Since we do this after NPM install, quick build will be really fast
@@ -48,4 +48,4 @@ COPY --chown=myuser . ./
 
 # Run the image. If you know you won't need headful browsers,
 # you can remove the XVFB start script for a micro perf gain.
-CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent
+CMD ./start_xvfb_and_run_cmd.sh && bun run start:prod --silent

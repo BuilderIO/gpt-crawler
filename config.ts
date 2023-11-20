@@ -1,5 +1,6 @@
 import { Page } from "playwright";
-type Config = {
+
+export type Config = {
   /** URL to start the crawl */
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
@@ -19,12 +20,4 @@ type Config = {
   }) => Promise<void>;
   /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout?: number;
-};
-
-export const config: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
-  maxPagesToCrawl: 50,
-  outputFileName: "output.json",
 };
