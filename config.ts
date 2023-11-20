@@ -1,5 +1,4 @@
 import { Page } from "playwright";
-console.log("Hello");
 type Config = {
   /** URL to start the crawl */
   url: string;
