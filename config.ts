@@ -19,6 +19,8 @@ type Config = {
   }) => Promise<void>;
   /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout?: number;
+  /** Directories to exclude from crawling */
+  exclude: string[];
 };
 
 export const config: Config = {
@@ -27,4 +29,5 @@ export const config: Config = {
   selector: `.docs-builder-container`,
   maxPagesToCrawl: 50,
   outputFileName: "output.json",
+  exclude: [],
 };
