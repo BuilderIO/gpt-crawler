@@ -4,6 +4,8 @@ type Config = {
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
   match: string;
+  /** Optional REGEX to match URLs against for to NOT crawl */
+  exclude?: string;
   /** Selector to grab the inner text from */
   selector: string;
   /** Don't crawl more than this many pages */
@@ -24,6 +26,7 @@ type Config = {
 export const config: Config = {
   url: "https://www.builder.io/c/docs/developers",
   match: "https://www.builder.io/c/docs/**",
+  exclude: "integrate",
   selector: `.docs-builder-container`,
   maxPagesToCrawl: 50,
   outputFileName: "output.json",
