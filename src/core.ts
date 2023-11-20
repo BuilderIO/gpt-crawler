@@ -2,7 +2,7 @@
 import { PlaywrightCrawler } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import { Config } from "../config";
+import { Config } from "./config";
 import { Page } from "playwright";
 
 let pageCounter = 0; 

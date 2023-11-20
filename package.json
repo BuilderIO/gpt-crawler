@@ -23,9 +23,8 @@
   "scripts": {
     "preinstall": "bunx playwright install",
     "start": "bun run start:dev",
-    "start:cli": "NODE_ENV=development bun run build && node dist/src/cli.js",
-    "start:prod": "node dist/src/main.js",
-    "start:dev": "bun run build && node --no-warnings=ExperimentalWarning dist/src/main.js",
+    "start:dev": "NODE_ENV=development bun run build && node dist/cli.js",
+    "start:prod": "node dist/main.js",
     "build": "tsc"
   },
   "author": "It's not you it's me",

@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "lib": ["DOM"]
   },
-  "include": ["./src/**/*", "./config.ts"]
+  "include": ["./src/**/*", "src/config.ts"]
 }
