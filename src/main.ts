@@ -51,7 +51,7 @@ if (process.env.NO_CRAWL !== "true") {
       // Extract links from the current page
       // and add them to the crawling queue.
       await enqueueLinks({
-        globs: [config.match],
+        globs: typeof config.match === "string" ? [config.match] : config.match,
       });
     },
     // Comment this option to scrape the full website.

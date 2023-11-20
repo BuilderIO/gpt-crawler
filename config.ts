@@ -3,7 +3,7 @@ type Config = {
   /** URL to start the crawl */
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
+  match: string | string[];
   /** Selector to grab the inner text from */
   selector: string;
   /** Don't crawl more than this many pages */
