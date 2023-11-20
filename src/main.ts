@@ -5,6 +5,8 @@ import { glob } from "glob";
 import { config } from "../config.js";
 import { Page } from "playwright";
 
+let pageCounter = 0; 
+
 export function getPageHtml(page: Page) {
   return page.evaluate((selector) => {
     const el = document.querySelector(selector) as HTMLElement | null;
@@ -30,8 +32,9 @@ if (process.env.NO_CRAWL !== "true") {
       }
 
       const title = await page.title();
-      log.info(`Crawling ${request.loadedUrl}...`);
-
+      pageCounter++;
+      log.info(`Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`);
+      
       await page.waitForSelector(config.selector, {
         timeout: config.waitForSelectorTimeout ?? 1000,
       });
