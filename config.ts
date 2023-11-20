@@ -1,5 +1,4 @@
 import { Page } from "playwright";
-
 type Config = {
   /** URL to start the crawl */
   url: string;
@@ -12,13 +11,13 @@ type Config = {
   /** File name for the finished data */
   outputFileName: string;
   /** Optional cookie to be set. E.g. for Cookie Consent */
-  cookie?: {name: string; value: string}
+  cookie?: { name: string; value: string };
   /** Optional function to run for each page found */
   onVisitPage?: (options: {
     page: Page;
     pushData: (data: any) => Promise<void>;
   }) => Promise<void>;
-    /** Optional timeout for waiting for a selector to appear */
+  /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout?: number;
 };
 
