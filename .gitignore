@@ -6,3 +6,6 @@ node_modules
 apify_storage
 crawlee_storage
 storage
+
+# any output from the crawler
+.json
