@@ -8,4 +8,4 @@ crawlee_storage
 storage
 
 # any output from the crawler
-.json
+*.json
