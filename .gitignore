@@ -1,6 +1,7 @@
 # This file tells Git which files shouldn't be added to source control
 
 .idea
+.DS_Store
 dist
 node_modules
 apify_storage
