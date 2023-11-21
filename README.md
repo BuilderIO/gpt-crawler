@@ -108,22 +108,12 @@ To obtain the `output.json` with a containerized execution. Go into the `contain
 
 <!-- TODO: Needs to be actually published -->
 
-```sh
-npm i -g @builder.io/gpt-crawler
-```
-
-Then run:
-
-```sh
-gpt-crawler --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
-```
-
 ##### Development
 
 To run the CLI locally while developing it:
   
 ```sh
-npm run start:cli
+npm run start:cli --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
 ```
 
 ### Upload your data to OpenAI
