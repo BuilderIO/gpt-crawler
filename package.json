@@ -28,6 +28,7 @@
     "start:dev": "NODE_ENV=development npm run build && node dist/src/main.js",
     "start:prod": "node dist/main.js",
     "prettier:check": "prettier --check .",
+    "prettier:format": "prettier --write .",
     "build": "tsc"
   },
   "author": "It's not you it's me",
