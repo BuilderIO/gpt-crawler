@@ -2,12 +2,12 @@
 import { PlaywrightCrawler } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import { Config } from "../config.js";
+import { Config } from "./config.js";
 import { Page } from "playwright";
 
 let pageCounter = 0;
 
-export function getPageHtml(page: Page, selector: string) {
+export function getPageHtml(page: Page, selector = "body") {
   return page.evaluate((selector) => {
     // Check if the selector is an XPath
     if (selector.startsWith("/")) {
@@ -16,7 +16,7 @@ export function getPageHtml(page: Page, selector: string) {
         document,
         null,
         XPathResult.ANY_TYPE,
-        null,
+        null
       );
       let result = elements.iterateNext();
       return result ? result.textContent || "" : "";
@@ -36,12 +36,12 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
         document,
         null,
         XPathResult.ANY_TYPE,
-        null,
+        null
       );
       return elements.iterateNext() !== null;
     },
     xpath,
-    { timeout },
+    { timeout }
   );
 }
 
@@ -65,20 +65,22 @@ export async function crawl(config: Config) {
         const title = await page.title();
         pageCounter++;
         log.info(
-          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`
         );
 
         // Use custom handling for XPath selector
-        if (config.selector.startsWith("/")) {
-          await waitForXPath(
-            page,
-            config.selector,
-            config.waitForSelectorTimeout ?? 1000,
-          );
-        } else {
-          await page.waitForSelector(config.selector, {
-            timeout: config.waitForSelectorTimeout ?? 1000,
-          });
+        if (config.selector) {
+          if (config.selector.startsWith("/")) {
+            await waitForXPath(
+              page,
+              config.selector,
+              config.waitForSelectorTimeout ?? 1000
+            );
+          } else {
+            await page.waitForSelector(config.selector, {
+              timeout: config.waitForSelectorTimeout ?? 1000,
+            });
+          }
         }
 
         const html = await getPageHtml(page, config.selector);

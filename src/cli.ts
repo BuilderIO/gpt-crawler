@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from "commander";
-import { Config } from "../config.js";
+import { Config } from "./config.js";
 import { crawl, write } from "./core.js";
 import { createRequire } from "node:module";
 import inquirer from "inquirer";
