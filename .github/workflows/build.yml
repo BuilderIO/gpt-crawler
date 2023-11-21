@@ -20,4 +20,4 @@ jobs:
       - run: npm run build
       - uses: preactjs/compressed-size-action@v2
         with:
-          pattern: ".dist/**/*.{js,ts,json}"
+          pattern: '.dist/**/*.{js,ts,json}'
