@@ -7,11 +7,26 @@ import { Page } from "playwright";
 
 let pageCounter = 0; 
 
-export function getPageHtml(page: Page) {
+export function getPageHtml(page: Page, selector: string) {
   return page.evaluate((selector) => {
-    const el = document.querySelector(selector) as HTMLElement | null;
-    return el?.innerText || "";
-  }, config.selector);
+    // Check if the selector is an XPath
+    if (selector.startsWith('/')) {
+      const elements = document.evaluate(selector, document, null, XPathResult.ANY_TYPE, null);
+      let result = elements.iterateNext();
+      return result ? result.textContent || "" : "";
+    } else {
+      // Handle as a CSS selector
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.innerText || "";
+    }
+  }, selector);
+}
+
+export async function waitForXPath(page: Page, xpath: string, timeout: number) {
+  await page.waitForFunction(xpath => {
+    const elements = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+    return elements.iterateNext() !== null;
+  }, xpath, { timeout });
 }
 
 if (process.env.NO_CRAWL !== "true") {
@@ -35,11 +50,16 @@ if (process.env.NO_CRAWL !== "true") {
       pageCounter++;
       log.info(`Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`);
       
-      await page.waitForSelector(config.selector, {
-        timeout: config.waitForSelectorTimeout ?? 1000,
-      });
+      // Use custom handling for XPath selector
+      if (config.selector.startsWith('/')) {
+        await waitForXPath(page, config.selector, config.waitForSelectorTimeout ?? 1000);
+      } else {
+        await page.waitForSelector(config.selector, {
+          timeout: config.waitForSelectorTimeout ?? 1000,
+        });
+      }
 
-      const html = await getPageHtml(page);
+      const html = await getPageHtml(page, config.selector);
 
       // Save results as JSON to ./storage/datasets/default
       await pushData({ title, url: request.loadedUrl, html });
