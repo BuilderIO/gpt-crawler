@@ -65,8 +65,7 @@ async function handler(options: Config) {
         });
       }
 
-      const answers = await inquirer
-        .prompt(questions);
+      const answers = await inquirer.prompt(questions);
 
       config = {
         ...config,
@@ -81,9 +80,7 @@ async function handler(options: Config) {
   }
 }
 
-program
-  .version(version)
-  .description(description);
+program.version(version).description(description);
 
 program
   .option("-u, --url <string>", messages.url, "")

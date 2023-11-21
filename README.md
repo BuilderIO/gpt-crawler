@@ -1,5 +1,3 @@
-<!-- Markdown written with https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one -->
-
 # GPT Crawler <!-- omit from toc -->
 
 Crawl a site to generate knowledge files to create your own custom GPT from one or multiple URLs
@@ -66,7 +64,7 @@ export const defaultConfig: Config = {
 };
 ```
 
-See the top of the file for the type definition for what you can configure:
+See [config.ts](src/config.ts) for all available options. Here is a sample of the common configu options:
 
 ```ts
 type Config = {
@@ -80,15 +78,6 @@ type Config = {
   maxPagesToCrawl: number;
   /** File name for the finished data */
   outputFileName: string;
-  /** Optional cookie to be set. E.g. for Cookie Consent */
-  cookie?: { name: string; value: string };
-  /** Optional function to run for each page found */
-  onVisitPage?: (options: {
-    page: Page;
-    pushData: (data: any) => Promise<void>;
-  }) => Promise<void>;
-  /** Optional timeout for waiting for a selector to appear */
-  waitForSelectorTimeout?: number;
 };
 ```
 
@@ -103,18 +92,6 @@ npm start
 #### [Running in a container with Docker](./containerapp/README.md)
 
 To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
-
-#### Running as a CLI
-
-<!-- TODO: Needs to be actually published -->
-
-##### Development
-
-To run the CLI locally while developing it:
-  
-```sh
-npm run start:cli --url https://www.builder.io/c/docs/developers --match https://www.builder.io/c/docs/** --selector .docs-builder-container --maxPagesToCrawl 50 --outputFileName output.json
-```
 
 ### Upload your data to OpenAI
 

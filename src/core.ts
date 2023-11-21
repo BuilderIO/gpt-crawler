@@ -5,13 +5,19 @@ import { glob } from "glob";
 import { Config } from "../config.js";
 import { Page } from "playwright";
 
-let pageCounter = 0; 
+let pageCounter = 0;
 
 export function getPageHtml(page: Page, selector: string) {
   return page.evaluate((selector) => {
     // Check if the selector is an XPath
-    if (selector.startsWith('/')) {
-      const elements = document.evaluate(selector, document, null, XPathResult.ANY_TYPE, null);
+    if (selector.startsWith("/")) {
+      const elements = document.evaluate(
+        selector,
+        document,
+        null,
+        XPathResult.ANY_TYPE,
+        null,
+      );
       let result = elements.iterateNext();
       return result ? result.textContent || "" : "";
     } else {
@@ -23,10 +29,20 @@ export function getPageHtml(page: Page, selector: string) {
 }
 
 export async function waitForXPath(page: Page, xpath: string, timeout: number) {
-  await page.waitForFunction(xpath => {
-    const elements = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
-    return elements.iterateNext() !== null;
-  }, xpath, { timeout });
+  await page.waitForFunction(
+    (xpath) => {
+      const elements = document.evaluate(
+        xpath,
+        document,
+        null,
+        XPathResult.ANY_TYPE,
+        null,
+      );
+      return elements.iterateNext() !== null;
+    },
+    xpath,
+    { timeout },
+  );
 }
 
 export async function crawl(config: Config) {
@@ -41,37 +57,44 @@ export async function crawl(config: Config) {
           const cookie = {
             name: config.cookie.name,
             value: config.cookie.value,
-            url: request.loadedUrl, 
+            url: request.loadedUrl,
           };
           await page.context().addCookies([cookie]);
         }
-  
+
         const title = await page.title();
         pageCounter++;
-        log.info(`Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`);
-        
+        log.info(
+          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+        );
+
         // Use custom handling for XPath selector
-        if (config.selector.startsWith('/')) {
-          await waitForXPath(page, config.selector, config.waitForSelectorTimeout ?? 1000);
+        if (config.selector.startsWith("/")) {
+          await waitForXPath(
+            page,
+            config.selector,
+            config.waitForSelectorTimeout ?? 1000,
+          );
         } else {
           await page.waitForSelector(config.selector, {
             timeout: config.waitForSelectorTimeout ?? 1000,
           });
         }
-  
+
         const html = await getPageHtml(page, config.selector);
-  
+
         // Save results as JSON to ./storage/datasets/default
         await pushData({ title, url: request.loadedUrl, html });
-  
+
         if (config.onVisitPage) {
           await config.onVisitPage({ page, pushData });
         }
-  
+
         // Extract links from the current page
         // and add them to the crawling queue.
         await enqueueLinks({
-          globs: typeof config.match === "string" ? [config.match] : config.match,
+          globs:
+            typeof config.match === "string" ? [config.match] : config.match,
         });
       },
       // Comment this option to scrape the full website.
@@ -79,22 +102,22 @@ export async function crawl(config: Config) {
       // Uncomment this option to see the browser window.
       // headless: false,
     });
-  
+
     // Add first URL to the queue and start the crawl.
     await crawler.run([config.url]);
-  }  
+  }
 }
 
 export async function write(config: Config) {
   const jsonFiles = await glob("storage/datasets/default/*.json", {
     absolute: true,
   });
-  
+
   const results = [];
   for (const file of jsonFiles) {
     const data = JSON.parse(await readFile(file, "utf-8"));
     results.push(data);
   }
-  
+
   await writeFile(config.outputFileName, JSON.stringify(results, null, 2));
 }
