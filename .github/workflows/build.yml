@@ -18,6 +18,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Run prettier
-        run: prettier --check
+        run: npm run prettier:check
       - name: Build
         run: npm run build
