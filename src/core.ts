@@ -2,7 +2,7 @@
 import { PlaywrightCrawler } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import { Config } from "./config.js";
+import {Config, configSchema} from "./config.js";
 import { Page } from "playwright";
 
 let pageCounter = 0;
@@ -46,6 +46,8 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
 }
 
 export async function crawl(config: Config) {
+  configSchema.parse(config);
+
   if (process.env.NO_CRAWL !== "true") {
     // PlaywrightCrawler crawls the web using a headless
     // browser controlled by the Playwright library.
@@ -111,6 +113,8 @@ export async function crawl(config: Config) {
 }
 
 export async function write(config: Config) {
+  configSchema.parse(config);
+
   const jsonFiles = await glob("storage/datasets/default/*.json", {
     absolute: true,
   });
