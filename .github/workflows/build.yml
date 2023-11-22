@@ -16,6 +16,8 @@ jobs:
         with:
           cache: npm
           node-version: 18
+      - run: npm i
+      - run: npm run build
       - uses: preactjs/compressed-size-action@v2
         with:
           pattern: ".dist/**/*.{js,ts,json}"
