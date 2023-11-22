@@ -1,41 +1,57 @@
+import { z } from 'zod';
+
 import type { Page } from "playwright";
 
-export type Config = {
+const Page: z.ZodType<Page> = z.any();
+
+export const configSchema = z.object({
   /**
    * URL to start the crawl
    * @example "https://www.builder.io/c/docs/developers"
    * @default ""
    */
-  url: string;
+  url: z.string(),
   /**
    * Pattern to match against for links on a page to subsequently crawl
    * @example "https://www.builder.io/c/docs/**"
    * @default ""
    */
-  match: string | string[];
+  match: z.string().or(z.array(z.string())),
+
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
    * @default ""
    */
-  selector?: string;
+  selector: z.string().optional(),
   /**
    * Don't crawl more than this many pages
    * @default 50
    */
-  maxPagesToCrawl: number;
+  maxPagesToCrawl: z.number().int().positive(),
   /**
    * File name for the finished data
    * @default "output.json"
    */
-  outputFileName: string;
+  outputFileName: z.string(),
   /** Optional cookie to be set. E.g. for Cookie Consent */
-  cookie?: { name: string; value: string };
+  cookie: z.object({
+    name: z.string(),
+    value: z.string(),
+  }).optional(),
   /** Optional function to run for each page found */
-  onVisitPage?: (options: {
-    page: Page;
-    pushData: (data: any) => Promise<void>;
-  }) => Promise<void>;
+  onVisitPage: z.function()
+      .args(z.object({
+        page: Page,
+        pushData: z.function()
+            .args(z.any())
+            .returns(z.promise(z.void()))
+      }))
+      .returns(z.promise(z.void()))
+      .optional(),
   /** Optional timeout for waiting for a selector to appear */
-  waitForSelectorTimeout?: number;
-};
+  waitForSelectorTimeout: z.number().int().nonnegative().optional(),
+});
+
+export type Config = z.infer<typeof configSchema>;
+
