@@ -4,6 +4,9 @@ import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import {Config, configSchema} from "./config.js";
 import { Page } from "playwright";
+import {
+  isWithinTokenLimit,
+} from 'gpt-tokenizer'
 
 let pageCounter = 0;
 
@@ -113,17 +116,62 @@ export async function crawl(config: Config) {
 }
 
 export async function write(config: Config) {
-  configSchema.parse(config);
-
   const jsonFiles = await glob("storage/datasets/default/*.json", {
     absolute: true,
   });
 
-  const results = [];
-  for (const file of jsonFiles) {
-    const data = JSON.parse(await readFile(file, "utf-8"));
-    results.push(data);
-  }
+  console.log(`Found ${jsonFiles.length} files to combine...`);
 
-  await writeFile(config.outputFileName, JSON.stringify(results, null, 2));
+  let currentResults: any[] = [];
+  let currentSize = 0;
+  let fileCounter = 1;
+  const maxBytes = config.maxFileSize ? config.maxFileSize * 1024 * 1024 : null; // Convert maxFileSize from MB to bytes
+
+  // Helper function to get byte size of string
+  const getStringByteSize = (str: string) => Buffer.byteLength(str, 'utf-8');
+
+  // Write the accumulated data to a file and reset the current batch
+  const writeToFile = async () => {
+    const fileName = `${config.outputFileName.replace(/\.json$/, '')}-${fileCounter}.json`;
+    await writeFile(fileName, JSON.stringify(currentResults, null, 2));
+    console.log(`Wrote ${currentResults.length} items to ${fileName}`);
+    fileCounter++;
+    currentResults = []; // Start a new batch
+    currentSize = 0; // Reset the size counter
+  };
+
+  for (const file of jsonFiles) {
+    const fileContent = await readFile(file, 'utf-8');
+    const data = JSON.parse(fileContent);
+    const dataSize = getStringByteSize(fileContent);
+    let resultWritten = false;
+
+    // Check if data exceeds file size limit (if present)
+    if (maxBytes && currentSize + dataSize > maxBytes) {
+      await writeToFile();
+      resultWritten = true;
+    }
+
+    // Check if data exceeds token limit (if present)
+    if (config.maxTokens && !isWithinTokenLimit(JSON.stringify(data), config.maxTokens)) {
+      if (!resultWritten) { // Write only if not already written
+        await writeToFile();
+      }
+      continue; // Skip adding this object to the batch
+    }
+
+    // Add data to current batch
+    currentResults.push(data);
+    currentSize += dataSize;
+
+    // Write to file if batch is over size limit (File size check to delegate larger final batch size check)
+    if (maxBytes && currentSize > maxBytes) {
+      await writeToFile();
+    }
+  }
+  
+  // Write any remaining data in the current batch to the final file
+  if (currentResults.length > 0) {
+    await writeToFile();
+  }
 }
