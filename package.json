@@ -13,7 +13,8 @@
     "glob": "^10.3.10",
     "inquirer": "^9.2.12",
     "playwright": "*",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
