@@ -11,6 +11,7 @@
     "crawlee": "^3.0.0",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
+    "gpt-tokenizer": "^2.1.2",
     "inquirer": "^9.2.12",
     "playwright": "*",
     "prettier": "^3.1.0",
