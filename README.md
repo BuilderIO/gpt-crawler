@@ -78,6 +78,10 @@ type Config = {
   maxPagesToCrawl: number;
   /** File name for the finished data */
   outputFileName: string;
+  /** Optional maximum file size in bytes to include in the output file */
+  maxFileSize?: number().,
+  /** Optional maximum number tokens to include in the output file */
+  maxTokens?: number().,
 };
 ```
 

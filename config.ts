@@ -5,4 +5,6 @@ export const defaultConfig: Config = {
   match: "https://www.builder.io/c/docs/**",
   maxPagesToCrawl: 50,
   outputFileName: "output.json",
+  maxFileSize: 1000,
+  maxTokens: 5000
 };

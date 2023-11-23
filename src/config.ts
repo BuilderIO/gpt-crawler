@@ -51,6 +51,16 @@ export const configSchema = z.object({
       .optional(),
   /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout: z.number().int().nonnegative().optional(),
+
+
+  /** Optional maximum file size in bytes to include in the output file 
+   * @example 1000
+  */
+  maxFileSize: z.number().int().positive().optional(),
+  /** Optional maximum number tokens to include in the output file 
+   * @example 5000
+  */
+  maxTokens: z.number().int().positive().optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
