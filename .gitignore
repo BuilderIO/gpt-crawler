@@ -6,6 +6,9 @@ node_modules
 apify_storage
 crawlee_storage
 storage
+.DS_Store
+
+!package.json
 
 # any output from the crawler
 *.json

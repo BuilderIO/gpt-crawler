@@ -7,7 +7,8 @@
     "resolveJsonModule": true,
     "noUnusedLocals": false,
     "skipLibCheck": true,
-    "lib": ["DOM"]
+    "lib": ["DOM"],
+    "strict": true,
   },
   "include": ["./src/**/*", "config.ts"]
 }
