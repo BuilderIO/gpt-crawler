@@ -115,63 +115,64 @@ export async function crawl(config: Config) {
   }
 }
 
-export async function write(config: Config) {
-  const jsonFiles = await glob("storage/datasets/default/*.json", {
-    absolute: true,
-  });
+export async function write(config: Config)  {
+  const jsonFiles = await glob("storage/datasets/default/*.json", { absolute: true });
 
   console.log(`Found ${jsonFiles.length} files to combine...`);
 
-  let currentResults: any[] = [];
-  let currentSize = 0;
-  let fileCounter = 1;
-  const maxBytes = config.maxFileSize ? config.maxFileSize * 1024 * 1024 : null; // Convert maxFileSize from MB to bytes
-
-  // Helper function to get byte size of string
-  const getStringByteSize = (str: string) => Buffer.byteLength(str, 'utf-8');
-
-  // Write the accumulated data to a file and reset the current batch
-  const writeToFile = async () => {
-    const fileName = `${config.outputFileName.replace(/\.json$/, '')}-${fileCounter}.json`;
-    await writeFile(fileName, JSON.stringify(currentResults, null, 2));
-    console.log(`Wrote ${currentResults.length} items to ${fileName}`);
+  let currentResults: Record<string, any>[] = [];
+  let currentSize: number = 0;
+  let fileCounter: number = 1;
+  const maxBytes: number = config.maxFileSize ? config.maxFileSize * 1024 * 1024 : Infinity;
+  
+  const getStringByteSize = (str: string): number => Buffer.byteLength(str, 'utf-8');
+  
+  const nextFileName = (): string => `${config.outputFileName.replace(/\.json$/, '')}-${fileCounter}.json`;
+  
+  const writeBatchToFile = async (): Promise<void> => {
+    await writeFile(nextFileName(), JSON.stringify(currentResults, null, 2));
+    console.log(`Wrote ${currentResults.length} items to ${nextFileName()}`);
+    currentResults = [];
+    currentSize = 0;
     fileCounter++;
-    currentResults = []; // Start a new batch
-    currentSize = 0; // Reset the size counter
+  };
+  
+  let estimatedTokens: number = 0;
+
+  const addContentOrSplit = async (data: Record<string, any>): Promise<void> => {
+    const contentString: string = JSON.stringify(data);
+    const tokenCount: number | false = isWithinTokenLimit(contentString, config.maxTokens || Infinity);
+
+    if (typeof tokenCount === 'number') {
+      if (estimatedTokens + tokenCount > config.maxTokens!) {
+        // Only write the batch if it's not empty (something to write)
+        if (currentResults.length > 0) {
+          await writeBatchToFile();
+        }
+        // Since the addition of a single item exceeded the token limit, halve it.
+        estimatedTokens = Math.floor(tokenCount / 2);
+        currentResults.push(data);
+      } else {
+        currentResults.push(data);
+        estimatedTokens += tokenCount;
+      }
+    }
+
+    currentSize += getStringByteSize(contentString);
+    if (currentSize > maxBytes) {
+      await writeBatchToFile();
+    }
   };
 
+  // Iterate over each JSON file and process its contents.
   for (const file of jsonFiles) {
     const fileContent = await readFile(file, 'utf-8');
-    const data = JSON.parse(fileContent);
-    const dataSize = getStringByteSize(fileContent);
-    let resultWritten = false;
-
-    // Check if data exceeds file size limit (if present)
-    if (maxBytes && currentSize + dataSize > maxBytes) {
-      await writeToFile();
-      resultWritten = true;
-    }
-
-    // Check if data exceeds token limit (if present)
-    if (config.maxTokens && !isWithinTokenLimit(JSON.stringify(data), config.maxTokens)) {
-      if (!resultWritten) { // Write only if not already written
-        await writeToFile();
-      }
-      continue; // Skip adding this object to the batch
-    }
-
-    // Add data to current batch
-    currentResults.push(data);
-    currentSize += dataSize;
-
-    // Write to file if batch is over size limit (File size check to delegate larger final batch size check)
-    if (maxBytes && currentSize > maxBytes) {
-      await writeToFile();
-    }
+    const data: Record<string, any> = JSON.parse(fileContent);
+    await addContentOrSplit(data);
   }
-  
-  // Write any remaining data in the current batch to the final file
+
+  // Check if any remaining data needs to be written to a file.
   if (currentResults.length > 0) {
-    await writeToFile();
+    await writeBatchToFile();
   }
-}
+};
