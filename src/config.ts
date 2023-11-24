@@ -53,8 +53,8 @@ export const configSchema = z.object({
   waitForSelectorTimeout: z.number().int().nonnegative().optional(),
 
 
-  /** Optional maximum file size in bytes to include in the output file 
-   * @example 1000
+  /** Optional maximum file size in megabytes to include in the output file
+   * @example 1
   */
   maxFileSize: z.number().int().positive().optional(),
   /** Optional maximum number tokens to include in the output file 
