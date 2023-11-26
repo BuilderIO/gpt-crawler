@@ -9,6 +9,8 @@ storage
 .DS_Store
 
 !package.json
+!package-lock.json
+!tsconfig.json
 
 # any output from the crawler
 *.json
