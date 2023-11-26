@@ -14,4 +14,10 @@ storage
 
 # any output from the crawler
 *.json
+
 pnpm-lock.yaml
+
+# Python 
+__pycache__
+venv/
+.venv/
