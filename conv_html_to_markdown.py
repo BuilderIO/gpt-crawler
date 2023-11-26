@@ -201,7 +201,7 @@ def main():
     """
     logging.basicConfig(level=logging.INFO)
     try:
-        original_data = load_json("transformers_documentation-gpt-crawler_output.json")
+        original_data = load_json("output.json")
         chunk_size = 200  # Adjust chunk size as needed
         max_threads = 10  # Adjust the maximum number of threads as needed
 
@@ -215,7 +215,7 @@ def main():
                 formatted_contents.append(result)
 
         save_output_in_chunks(
-            "transformers_documentation-gpt-crawler-curated_markdown.md",
+            "gpt-crawler-curated_markdown.md",
             formatted_contents,
         )
         logging.info("Content formatted and saved in chunks successfully.")
