@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/gpt-crawler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "bin": {
     "gpt-crawler": "./dist/src/cli.js"
