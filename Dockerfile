@@ -41,9 +41,12 @@ RUN npm --quiet set progress=false \
     && npm --version
 
 # Install Python and required dependencies for the Python module
+# Switch user to ROOT for installation
+USER root
 RUN apt-get update \
-    && apt-get install -y python3 python3-pip \
-    && pip3 install beautifulsoup4 markdownify
+    && apt-get install -y python3 python3-pip
+USER myuser
+RUN pip3 install beautifulsoup4 markdownify
 
 # Copy the Python script
 COPY --chown=myuser conv_html_to_markdown.py ./
