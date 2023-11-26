@@ -21,10 +21,10 @@ jobs:
           node-version: 18
       - run: npm i
       - run: npm run build
+      - run: npm run test
       - uses: preactjs/compressed-size-action@v2
         with:
           pattern: ".dist/**/*.{js,ts,json}"
-      - run: npm run test
   build-docker:
     name: Build Docker image
     runs-on: ubuntu-latest
