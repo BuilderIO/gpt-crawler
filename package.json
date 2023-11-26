@@ -12,8 +12,7 @@
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
     "inquirer": "^9.2.12",
-    "playwright": "*",
-    "prettier": "^3.1.0"
+    "playwright": "*"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
