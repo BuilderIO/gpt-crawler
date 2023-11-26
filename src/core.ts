@@ -1,5 +1,5 @@
 // For more information, see https://crawlee.dev/
-import { PlaywrightCrawler } from "crawlee";
+import { PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import {Config, configSchema} from "./config.js";
@@ -45,7 +45,7 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
   );
 }
 
-export async function crawl(config: Config) {
+export async function crawl(config: Config) { 
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
@@ -105,10 +105,35 @@ export async function crawl(config: Config) {
       maxRequestsPerCrawl: config.maxPagesToCrawl,
       // Uncomment this option to see the browser window.
       // headless: false,
+      preNavigationHooks: [
+        // Abort requests for certain resource types
+        async ({ page, log }) => {
+          // If there are no resource exclusions, return
+          const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
+          if (RESOURCE_EXCLUSTIONS.length === 0) {
+            return;
+          }
+          await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, route => route.abort('aborted'));
+          log.info(`Aborting requests for as this is a resource excluded route`);
+        }
+      ],
     });
 
-    // Add first URL to the queue and start the crawl.
-    await crawler.run([config.url]);
+    const SITEMAP_SUFFIX = "sitemap.xml";
+    const isUrlASitemap = config.url.endsWith(SITEMAP_SUFFIX);
+  
+    if (isUrlASitemap) {
+      const listOfUrls = await downloadListOfUrls({ url: config.url });
+  
+      // Add the initial URL to the crawling queue.
+      await crawler.addRequests(listOfUrls);
+  
+      // Run the crawler
+      await crawler.run();
+    } else {
+      // Add first URL to the queue and start the crawl.
+      await crawler.run([config.url]);
+    }
   }
 }
 
