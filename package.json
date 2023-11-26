@@ -28,7 +28,7 @@
     "start": "npm run start:dev",
     "start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
     "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
-    "start:prod": "node dist/main.js",
+    "start:prod": "node dist/src/main.js",
     "build": "tsc",
     "fmt": "prettier --write ."
   },
