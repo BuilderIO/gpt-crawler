@@ -4,9 +4,11 @@ formatting a dataset of HTML content into structured Markdown.
 """
 import json
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
+from sentence_transformers import SentenceTransformer, util
 
 
 class HTMLToMarkdownConverter:
@@ -30,7 +32,31 @@ class HTMLToMarkdownConverter:
         """Initialize converter with configuration options."""
         self.strip_tags = strip_tags or ["script", "style", "meta"]
         self.convert_links = convert_links
+        self.model = SentenceTransformer('jinaai/jina-embeddings-v2-small-en')
+        
+    def remove_excess_data(self, markdown_content):
+        lines = markdown_content.split("\n")
+        embeddings = self.model.encode(lines, convert_to_tensor=True)
 
+        cleaned_lines = []
+        for i in range(len(lines)):
+            if i > 0 and self.is_redundant_line(lines[i], embeddings[i], lines[i-1], embeddings[i-1]):
+                continue
+            cleaned_lines.append(lines[i])
+        return "\n".join(cleaned_lines)
+
+    def is_redundant_line(self, line, line_embedding, prev_line, prev_embedding):
+        # Custom logic for specific unhelpful patterns
+        if self.is_version_list(line):
+            return True
+
+        similarity = util.pytorch_cos_sim(line_embedding, prev_embedding)
+        threshold = 0.4  # Adjust as needed
+        return similarity.item() > threshold
+
+    def is_version_list(self, line):
+        return bool(re.match(r'v\d+\.\d+\.\d+', line))
+    
     def convert(self, html_content):
         """Convert HTML content to Markdown."""
         try:
