@@ -12,3 +12,8 @@ storage
 
 # any output from the crawler
 *.json
+
+# Python 
+__pycache__
+venv/
+.venv/

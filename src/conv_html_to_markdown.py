@@ -14,32 +14,35 @@ class HTMLToMarkdownConverter:
     A converter class that transforms HTML content to Markdown format.
 
     Attributes:
-        strip_tags (list): A list of HTML tags to be stripped during conversion.
-        convert_links (bool): A flag to determine whether links should be converted.
+        strip_tags (list): A list of HTML tags to be \
+            stripped during conversion.
+        convert_links (bool): A flag to determine whether \
+            links should be converted.
 
     Methods:
-        convert(html_content): Converts the given HTML content to Markdown.
-        curate_content(html): Curates the HTML content by removing specified elements.
+        convert(html_content): Converts the given \
+            HTML content to Markdown.
+        curate_content(html): Curates the HTML \
+            content by removing specified elements.
     """
 
     def __init__(self, strip_tags=None, convert_links=True):
         """Initialize converter with configuration options."""
-        self.strip_tags = (
-            strip_tags if strip_tags is not None else ["script", "style", "meta"]
-        )
+        self.strip_tags = strip_tags or ["script", "style", "meta"]
         self.convert_links = convert_links
 
     def convert(self, html_content):
         """Convert HTML content to Markdown."""
         try:
             curated_html = self.curate_content(html_content)
-            # Assuming md function is defined elsewhere for Markdown conversion
-            return md(
+            markdown_content = md(
                 curated_html,
                 strip_tags=self.strip_tags,
                 convert_links=self.convert_links,
             )
-            # Exception handling
+            return (
+                markdown_content.strip()
+            )  # Remove leading and trailing whitespace/newlines
         except (TypeError, AttributeError) as e:
             logging.error("HTML parsing error: %s", e)
             raise
@@ -73,12 +76,15 @@ class HTMLToMarkdownConverter:
                 for element in soup.select(selector):
                     element.decompose()
 
-            # Return the curated HTML content
+            # Remove tags specified in self.strip_tags
+            for tag in self.strip_tags:
+                for s in soup(tag):
+                    s.decompose()
             logging.info("Successfully curated HTML content.")
             return str(soup)
 
         except Exception as e:
-            logging.error(f"Error in curating HTML content: {e}")
+            logging.error("Error in curating HTML content: %s", e)
             # Return original HTML in case of error
             return html
 
@@ -88,12 +94,15 @@ class DatasetFormatter:
     A class to format a dataset of HTML entries into structured Markdown.
 
     Attributes:
-        converter (HTMLToMarkdownConverter): An instance of HTMLToMarkdownConverter for HTML to Markdown conversion.
+        converter (HTMLToMarkdownConverter): An instance of \
+            HTMLToMarkdownConverter for HTML to Markdown conversion.
 
     Methods:
         format_entry(entry): Formats a single dataset entry into Markdown.
-        structure_markdown(title, url, content): Structures Markdown content with headers and links.
-        format_dataset(data): Formats an entire dataset of entries into Markdown.
+        structure_markdown(title, url, content): Structures \
+            Markdown content with headers and links.
+        format_dataset(data): Formats an entire dataset \
+            of entries into Markdown.
     """
 
     def __init__(self, converter):
@@ -105,11 +114,11 @@ class DatasetFormatter:
             title = entry.get("title", "Untitled")
             url = entry.get("url", "")
             html_content = entry.get("html", "")
-            logging.info(f"Formatted entry: {title}")
+            logging.info("Formatted entry: %s", title)
             markdown_content = self.converter.convert(html_content)
             return self.structure_markdown(title, url, markdown_content)
         except Exception as e:
-            logging.error(f"Error formatting entry: {e}")
+            logging.error("Error formatting entry: %s", e)
             return ""
 
     def structure_markdown(self, title, url, content):
@@ -117,15 +126,20 @@ class DatasetFormatter:
         structured_content = f"## {title}\n\n"
         if url:
             structured_content += f"[Read More]({url})\n\n"
-        structured_content += content
+        structured_content += (
+            content.strip()
+        )  # Remove leading and trailing whitespace/newlines
         return structured_content
 
     def format_dataset(self, data):
         """Format the entire dataset."""
-        formatted_content = ""
+        formatted_content = []
         for entry in data:
-            formatted_content += self.format_entry(entry)
-        return formatted_content
+            formatted_entry = self.format_entry(entry)
+            formatted_content.append(formatted_entry)
+        return "\n\n".join(
+            formatted_content
+        )  # Ensure proper newline separation between entries
 
 
 def load_json(file_path):
@@ -151,7 +165,7 @@ def save_output_in_chunks(file_path, contents, chunk_size=1024):
         contents (iterable): The content to be written to the file.
         chunk_size (int): The size of each chunk to be written.
     """
-    with open(file_path, "w") as file:
+    with open(file_path, "w", encoding="utf-8") as file:
         for content in contents:
             file.write(content)
             if len(content) > chunk_size:
@@ -169,7 +183,7 @@ def chunk_dataset(data, chunk_size):
     Yields:
         iterable: A chunk of the dataset.
     """
-    logging.info(f"Dividing dataset into chunks of size {chunk_size}.")
+    logging.info("Dividing dataset into chunks of size %s.", chunk_size)
     for i in range(0, len(data), chunk_size):
         yield data[i : i + chunk_size]
 
@@ -219,8 +233,9 @@ def main():
             formatted_contents,
         )
         logging.info("Content formatted and saved in chunks successfully.")
+        logging.info("\nConversion process successful. Exiting program.")
     except Exception as e:
-        logging.error(f"An error occurred in the main function: {e}")
+        logging.error("An error occurred in the main function: %s", e)
 
 
 if __name__ == "__main__":

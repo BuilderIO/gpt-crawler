@@ -49,7 +49,7 @@ USER myuser
 RUN pip3 install beautifulsoup4 markdownify
 
 # Copy the Python script
-COPY --chown=myuser conv_html_to_markdown.py ./
+COPY --chown=myuser src/conv_html_to_markdown.py ./
 
 # Next, copy the remaining files and directories with the source code.
 # Since we do this after NPM install, quick build will be really fast
