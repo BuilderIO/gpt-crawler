@@ -40,14 +40,6 @@ RUN npm --quiet set progress=false \
     && echo "NPM version:" \
     && npm --version
 
-# Install Python and required dependencies for the Python module
-RUN apt-get update \
-    && apt-get install -y python3 python3-pip \
-    && pip3 install beautifulsoup4 markdownify
-
-# Copy the Python script
-COPY --chown=myuser conv_html_to_markdown.py ./
-
 # Next, copy the remaining files and directories with the source code.
 # Since we do this after NPM install, quick build will be really fast
 # for most source file changes.
@@ -55,4 +47,4 @@ COPY --chown=myuser . ./
 
 # Run the image. If you know you won't need headful browsers,
 # you can remove the XVFB start script for a micro perf gain.
-CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent && python3 conv_html_to_markdown.py
+CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent
