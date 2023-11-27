@@ -60,6 +60,7 @@ export const defaultConfig: Config = {
   match: "https://www.builder.io/c/docs/**",
   selector: `.docs-builder-container`,
   maxPagesToCrawl: 50,
+  pagesPerPagination: 10,
   outputFileName: "output.json",
 };
 ```
@@ -76,6 +77,8 @@ type Config = {
   selector: string;
   /** Don't crawl more than this many pages */
   maxPagesToCrawl: number;
+  /** Create output files for every number of pages crawled */
+  pagesPerPagination: number;
   /** File name for the finished data */
   outputFileName: string;
   /** Optional resources to exclude 

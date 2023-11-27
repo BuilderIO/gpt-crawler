@@ -24,17 +24,20 @@ async function handler(options: Config) {
       match,
       selector,
       maxPagesToCrawl: maxPagesToCrawlStr,
+      pagesPerPagination: pagesPerPaginationStr,
       outputFileName,
     } = options;
 
     // @ts-ignore
     const maxPagesToCrawl = parseInt(maxPagesToCrawlStr, 10);
-
+    // @ts-ignore
+    const pagesPerPagination = parseInt(pagesPerPaginationStr, 10);
     let config: Config = {
       url,
       match,
       selector,
       maxPagesToCrawl,
+      pagesPerPagination,
       outputFileName,
     };
 
@@ -87,6 +90,7 @@ program
   .option("-m, --match <string>", messages.match, "")
   .option("-s, --selector <string>", messages.selector, "")
   .option("-m, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
+  .option("-p, --pagesPerPagination <number>", "Number of pages to crawl per pagination", "")
   .option(
     "-o, --outputFileName <string>",
     messages.outputFileName,
@@ -95,3 +99,4 @@ program
   .action(handler);
 
 program.parse();
+

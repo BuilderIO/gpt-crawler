@@ -31,6 +31,13 @@ export const configSchema = z.object({
    */
   maxPagesToCrawl: z.number().int().positive(),
   /**
+    * Number of pages to crawl per pagination. After crawling this number of pages, 
+    * the results will be written to a new output file. If this field is not provided, 
+    * the application will crawl all pages up to `maxPagesToCrawl` without pagination.
+    * @default undefined
+   */
+  pagesPerPagination: z.number().int().positive().optional(),
+  /**
    * File name for the finished data
    * @default "output.json"
    */
@@ -61,4 +68,5 @@ export const configSchema = z.object({
 });
 
 export type Config = z.infer<typeof configSchema>;
+
 

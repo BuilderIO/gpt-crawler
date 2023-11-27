@@ -6,6 +6,7 @@ import {Config, configSchema} from "./config.js";
 import { Page } from "playwright";
 
 let pageCounter = 0;
+let paginationCounter = 1;
 
 export function getPageHtml(page: Page, selector = "body") {
   return page.evaluate((selector) => {
@@ -48,6 +49,8 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
 export async function crawl(config: Config) { 
   configSchema.parse(config);
 
+  let pagesCrawled = 0;
+
   if (process.env.NO_CRAWL !== "true") {
     // PlaywrightCrawler crawls the web using a headless
     // browser controlled by the Playwright library.
@@ -89,6 +92,22 @@ export async function crawl(config: Config) {
 
         // Save results as JSON to ./storage/datasets/default
         await pushData({ title, url: request.loadedUrl, html });
+
+        // increment pagesCrawled
+        pagesCrawled++;
+        
+        if (config.pagesPerPagination !== undefined) {
+          // check if we've reached the pages per pagination limit
+          if (pagesCrawled % config.pagesPerPagination === 0) {
+            // write the current data and increment paginationCounter
+            await write(config, paginationCounter++);
+          } 
+        } else {
+          if (pagesCrawled === config.maxPagesToCrawl) {
+            // write the current data
+            await write(config);
+          }
+        }
 
         if (config.onVisitPage) {
           await config.onVisitPage({ page, pushData });
@@ -137,8 +156,13 @@ export async function crawl(config: Config) {
   }
 }
 
-export async function write(config: Config) {
+export async function write(config: Config, paginationCounter: number = 0) {
   configSchema.parse(config);
+  let fileNameParts = config.outputFileName.split('.');
+  if (paginationCounter) {
+    fileNameParts.splice(fileNameParts.length - 1, 0, `${paginationCounter}`);
+  }
+  const outputFilePath = fileNameParts.join('.');
 
   const jsonFiles = await glob("storage/datasets/default/*.json", {
     absolute: true,
@@ -150,5 +174,7 @@ export async function write(config: Config) {
     results.push(data);
   }
 
-  await writeFile(config.outputFileName, JSON.stringify(results, null, 2));
+  await writeFile(outputFilePath, JSON.stringify(results, null, 2));
+  console.info(`Output: Wrote ${results.length} pages to ${outputFilePath}`)
 }
+
