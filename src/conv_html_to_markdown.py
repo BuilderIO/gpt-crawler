@@ -1,88 +1,106 @@
 """
 This module provides functionality for converting HTML to Markdown and
-formatting a dataset of HTML content into structured Markdown.
+formatting a dataset of HTML content into structured Markdown, with added
+capabilities of processing text embeddings to identify and
+remove redundant content.
 """
+
 import json
 import logging
-import re
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
-from sentence_transformers import SentenceTransformer, util
+from transformers import AutoTokenizer, AutoModel
+import torch
 
 
 class HTMLToMarkdownConverter:
     """
-    A converter class that transforms HTML content to Markdown format.
+    A converter class that transforms HTML content to Markdown
+    format and processes text embeddings.
 
     Attributes:
-        strip_tags (list): A list of HTML tags to be \
-            stripped during conversion.
-        convert_links (bool): A flag to determine whether \
-            links should be converted.
-
-    Methods:
-        convert(html_content): Converts the given \
-            HTML content to Markdown.
-        curate_content(html): Curates the HTML \
-            content by removing specified elements.
+        strip_tags (list): A list of HTML tags to be stripped during
+        conversion.
+        convert_links (bool): A flag to determine whether links
+        should be converted.
+        tokenizer (AutoTokenizer): Tokenizer from the transformers library.
+        model (AutoModel): Pre-trained model from the transformers library.
     """
 
     def __init__(self, strip_tags=None, convert_links=True):
-        """Initialize converter with configuration options."""
+        """Initialize the converter with configuration options and
+        Jina embeddings model."""
         self.strip_tags = strip_tags or ["script", "style", "meta"]
         self.convert_links = convert_links
-        self.model = SentenceTransformer('jinaai/jina-embeddings-v2-small-en')
-        
-    def remove_excess_data(self, markdown_content):
-        lines = markdown_content.split("\n")
-        embeddings = self.model.encode(lines, convert_to_tensor=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "jinaai/jina-embeddings-v2-small-en"
+        )
+        self.model = AutoModel.from_pretrained("jinaai/jina-embeddings-v2-small-en")
 
-        cleaned_lines = []
-        for i in range(len(lines)):
-            if i > 0 and self.is_redundant_line(lines[i], embeddings[i], lines[i-1], embeddings[i-1]):
-                continue
-            cleaned_lines.append(lines[i])
+    def mean_pooling(self, model_output, attention_mask):
+        """Applies mean pooling to the token embeddings to
+        create sentence embeddings."""
+        token_embeddings = model_output[0]
+        input_mask_expanded = (
+            attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        )
+        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        return sum_embeddings / sum_mask
+
+    def process_embeddings(self, lines, batch_size=32):
+        """Processes the embeddings for the given lines in batches."""
+        batched_embeddings = []
+        for i in range(0, len(lines), batch_size):
+            batch = lines[i : i + batch_size]
+            encoded_input = self.tokenizer(
+                batch, padding=True, truncation=True, return_tensors="pt"
+            )
+            with torch.no_grad():
+                model_output = self.model(**encoded_input)
+            batch_embeddings = self.mean_pooling(
+                model_output, encoded_input["attention_mask"]
+            )
+            batched_embeddings.extend(batch_embeddings)
+
+        return torch.nn.functional.normalize(
+            torch.stack(batched_embeddings), p=2, dim=1
+        )
+
+    def remove_redundant_data(self, embeddings, lines):
+        """Removes redundant lines based on semantic similarity
+        using embeddings."""
+        cleaned_lines = [lines[0]]  # Always include the first line
+        for i in range(1, len(lines)):
+            similarity = torch.cosine_similarity(
+                embeddings[i].unsqueeze(0), embeddings[i - 1].unsqueeze(0)
+            )
+            if similarity.item() < 0.4:  # Threshold for redundancy
+                cleaned_lines.append(lines[i])
         return "\n".join(cleaned_lines)
 
-    def is_redundant_line(self, line, line_embedding, prev_line, prev_embedding):
-        # Custom logic for specific unhelpful patterns
-        if self.is_version_list(line):
-            return True
-
-        similarity = util.pytorch_cos_sim(line_embedding, prev_embedding)
-        threshold = 0.4  # Adjust as needed
-        return similarity.item() > threshold
-
-    def is_version_list(self, line):
-        return bool(re.match(r'v\d+\.\d+\.\d+', line))
-    
     def convert(self, html_content):
-        """Convert HTML content to Markdown."""
+        """Converts HTML content to Markdown format."""
         try:
             curated_html = self.curate_content(html_content)
             markdown_content = md(
                 curated_html,
                 strip_tags=self.strip_tags,
                 convert_links=self.convert_links,
-            )
-            return (
-                markdown_content.strip()
-            )  # Remove leading and trailing whitespace/newlines
-        except (TypeError, AttributeError) as e:
-            logging.error("HTML parsing error: %s", e)
-            raise
+            ).strip()
+            lines = markdown_content.split("\n")
+            embeddings = self.process_embeddings(lines)
+            return self.remove_redundant_data(embeddings, lines)
         except Exception as e:
-            logging.error("Unexpected error during conversion: %s", e)
+            logging.error("Error during conversion: %s", e)
             raise
 
     def curate_content(self, html):
-        """Curate the HTML content before conversion."""
+        """Curates the HTML content by removing specified elements and tags."""
         try:
             soup = BeautifulSoup(html, "html.parser")
-
-            # List of CSS selectors for elements to be removed
-            fluff_selectors = [
+            for selector in [
                 "header",
                 "footer",
                 "nav",
@@ -95,23 +113,15 @@ class HTMLToMarkdownConverter:
                 "aside",
                 ".pagination",
                 "form",
-            ]
-
-            # Remove the identified fluff elements
-            for selector in fluff_selectors:
+            ]:
                 for element in soup.select(selector):
                     element.decompose()
-
-            # Remove tags specified in self.strip_tags
             for tag in self.strip_tags:
                 for s in soup(tag):
                     s.decompose()
-            logging.info("Successfully curated HTML content.")
             return str(soup)
-
         except Exception as e:
             logging.error("Error in curating HTML content: %s", e)
-            # Return original HTML in case of error
             return html
 
 
