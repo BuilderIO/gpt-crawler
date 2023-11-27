@@ -50,7 +50,7 @@ npm i
 
 #### Configure the crawler
 
-Open [config.ts](config.ts) and edit the `url` and `selectors` properties to match your needs.
+Open [config.ts](config.ts) and edit the `url` and `selector` properties to match your needs.
 
 E.g. to crawl the Builder.io docs to make our custom GPT you can use:
 
@@ -64,7 +64,7 @@ export const defaultConfig: Config = {
 };
 ```
 
-See [config.ts](src/config.ts) for all available options. Here is a sample of the common configu options:
+See [config.ts](src/config.ts) for all available options. Here is a sample of the common configuration options:
 
 ```ts
 type Config = {
@@ -97,7 +97,7 @@ npm start
 
 #### [Running in a container with Docker](./containerapp/README.md)
 
-To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
+To obtain the `output.json` with a containerized execution, go into the `containerapp` directory and modify the `config.ts` as shown above. The `output.json`file should be generated in the data folder. Note: the `outputFileName` property in the `config.ts` file in the `containerapp` directory is configured to work with the container.
 
 ### Upload your data to OpenAI
 
