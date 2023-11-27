@@ -14,6 +14,7 @@ const messages = {
   match: "What is the URL pattern you want to match?",
   selector: "What is the CSS selector you want to match?",
   maxPagesToCrawl: "How many pages do you want to crawl?",
+  pagePerPagination: "How many pages do you want to crawl per pagination?",
   outputFileName: "What is the name of the output file?",
 };
 
@@ -90,7 +91,7 @@ program
   .option("-m, --match <string>", messages.match, "")
   .option("-s, --selector <string>", messages.selector, "")
   .option("-m, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
-  .option("-p, --pagesPerPagination <number>", "Number of pages to crawl per pagination", "")
+  .option("-p, --pagesPerPagination <number>", messages.pagePerPagination, "")
   .option(
     "-o, --outputFileName <string>",
     messages.outputFileName,
