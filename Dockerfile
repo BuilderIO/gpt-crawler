@@ -46,7 +46,8 @@ USER root
 RUN apt-get update \
     && apt-get install -y python3 python3-pip
 USER myuser
-RUN pip3 install beautifulsoup4 markdownify
+RUN pip3 install -Uq beautifulsoup4 \
+    markdownify transformers torch
 
 # Copy the Python script
 COPY --chown=myuser src/conv_html_to_markdown.py ./

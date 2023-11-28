@@ -34,7 +34,8 @@ class HTMLToMarkdownConverter:
         self.strip_tags = strip_tags or ["script", "style", "meta"]
         self.convert_links = convert_links
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "jinaai/jina-embeddings-v2-small-en"
+            "jinaai/jina-embeddings-v2-small-en",
+            trust_remote_code=True
         )
         self.model = AutoModel.from_pretrained("jinaai/jina-embeddings-v2-small-en")
 
@@ -76,7 +77,7 @@ class HTMLToMarkdownConverter:
             similarity = torch.cosine_similarity(
                 embeddings[i].unsqueeze(0), embeddings[i - 1].unsqueeze(0)
             )
-            if similarity.item() < 0.4:  # Threshold for redundancy
+            if similarity.item() < 0.86899:  # Threshold for redundancy
                 cleaned_lines.append(lines[i])
         return "\n".join(cleaned_lines)
 
@@ -252,7 +253,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
     try:
         original_data = load_json("output.json")
-        chunk_size = 200  # Adjust chunk size as needed
+        chunk_size = 512  # Adjust chunk size as needed
         max_threads = 10  # Adjust the maximum number of threads as needed
 
         chunks = list(chunk_dataset(original_data, chunk_size))
