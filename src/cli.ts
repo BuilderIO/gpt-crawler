@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { program } from "commander";
-import { Config } from "./config.js";
-import { crawl, write } from "./core.js";
 import { createRequire } from "node:module";
 import inquirer from "inquirer";
+
+import { crawl, write } from "./core.js";
+import { Config, ConfigInput } from "./config.js";
 
 const require = createRequire(import.meta.url);
 const { version, description } = require("../../package.json");
@@ -13,24 +14,28 @@ const messages = {
   url: "What is the first URL of the website you want to crawl?",
   match: "What is the URL pattern you want to match?",
   selector: "What is the CSS selector you want to match?",
+  excludeSelectors: "What is the CSS selector you want to exclude?",
   maxPagesToCrawl: "How many pages do you want to crawl?",
   outputFileName: "What is the name of the output file?",
+  name: "What is the name of the dataset?",
 };
 
-async function handler(options: Config) {
+async function handler(options: ConfigInput) {
   try {
     const {
       url,
       match,
       selector,
+      excludeSelectors,
       maxPagesToCrawl: maxPagesToCrawlStr,
+      name,
       outputFileName,
     } = options;
 
     // @ts-ignore
     const maxPagesToCrawl = parseInt(maxPagesToCrawlStr, 10);
 
-    let config: Config = {
+    let config: ConfigInput = {
       url,
       match,
       selector,
@@ -65,6 +70,14 @@ async function handler(options: Config) {
         });
       }
 
+      if (!config.excludeSelectors) {
+        questions.push({
+          type: "input",
+          name: "excludeSelectors",
+          message: messages.excludeSelectors,
+        });
+      }
+
       const answers = await inquirer.prompt(questions);
 
       config = {
@@ -86,12 +99,10 @@ program
   .option("-u, --url <string>", messages.url, "")
   .option("-m, --match <string>", messages.match, "")
   .option("-s, --selector <string>", messages.selector, "")
-  .option("-m, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
-  .option(
-    "-o, --outputFileName <string>",
-    messages.outputFileName,
-    "output.json",
-  )
+  .option("-x, --excludeSelectors <string...>", messages.excludeSelectors, "")
+  .option("-l, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
+  .option("-o, --outputFileName <string>", messages.outputFileName, "data.json")
+  .option("-n, --name <string>", messages.name, "default")
   .action(handler);
 
 program.parse();

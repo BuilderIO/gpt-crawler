@@ -11,4 +11,5 @@ storage
 !package.json
 
 # any output from the crawler
-*.json
+output.json
+output

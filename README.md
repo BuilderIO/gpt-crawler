@@ -13,8 +13,6 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
     - [Run your crawler](#run-your-crawler)
   - [Alternative methods](#alternative-methods)
     - [Running in a container with Docker](#running-in-a-container-with-docker)
-    - [Running as a CLI](#running-as-a-cli)
-      - [Development](#development)
   - [Upload your data to OpenAI](#upload-your-data-to-openai)
     - [Create a custom GPT](#create-a-custom-gpt)
     - [Create a custom assistant](#create-a-custom-assistant)
@@ -59,8 +57,9 @@ export const defaultConfig: Config = {
   url: "https://www.builder.io/c/docs/developers",
   match: "https://www.builder.io/c/docs/**",
   selector: `.docs-builder-container`,
+  excludeSelectors: [],
   maxPagesToCrawl: 50,
-  outputFileName: "output.json",
+  outputFileName: "data.json",
 };
 ```
 
@@ -74,8 +73,14 @@ type Config = {
   match: string;
   /** Selector to grab the inner text from */
   selector: string;
+  /** Selectors to exclude the text from the final result */
+  excludeSelectors?: string | string[];
   /** Don't crawl more than this many pages */
-  maxPagesToCrawl: number;
+  maxPagesToCrawl?: number;
+  /** Maximum concurrency level for crawling pages */
+  maxConcurrency?: number;
+  /** Name the dataset. Must be use when having multiple config */
+  name?: string;
   /** File name for the finished data */
   outputFileName: string;
 };
@@ -91,11 +96,11 @@ npm start
 
 #### [Running in a container with Docker](./containerapp/README.md)
 
-To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
+To obtain the `output/data.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output/data.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
 
 ### Upload your data to OpenAI
 
-The crawl will generate a file called `output.json` at the root of this project. Upload that [to OpenAI](https://platform.openai.com/docs/assistants/overview) to create your custom assistant or custom GPT.
+The crawl will generate a file called `output/data.json` at the root of this project. Upload that [to OpenAI](https://platform.openai.com/docs/assistants/overview) to create your custom assistant or custom GPT.
 
 #### Create a custom GPT
 
