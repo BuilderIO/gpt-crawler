@@ -10,6 +10,7 @@
     "commander": "^11.1.0",
     "cors": "^2.8.5",
     "crawlee": "^3.0.0",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
     "glob": "^10.3.10",
@@ -34,6 +35,7 @@
     "start:dev": "NODE_ENV=development npm run build && node dist/src/main.js",
     "start:server": "NODE_ENV=development npm run build && node dist/src/server.js",
     "start:prod": "node dist/main.js",
+    "start:server:prod": "npm run build && node dist/src/server.js",
     "build": "tsc",
     "fmt": "prettier --write ."
   },

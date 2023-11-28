@@ -1,30 +1,25 @@
-// file: app/src/api.ts
-
 import express from 'express';
 import cors from 'cors';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { crawl, write } from "./core.js";
 import { Config } from './config.js';
+import { configDotenv } from 'dotenv';
 
-// Create a new express application instance
+configDotenv();
+
 const app = express();
-const port = 3000; // You may want to make the port configurable
+const port = Number(process.env.API_PORT) || 3000;
+const hostname = process.env.API_HOST || 'localhost';
 
-// Enable JSON and file upload functionality
 app.use(cors());
 app.use(express.json());
 
 // Define a POST route to accept config and run the crawler
 app.post('/crawl', async (req, res) => {
-    // Read the configuration file sent as form-data
     const config: Config = req.body;
-
-    // Placeholder for handling crawler events and operations
     try {
         await crawl(config);
         await write(config);
-
-        // Read the output file after crawling and send it in the response
         const outputFileContent = await readFile(config.outputFileName, 'utf-8');
         res.contentType('application/json');
         return res.send(outputFileContent);
@@ -33,9 +28,8 @@ app.post('/crawl', async (req, res) => {
     }
 });
 
-// Start the Express server
-app.listen(port, () => {
-    console.log(`API server listening at http://localhost:${port}`);
+app.listen(port, hostname, () => {
+    console.log(`API server listening at http://${hostname}:${port}`);
 });
 
 export default app;
