@@ -119,6 +119,7 @@ Use this option for UI access to your generated knowledge that you can easily sh
 4. Choose "Create a GPT"
 5. Choose "Configure"
 6. Under "Knowledge" choose "Upload a file" and upload the file you generated
+7. if you get an error about the file being too large, you can try to split it into multiple files and upload them separately using the option maxFileSize in the config.ts file or also use tokenization to reduce the size of the file with the option maxTokens in the config.ts file
 
 ![Gif of how to upload a custom GPT](https://github.com/BuilderIO/gpt-crawler/assets/844291/22f27fb5-6ca5-4748-9edd-6bcf00b408cf)
 
