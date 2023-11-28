@@ -39,7 +39,9 @@ async function handler(options: ConfigInput) {
 			url,
 			match,
 			selector,
+			excludeSelectors,
 			maxPagesToCrawl,
+			name,
 			outputFileName,
 		};
 

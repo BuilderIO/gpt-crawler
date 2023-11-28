@@ -1,0 +1,23 @@
+name: Build workflow
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          cache: npm
+          node-version: 18
+      - run: npm i
+      - run: npm run build
+      - uses: preactjs/compressed-size-action@v2
+        with:
+          pattern: ".dist/**/*.{js,ts,json}"

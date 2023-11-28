@@ -1,5 +1,5 @@
 // For more information, see https://crawlee.dev/
-import { PlaywrightCrawler, Dataset, RequestQueue } from "crawlee";
+import { PlaywrightCrawler, Dataset, RequestQueue, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import path from "path";
@@ -131,10 +131,10 @@ export async function crawl(inputConfig: ConfigInput, progressBarId: number = 0)
 				// Use custom handling for XPath selector
 				if (config.selector) {
 					if (config.selector.startsWith("/")) {
-						await waitForXPath(page, config.selector, config.waitForSelectorTimeout ?? 1000);
+						await waitForXPath(page, config.selector, config.waitForSelectorTimeout);
 					} else {
 						await page.waitForSelector(config.selector, {
-							timeout: config.waitForSelectorTimeout ?? 1000,
+							timeout: config.waitForSelectorTimeout,
 						});
 					}
 				}
@@ -161,10 +161,36 @@ export async function crawl(inputConfig: ConfigInput, progressBarId: number = 0)
 
 			// Uncomment this option to see the browser window.
 			// headless: false,
+
+			preNavigationHooks: [
+				// Abort requests for certain resource types
+				async ({ page, log }) => {
+					// If there are no resource exclusions, return
+					const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
+					if (RESOURCE_EXCLUSTIONS.length === 0) {
+						return;
+					}
+					await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, route => route.abort("aborted"));
+					log.info(`Aborting requests for as this is a resource excluded route`);
+				},
+			],
 		});
 
-		// Add first URL to the queue and start the crawl.
-		await crawler.run([config.url]);
+		const SITEMAP_SUFFIX = "sitemap.xml";
+		const isUrlASitemap = config.url.endsWith(SITEMAP_SUFFIX);
+
+		if (isUrlASitemap) {
+			const listOfUrls = await downloadListOfUrls({ url: config.url });
+
+			// Add the initial URL to the crawling queue.
+			await crawler.addRequests(listOfUrls);
+
+			// Run the crawler
+			await crawler.run();
+		} else {
+			// Add first URL to the queue and start the crawl.
+			await crawler.run([config.url]);
+		}
 		updateProgressBar(progressBarId, 0, config, "Completed", requestQueue.getTotalCount());
 	}
 }
