@@ -4,19 +4,19 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
 
 ![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
 
-- [Example](#example)
-- [Get started](#get-started)
-  - [Running locally](#running-locally)
-    - [Clone the repository](#clone-the-repository)
-    - [Install dependencies](#install-dependencies)
-    - [Configure the crawler](#configure-the-crawler)
-    - [Run your crawler](#run-your-crawler)
-  - [Alternative methods](#alternative-methods)
-    - [Running in a container with Docker](#running-in-a-container-with-docker)
-  - [Upload your data to OpenAI](#upload-your-data-to-openai)
-    - [Create a custom GPT](#create-a-custom-gpt)
-    - [Create a custom assistant](#create-a-custom-assistant)
-- [Contributing](#contributing)
+-   [Example](#example)
+-   [Get started](#get-started)
+    -   [Running locally](#running-locally)
+        -   [Clone the repository](#clone-the-repository)
+        -   [Install dependencies](#install-dependencies)
+        -   [Configure the crawler](#configure-the-crawler)
+        -   [Run your crawler](#run-your-crawler)
+    -   [Alternative methods](#alternative-methods)
+        -   [Running in a container with Docker](#running-in-a-container-with-docker)
+    -   [Upload your data to OpenAI](#upload-your-data-to-openai)
+        -   [Create a custom GPT](#create-a-custom-gpt)
+        -   [Create a custom assistant](#create-a-custom-assistant)
+-   [Contributing](#contributing)
 
 ## Example
 
@@ -54,12 +54,12 @@ E.g. to crawl the Builder.io docs to make our custom GPT you can use:
 
 ```ts
 export const defaultConfig: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
-  excludeSelectors: [],
-  maxPagesToCrawl: 50,
-  outputFileName: "data.json",
+	url: "https://www.builder.io/c/docs/developers",
+	match: "https://www.builder.io/c/docs/**",
+	selector: `.docs-builder-container`,
+	excludeSelectors: [],
+	maxPagesToCrawl: 50,
+	outputFileName: "data.json",
 };
 ```
 
@@ -67,22 +67,22 @@ See [config.ts](src/config.ts) for all available options. Here is a sample of th
 
 ```ts
 type Config = {
-  /** URL to start the crawl */
-  url: string;
-  /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
-  /** Selector to grab the inner text from */
-  selector: string;
-  /** Selectors to exclude the text from the final result */
-  excludeSelectors?: string | string[];
-  /** Don't crawl more than this many pages */
-  maxPagesToCrawl?: number;
-  /** Maximum concurrency level for crawling pages */
-  maxConcurrency?: number;
-  /** Name the dataset. Must be use when having multiple config */
-  name?: string;
-  /** File name for the finished data */
-  outputFileName: string;
+	/** URL to start the crawl */
+	url: string;
+	/** Pattern to match against for links on a page to subsequently crawl */
+	match: string;
+	/** Selector to grab the inner text from */
+	selector: string;
+	/** Selectors to exclude the text from the final result */
+	excludeSelectors?: string | string[];
+	/** Don't crawl more than this many pages */
+	maxPagesToCrawl?: number;
+	/** Maximum concurrency level for crawling pages */
+	maxConcurrency?: number;
+	/** Name the dataset. Must be use when having multiple config */
+	name?: string;
+	/** File name for the finished data */
+	outputFileName: string;
 };
 ```
 

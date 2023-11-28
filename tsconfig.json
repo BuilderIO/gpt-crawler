@@ -1,14 +1,14 @@
 {
-  "extends": "@apify/tsconfig",
-  "compilerOptions": {
-    "module": "ES2022",
-    "target": "ES2022",
-    "outDir": "dist",
-    "resolveJsonModule": true,
-    "noUnusedLocals": false,
-    "skipLibCheck": true,
-    "lib": ["DOM"],
-    "strict": true
-  },
-  "include": ["./src/**/*", "config.ts"]
+	"extends": "@apify/tsconfig",
+	"compilerOptions": {
+		"module": "ES2022",
+		"target": "ES2022",
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"noUnusedLocals": false,
+		"skipLibCheck": true,
+		"lib": ["DOM"],
+		"strict": true
+	},
+	"include": ["./src/**/*", "config.ts"]
 }
