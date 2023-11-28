@@ -15,6 +15,7 @@
     "express-fileupload": "^1.4.3",
     "glob": "^10.3.10",
     "inquirer": "^9.2.12",
+    "joi": "^17.11.0",
     "playwright": "*",
     "prettier": "^3.1.0"
   },

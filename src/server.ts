@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { readFile } from 'fs/promises';
 import { crawl, write } from "./core.js";
-import { Config } from './config.js';
+import { Config, ConfigSchema } from './config.js';
 import { configDotenv } from 'dotenv';
 
 configDotenv();
@@ -18,9 +18,10 @@ app.use(express.json());
 app.post('/crawl', async (req, res) => {
     const config: Config = req.body;
     try {
-        await crawl(config);
-        await write(config);
-        const outputFileContent = await readFile(config.outputFileName, 'utf-8');
+        const validatedConfig = ConfigSchema.validate(config).value;
+        await crawl(validatedConfig);
+        await write(validatedConfig);
+        const outputFileContent = await readFile(validatedConfig.outputFileName, 'utf-8');
         res.contentType('application/json');
         return res.send(outputFileContent);
     } catch (error) {

@@ -1,4 +1,8 @@
 import type { Page } from "playwright";
+import Joi from "joi";
+import { configDotenv } from "dotenv";
+
+configDotenv();
 
 export type Config = {
   /**
@@ -39,3 +43,17 @@ export type Config = {
   /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout?: number;
 };
+
+export const ConfigSchema = Joi.object({
+  url: Joi.string().uri().required(),
+  match: Joi.alternatives(Joi.string().required(), Joi.array().items(Joi.string().required())).required(),
+  selector: Joi.string().default(''),
+  maxPagesToCrawl: Joi.number().integer().default(process.env.MAX_PAGES_TO_CRAWL || 50),
+  outputFileName: Joi.string().default('output.json'),
+  cookie: Joi.object({
+    name: Joi.string().required(),
+    value: Joi.string().required(),
+  }).optional(),
+  onVisitPage: Joi.function().optional(),
+  waitForSelectorTimeout: Joi.number().optional(),
+});
