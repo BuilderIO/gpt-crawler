@@ -25,6 +25,18 @@ jobs:
       - uses: preactjs/compressed-size-action@v2
         with:
           pattern: ".dist/**/*.{js,ts,json}"
+  static-tests:
+    name: Static tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          cache: npm
+          node-version: 18
+      - run: npm i
+      - run: npm run prettier:check
   build-docker:
     name: Build Docker image
     runs-on: ubuntu-latest
