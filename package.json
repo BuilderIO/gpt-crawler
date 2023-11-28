@@ -1,42 +1,46 @@
 {
-  "name": "@builder.io/gpt-crawler",
-  "version": "1.1.0",
-  "type": "module",
-  "bin": {
-    "gpt-crawler": "./dist/src/cli.js"
-  },
-  "description": "Crawl a site to generate knowledge files to create your own custom GPT",
-  "dependencies": {
-    "commander": "^11.1.0",
-    "crawlee": "^3.0.0",
-    "cross-env": "^7.0.3",
-    "glob": "^10.3.10",
-    "inquirer": "^9.2.12",
-    "playwright": "*",
-    "zod": "^3.22.4"
-  },
-  "devDependencies": {
-    "@apify/tsconfig": "^0.1.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.0.0",
-    "prettier": "^3.1.0",
-    "semantic-release": "^22.0.8",
-    "ts-node": "^10.8.0",
-    "typescript": "^5.0.0"
-  },
-  "scripts": {
-    "semantic-release": "semantic-release",
-    "preinstall": "npx playwright install",
-    "start": "npm run start:dev",
-    "start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
-    "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
-    "start:prod": "node dist/src/main.js",
-    "build": "tsc",
-    "fmt": "prettier --write .",
-    "prettier:check": "prettier --check ."
-  },
-  "author": "It's not you it's me",
-  "license": "ISC"
+	"name": "@builder.io/gpt-crawler",
+	"version": "1.1.0",
+	"type": "module",
+	"bin": {
+		"gpt-crawler": "./dist/src/cli.js"
+	},
+	"description": "Crawl a site to generate knowledge files to create your own custom GPT",
+	"dependencies": {
+		"cli-progress": "^3.12.0",
+		"commander": "^11.1.0",
+		"crawlee": "^3.0.0",
+		"cross-env": "^7.0.3",
+		"glob": "^10.3.10",
+		"inquirer": "^9.2.12",
+		"playwright": "*",
+		"zod": "^3.22.4"
+	},
+	"devDependencies": {
+		"@apify/tsconfig": "^0.1.0",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/git": "^10.0.1",
+		"@types/cli-progress": "^3.11.5",
+		"@types/inquirer": "^9.0.7",
+		"@types/node": "^20.0.0",
+		"prettier": "^3.1.0",
+		"semantic-release": "^22.0.8",
+		"ts-node": "^10.8.0",
+		"typescript": "^5.0.0"
+	},
+	"scripts": {
+		"semantic-release": "semantic-release",
+		"preinstall": "npx playwright install",
+		"start": "npm run start:dev",
+		"start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
+		"start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
+		"start:prod": "node dist/main.js",
+		"build": "tsc",
+		"fmt": "npm run prettier",
+		"prettier": "prettier --write ./**/*.{ts,js,json,md}",
+		"prettier:check": "prettier --check ./**/*.{ts,js,json,md}",
+		"clean": "rm -rf dist/ storage/ output/"
+	},
+	"author": "It's not you it's me",
+	"license": "ISC"
 }
