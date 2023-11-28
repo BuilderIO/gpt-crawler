@@ -2,7 +2,7 @@ import { mkdir } from "fs/promises";
 import path from "path";
 
 export function toArray<T>(value: T | T[]): T[] {
-	return Array.isArray(value) ? value : [value];
+	return Array.isArray(value) ? value : Boolean(value) ? [value] : [];
 }
 
 export async function sequentialAsyncMap<T, R>(

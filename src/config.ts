@@ -13,17 +13,20 @@ export const configSchema = z.object({
 	 * @example "https://www.builder.io/c/docs/developers"
 	 * @example "https://www.builder.io/sitemap.xml"
 	 */
-	url: z.string(),
+	url: z.string().min(1),
 	/**
 	 * Pattern to match against for links on a page to subsequently crawl
 	 * @example "https://www.builder.io/c/docs/**"
 	 */
-	match: z.string().or(z.array(z.string())),
+	match: z
+		.string()
+		.min(1)
+		.or(z.array(z.string().min(1))),
 	/**
 	 * Selector to grab the inner text from
 	 * @example ".docs-builder-container"
 	 */
-	selector: z.string(),
+	selector: z.string().min(1),
 	/**
 	 * Array of selectors to exclude the text from the final result
 	 * @example [".unwanted-class"]
