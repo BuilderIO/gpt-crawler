@@ -85,7 +85,7 @@ type Config = {
   */
   resourceExclusions?: string[];  
   /** Optional maximum file size in megabytes to include in the output file */
-  maxFileSize?: number().,
+  maxFileSize?: number,
   /** Optional maximum number tokens to include in the output file */
   maxTokens?: number().,
 };
