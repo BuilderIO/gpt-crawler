@@ -64,11 +64,11 @@ export const configSchema = z.object({
 
   /** Optional maximum file size in megabytes to include in the output file
    * @example 1
-  */
+   */
   maxFileSize: z.number().int().positive().optional(),
-  /** Optional maximum number tokens to include in the output file 
+  /** Optional maximum number tokens to include in the output file
    * @example 5000
-  */
+   */
   maxTokens: z.number().int().positive().optional(),
 });
 
