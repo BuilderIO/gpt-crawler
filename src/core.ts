@@ -2,7 +2,7 @@
 import { PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import {Config, configSchema} from "./config.js";
+import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import {
   isWithinTokenLimit,
@@ -19,7 +19,7 @@ export function getPageHtml(page: Page, selector = "body") {
         document,
         null,
         XPathResult.ANY_TYPE,
-        null
+        null,
       );
       let result = elements.iterateNext();
       return result ? result.textContent || "" : "";
@@ -39,16 +39,16 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
         document,
         null,
         XPathResult.ANY_TYPE,
-        null
+        null,
       );
       return elements.iterateNext() !== null;
     },
     xpath,
-    { timeout }
+    { timeout },
   );
 }
 
-export async function crawl(config: Config) { 
+export async function crawl(config: Config) {
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
@@ -70,7 +70,7 @@ export async function crawl(config: Config) {
         const title = await page.title();
         pageCounter++;
         log.info(
-          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`
+          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
         );
 
         // Use custom handling for XPath selector
@@ -79,7 +79,7 @@ export async function crawl(config: Config) {
             await waitForXPath(
               page,
               config.selector,
-              config.waitForSelectorTimeout ?? 1000
+              config.waitForSelectorTimeout ?? 1000,
             );
           } else {
             await page.waitForSelector(config.selector, {
@@ -116,21 +116,25 @@ export async function crawl(config: Config) {
           if (RESOURCE_EXCLUSTIONS.length === 0) {
             return;
           }
-          await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, route => route.abort('aborted'));
-          log.info(`Aborting requests for as this is a resource excluded route`);
-        }
+          await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, (route) =>
+            route.abort("aborted"),
+          );
+          log.info(
+            `Aborting requests for as this is a resource excluded route`,
+          );
+        },
       ],
     });
 
     const SITEMAP_SUFFIX = "sitemap.xml";
     const isUrlASitemap = config.url.endsWith(SITEMAP_SUFFIX);
-  
+
     if (isUrlASitemap) {
       const listOfUrls = await downloadListOfUrls({ url: config.url });
-  
+
       // Add the initial URL to the crawling queue.
       await crawler.addRequests(listOfUrls);
-  
+
       // Run the crawler
       await crawler.run();
     } else {
