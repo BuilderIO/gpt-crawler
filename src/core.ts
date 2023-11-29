@@ -4,6 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
+import { isWithinTokenLimit } from "gpt-tokenizer";
 
 let pageCounter = 0;
 
@@ -142,17 +143,74 @@ export async function crawl(config: Config) {
 }
 
 export async function write(config: Config) {
-  configSchema.parse(config);
-
   const jsonFiles = await glob("storage/datasets/default/*.json", {
     absolute: true,
   });
 
-  const results = [];
+  console.log(`Found ${jsonFiles.length} files to combine...`);
+
+  let currentResults: Record<string, any>[] = [];
+  let currentSize: number = 0;
+  let fileCounter: number = 1;
+  const maxBytes: number = config.maxFileSize
+    ? config.maxFileSize * 1024 * 1024
+    : Infinity;
+
+  const getStringByteSize = (str: string): number =>
+    Buffer.byteLength(str, "utf-8");
+
+  const nextFileName = (): string =>
+    `${config.outputFileName.replace(/\.json$/, "")}-${fileCounter}.json`;
+
+  const writeBatchToFile = async (): Promise<void> => {
+    await writeFile(nextFileName(), JSON.stringify(currentResults, null, 2));
+    console.log(`Wrote ${currentResults.length} items to ${nextFileName()}`);
+    currentResults = [];
+    currentSize = 0;
+    fileCounter++;
+  };
+
+  let estimatedTokens: number = 0;
+
+  const addContentOrSplit = async (
+    data: Record<string, any>,
+  ): Promise<void> => {
+    const contentString: string = JSON.stringify(data);
+    const tokenCount: number | false = isWithinTokenLimit(
+      contentString,
+      config.maxTokens || Infinity,
+    );
+
+    if (typeof tokenCount === "number") {
+      if (estimatedTokens + tokenCount > config.maxTokens!) {
+        // Only write the batch if it's not empty (something to write)
+        if (currentResults.length > 0) {
+          await writeBatchToFile();
+        }
+        // Since the addition of a single item exceeded the token limit, halve it.
+        estimatedTokens = Math.floor(tokenCount / 2);
+        currentResults.push(data);
+      } else {
+        currentResults.push(data);
+        estimatedTokens += tokenCount;
+      }
+    }
+
+    currentSize += getStringByteSize(contentString);
+    if (currentSize > maxBytes) {
+      await writeBatchToFile();
+    }
+  };
+
+  // Iterate over each JSON file and process its contents.
   for (const file of jsonFiles) {
-    const data = JSON.parse(await readFile(file, "utf-8"));
-    results.push(data);
+    const fileContent = await readFile(file, "utf-8");
+    const data: Record<string, any> = JSON.parse(fileContent);
+    await addContentOrSplit(data);
   }
 
-  await writeFile(config.outputFileName, JSON.stringify(results, null, 2));
+  // Check if any remaining data needs to be written to a file.
+  if (currentResults.length > 0) {
+    await writeBatchToFile();
+  }
 }
