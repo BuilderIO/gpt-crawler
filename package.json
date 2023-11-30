@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/gpt-crawler",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "bin": {
     "gpt-crawler": "./dist/src/cli.js"
@@ -11,10 +11,10 @@
     "crawlee": "^3.0.0",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
+    "gpt-tokenizer": "^2.1.2",
     "inquirer": "^9.2.12",
     "minimatch": "^9.0.3",
     "playwright": "*",
-    "prettier": "^3.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -23,6 +23,7 @@
     "@semantic-release/git": "^10.0.1",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.0.0",
+    "prettier": "^3.1.0",
     "semantic-release": "^22.0.8",
     "ts-node": "^10.8.0",
     "typescript": "^5.0.0"
@@ -35,7 +36,8 @@
     "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
     "start:prod": "node dist/src/main.js",
     "build": "tsc",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "prettier:check": "prettier --check ."
   },
   "author": "It's not you it's me",
   "license": "ISC"
