@@ -40,8 +40,7 @@ export const configSchema = z.object({
    * @example "https://www.builder.io/c/docs/**"
    * @default ""
    */
-  match: OriginMatch.or(PatternMatch)
-  ,
+  match: OriginMatch.or(PatternMatch),
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"

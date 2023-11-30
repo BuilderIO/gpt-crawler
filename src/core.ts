@@ -73,7 +73,6 @@ export async function crawl(config: Config) {
 
         let globs: string | string[] = []
 
-        // Use custom handling for XPath selector
         if (PatternMatch.safeParse(config.match).success) {
           const matchPattern = config.match as PatternMatchType
           globs = matchPattern.map(s => s.pattern)
@@ -82,6 +81,7 @@ export async function crawl(config: Config) {
           })
           if (matchedPattern && !matchedPattern.skip) {
             const selector = matchedPattern?.selector || 'body';
+            // Use custom handling for XPath selector
             if (selector.startsWith("/")) {
               await waitForXPath(
                 page,
@@ -101,6 +101,7 @@ export async function crawl(config: Config) {
         } else if (OriginMatch.safeParse(config.match).success && config.selector) {
           const match = config.match as OriginMatchType
           globs = typeof match === "string" ? [match] : match
+          // Use custom handling for XPath selector
           if (config.selector.startsWith("/")) {
             await waitForXPath(
               page,
