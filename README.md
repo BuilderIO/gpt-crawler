@@ -71,7 +71,11 @@ type Config = {
   /** URL to start the crawl, if sitemap is provided then it will be used instead and download all pages in the sitemap */
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
+  match: string | string[] | {
+    pattern: string;
+    selector?: string | undefined; // Selector to grab the inner text from
+    skip?: boolean | undefined; // Whether skip to not grab any content from this pattern
+  }[];
   /** Selector to grab the inner text from */
   selector: string;
   /** Don't crawl more than this many pages */
