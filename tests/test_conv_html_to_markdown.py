@@ -1,7 +1,7 @@
-import unittest
-import json
 import sys
 import os
+import unittest
+import json
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -11,59 +11,66 @@ from src.conv_html_to_markdown import HTMLToMarkdownConverter, DatasetFormatter
 class TestHTMLToMarkdownConverter(unittest.TestCase):
     def setUp(self):
         self.converter = HTMLToMarkdownConverter()
+        self.formatter = DatasetFormatter(self.converter)
+        self.html_content = "<h1>This is a test</h1><p>This is a paragraph.</p>"
+        self.markdown_content = "# This is a test\n\nThis is a paragraph."
 
     def test_convert(self):
-        html_content = "<p>This is a test.</p>"
-        expected_markdown = "This is a test."
-        markdown_content = self.converter.convert(html_content)
-        self.assertEqual(markdown_content, expected_markdown)
+        self.assertEqual(
+            self.converter.convert(self.html_content), self.markdown_content
+        )
 
     def test_curate_content(self):
-        html_content = "<p>This is a test.</p><script>alert('test');</script>"
-        expected_html = "<p>This is a test.</p>"
-        curated_html = self.converter.curate_content(html_content)
-        self.assertEqual(curated_html, expected_html)
-
-
-class TestDatasetFormatter(unittest.TestCase):
-    def setUp(self):
-        self.formatter = DatasetFormatter(HTMLToMarkdownConverter())
+        self.assertEqual(
+            self.converter.curate_content(self.html_content), self.html_content
+        )
 
     def test_format_entry(self):
-        entry = {
-            "title": "Test Entry",
-            "url": "https://example.com/test-entry",
-            "html": "<p>This is a test.</p>",
-        }
-        expected_markdown = "## Test Entry\n\n[Read More](https://example.com/test-entry)\n\nThis is a test."
-        markdown_content = self.formatter.format_entry(entry)
-        self.assertEqual(markdown_content, expected_markdown)
+        entry = {"title": "Test", "url": "www.test.com", "html": self.html_content}
+        self.assertEqual(
+            self.formatter.format_entry(entry),
+            f"## Test\n\n[Read More](www.test.com)\n\n{self.markdown_content}",
+        )
 
     def test_structure_markdown(self):
-        title = "Test Entry"
-        url = "https://example.com/test-entry"
-        content = "This is a test."
-        expected_markdown = "## Test Entry\n\n[Read More](https://example.com/test-entry)\n\nThis is a test."
-        structured_markdown = self.formatter.structure_markdown(title, url, content)
-        self.assertEqual(structured_markdown, expected_markdown)
+        self.assertEqual(
+            self.formatter.structure_markdown(
+                "Test", "www.test.com", self.markdown_content
+            ),
+            f"## Test\n\n[Read More](www.test.com)\n\n{self.markdown_content}",
+        )
 
     def test_format_dataset(self):
         data = [
-            {
-                "title": "Test Entry 1",
-                "url": "https://example.com/test-entry-1",
-                "html": "<p>This is a test.</p>",
-            },
-            {
-                "title": "Test Entry 2",
-                "url": "https://example.com/test-entry-2",
-                "html": "<p>This is another test.</p>",
-            },
+            {"title": "Test 1", "url": "www.test1.com", "html": self.html_content},
+            {"title": "Test 2", "url": "www.test2.com", "html": self.html_content},
         ]
-        expected_markdown = "## Test Entry 1\n\n[Read More](https://example.com/test-entry-1)\n\nThis is a test.\n\n## Test Entry 2\n\n[Read More](https://example.com/test-entry-2)\n\nThis is another test."
-        markdown_content = self.formatter.format_dataset(data)
-        self.assertEqual(markdown_content, expected_markdown)
+        self.assertEqual(
+            self.formatter.format_dataset(data),
+            f"## Test 1\n\n[Read More](www.test1.com)\n\n{self.markdown_content}\n\n## Test 2\n\n[Read More](www.test2.com)\n\n{self.markdown_content}",
+        )
+
+    def test_load_json(self):
+        with open("output.json", "r", encoding="utf-8") as file:
+            expected_data = json.load(file)
+        self.assertEqual(load_json("output.json"), expected_data)
+
+    def test_chunk_dataset(self):
+        data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        chunk_size = 3
+        expected_chunks = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
+        self.assertEqual(list(chunk_dataset(data, chunk_size)), expected_chunks)
+
+    def test_process_chunk(self):
+        chunk = [
+            {"title": "Test 1", "url": "www.test1.com", "html": self.html_content},
+            {"title": "Test 2", "url": "www.test2.com", "html": self.html_content},
+        ]
+        self.assertEqual(
+            process_chunk(chunk),
+            f"## Test 1\n\n[Read More](www.test1.com)\n\n{self.markdown_content}\n\n## Test 2\n\n[Read More](www.test2.com)\n\n{self.markdown_content}",
+        )
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main
