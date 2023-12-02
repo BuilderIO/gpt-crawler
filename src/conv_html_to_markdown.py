@@ -5,6 +5,7 @@ capabilities of processing text embeddings to identify and
 remove redundant content.
 """
 
+import glob
 import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
@@ -34,8 +35,7 @@ class HTMLToMarkdownConverter:
         self.strip_tags = strip_tags or ["script", "style", "meta"]
         self.convert_links = convert_links
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "jinaai/jina-embeddings-v2-small-en",
-            trust_remote_code=True
+            "jinaai/jina-embeddings-v2-small-en", trust_remote_code=True
         )
         self.model = AutoModel.from_pretrained("jinaai/jina-embeddings-v2-small-en")
 
@@ -179,18 +179,21 @@ class DatasetFormatter:
         )  # Ensure proper newline separation between entries
 
 
-def load_json(file_path):
+def load_json_files(pattern):
     """
-    Load data from a JSON file.
+    Load data from multiple JSON files matching a pattern.
 
     Args:
-        file_path (str): Path to the JSON file.
+        pattern (str): Glob pattern to match files.
 
     Returns:
-        dict: The data loaded from the JSON file.
+        list: Aggregated data from all matched files.
     """
-    with open(file_path, "r", encoding="utf-8") as file:
-        return json.load(file)
+    aggregated_data = []
+    for file_path in glob.glob(pattern):
+        with open(file_path, "r", encoding="utf-8") as file:
+            aggregated_data.extend(json.load(file))
+    return aggregated_data
 
 
 def save_output_in_chunks(file_path, contents, chunk_size=1024):
@@ -252,24 +255,24 @@ def main():
     """
     logging.basicConfig(level=logging.INFO)
     try:
-        original_data = load_json("output.json")
+        pattern = "output*.json"  # Pattern to match JSON files
+        original_data = load_json_files(pattern)
         chunk_size = 512  # Adjust chunk size as needed
         max_threads = 10  # Adjust the maximum number of threads as needed
 
         chunks = list(chunk_dataset(original_data, chunk_size))
-
         formatted_contents = []
+
         logging.info("Processing and saving dataset in chunks.")
         with ThreadPoolExecutor(max_workers=max_threads) as executor:
             results = executor.map(process_chunk, chunks)
             for result in results:
                 formatted_contents.append(result)
 
-        save_output_in_chunks(
-            "gpt-crawler-curated_markdown.md",
-            formatted_contents,
-        )
+        output_file_name = "gpt-crawler-curated_markdown.md"
+        save_output_in_chunks(output_file_name, formatted_contents)
         logging.info("Content formatted and saved in chunks successfully.")
+
         logging.info("\nConversion process successful. Exiting program.")
     except Exception as e:
         logging.error("An error occurred in the main function: %s", e)
