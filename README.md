@@ -65,11 +65,14 @@ export const defaultConfig: Config = {
 ```
 
 New Feature: Excluding HTML Tags
-Configuration Example
 
+```ts
   // Other configuration options...
+
   selectorexcl: "header,nav,footer,script,style,iframe,svg,button,form,aside,div#feedback",
+  
   // ...further configuration
+```
 
 See [config.ts](src/config.ts) for all available options. Here is a sample of the common configu options:
 
