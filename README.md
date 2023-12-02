@@ -64,6 +64,26 @@ export const defaultConfig: Config = {
 };
 ```
 
+New Feature: Excluding HTML Tags
+With the latest update, we have added an additional option that allows users to exclude specific HTML tags during the crawling of web pages. This prevents unnecessary data from entering the JSON files, making the results cleaner and more relevant for further processing.
+
+How It Works
+The new option, selectorexcl, can be set in the crawler's configuration. This allows users to define specific selectors (such as tags, classes, or IDs) that they wish to exclude from their scraping results.
+
+Configuration Example
+javascript
+Copy code
+const defaultConfig = {
+  // Other configuration options...
+  selectorexcl: "header,nav,footer,script,style,iframe,svg,button,form,aside,div#feedback",
+  // ...further configuration
+};
+In this example, all elements matching the specified selectors (header, nav, footer, etc.) are removed from the HTML before the data is processed and saved.
+
+Use Cases
+This feature is particularly useful in scenarios where clean and targeted data extraction is crucial, such as:
+
+
 See [config.ts](src/config.ts) for all available options. Here is a sample of the common configu options:
 
 ```ts
