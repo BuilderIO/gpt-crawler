@@ -39,7 +39,7 @@ This project crawled the docs and generated the file that I uploaded as the basi
 Be sure you have Node.js >= 16 installed.
 
 ```sh
-git clone https://github.com/builderio/gpt-crawler
+git clone https://github.com/Webstudio88/gpt-crawler-with-exclude
 ```
 
 #### Install dependencies
