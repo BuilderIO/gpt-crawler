@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Config } from "./src/config";
 
 export const defaultConfig: Config = {
