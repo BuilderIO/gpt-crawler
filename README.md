@@ -89,6 +89,8 @@ type Config = {
   maxFileSize?: number;
   /** Optional maximum number tokens to include in the output file */
   maxTokens?: number;
+   /** Optional - Maximum concurent parellel requets at a time */
+  maxConcurrency?: number;
 };
 ```
 

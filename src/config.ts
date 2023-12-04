@@ -71,6 +71,13 @@ export const configSchema = z.object({
    * @example 5000
    */
   maxTokens: z.number().int().positive().optional(),
+    /** 
+     * **Optional:** 
+     * maxConcurrency 
+     * description: ( 0 = Unlimited, Doesn't stop until cancelled, undefined = max parellel requests possible ) 
+     * @default 1
+     * */
+    maxConcurrency: z.number().int().nonnegative().optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;

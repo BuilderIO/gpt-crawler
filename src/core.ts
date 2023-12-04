@@ -109,11 +109,7 @@ export async function crawl(config: Config) {
           globs:
             typeof config.match === "string" ? [config.match] : config.match,
         });
-      },
-      // Comment this option to scrape the full website.
-      maxRequestsPerCrawl: config.maxPagesToCrawl,
-      // Uncomment this option to see the browser window.
-      // headless: false,
+      maxConcurrency: config.maxConcurrency || 1 , // Set the max concurrency
       preNavigationHooks: [
         // Abort requests for certain resource types
         async ({ page, log }) => {
