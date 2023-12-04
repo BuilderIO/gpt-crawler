@@ -91,6 +91,15 @@ type Config = {
   maxTokens?: number;
    /** Optional - Maximum concurent parellel requets at a time */
   maxConcurrency?: number;
+
+  /** Optional - waitPerPageCrawlTimeoutRange is a object containing a min and max each for the number of milliseconds to wait after each page crawl.
+   * Use waitPerPageCrawlTimeoutRange to handle rate limiting.
+  */
+  waitPerPageCrawlTimeoutRange?: {
+    min: number, 
+    max: number,
+  };
+
   /** Optional - Boolean parameter to use PlayWright with displayed browser or headless ( default headless=True ). */
   headless?: boolean;
 };

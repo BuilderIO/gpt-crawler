@@ -71,6 +71,15 @@ export const configSchema = z.object({
    * @example 5000
    */
   maxTokens: z.number().int().positive().optional(),
+   /** 
+   * **Optional:**
+   * Range for random number of milliseconds between **min** and **max** to wait after each page crawl 
+   * @default {min:1000,max:1000}
+   * */
+    waitPerPageCrawlTimeoutRange: z.object({
+      min: z.number().int().nonnegative(),
+      max: z.number().int().nonnegative(),
+    }).optional(),
     /**
     * **Optional:**
     * Headless mode
