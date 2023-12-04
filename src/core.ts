@@ -55,6 +55,12 @@ export async function crawl(config: Config) {
     const crawler = new PlaywrightCrawler({
       // Use the requestHandler to process each of the crawled pages.
       async requestHandler({ request, page, enqueueLinks, log, pushData }) {
+        // Warn if unlimited crawling is enabled
+        if (config.maxPagesToCrawl == 0) {
+          config.maxPagesToCrawl = undefined;
+          log.warningOnce(`maxPagesToCrawl is set to ${config.maxPagesToCrawl} which means it will contine until it cannot find anymore links defined by match: ${config.match}`);          
+        }
+        
         if (config.cookie) {
           // Set the cookie for the specific URL
           const cookie = {
@@ -66,9 +72,11 @@ export async function crawl(config: Config) {
         }
 
         const title = await page.title();
+        // Display the pageCounter/maxPagesToCrawl number or pageCounter/∞ if maxPagesToCrawl=0
+        const maxPagesToCrawlDisplay = config.maxPagesToCrawl == undefined ? "∞" : config.maxPagesToCrawl;
         pageCounter++;
         log.info(
-          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+          `Crawling: Page ${pageCounter} / ${maxPagesToCrawlDisplay} - URL: ${request.loadedUrl}...`
         );
 
         // Use custom handling for XPath selector

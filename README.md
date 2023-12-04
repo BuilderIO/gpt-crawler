@@ -74,7 +74,8 @@ type Config = {
   match: string;
   /** Selector to grab the inner text from */
   selector: string;
-  /** Don't crawl more than this many pages */
+
+  /** Optional - Don't crawl more than this many pages (0 = Crawl all, Default = 50)*/
   maxPagesToCrawl: number;
   /** File name for the finished data */
   outputFileName: string;

@@ -26,10 +26,11 @@ export const configSchema = z.object({
    */
   selector: z.string().optional(),
   /**
+   * **Optional:**
    * Don't crawl more than this many pages
    * @default 50
    */
-  maxPagesToCrawl: z.number().int().positive(),
+  maxPagesToCrawl: z.number().int().nonnegative().or(z.undefined()).optional(),
   /**
    * File name for the finished data
    * @default "output.json"
