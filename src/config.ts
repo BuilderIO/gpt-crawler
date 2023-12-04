@@ -71,6 +71,12 @@ export const configSchema = z.object({
    * @example 5000
    */
   maxTokens: z.number().int().positive().optional(),
+    /**
+    * **Optional:**
+    * Headless mode
+    * @default true
+    */
+    headless: z.boolean().optional(),
     /** 
      * **Optional:** 
      * maxConcurrency 

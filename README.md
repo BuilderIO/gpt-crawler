@@ -91,6 +91,8 @@ type Config = {
   maxTokens?: number;
    /** Optional - Maximum concurent parellel requets at a time */
   maxConcurrency?: number;
+  /** Optional - Boolean parameter to use PlayWright with displayed browser or headless ( default headless=True ). */
+  headless?: boolean;
 };
 ```
 
