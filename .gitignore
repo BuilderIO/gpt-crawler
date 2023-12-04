@@ -15,3 +15,5 @@ storage
 # any output from the crawler
 *.json
 pnpm-lock.yaml
+# VS Code workspace files
+*.code-workspace
