@@ -25,6 +25,7 @@ export const defaultConfig: Config = {
   url: "https://www.builder.io/c/docs/developers",
   match: "https://www.builder.io/c/docs/**",
   maxPagesToCrawl: 50,
+  outputFileName: outputFileName,  
   waitPerPageCrawlTimeoutRange: {min:1000, max:1000},
   headless: true,
   maxConcurrency: 1,
