@@ -110,6 +110,7 @@ export async function crawl(config: Config) {
             typeof config.match === "string" ? [config.match] : config.match,
         });
       maxConcurrency: config.maxConcurrency || 1 , // Set the max concurrency
+      maxRequestsPerCrawl: config.maxPagesToCrawl, // Set the max pages to crawl or set to 0 to scrape the full website.          
       preNavigationHooks: [
         // Abort requests for certain resource types
         async ({ page, log }) => {
