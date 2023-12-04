@@ -22,8 +22,8 @@ const outputs_dir = __dirname.split('/').slice(0, -1).join('/') + '/outputs';
 const outputFileName = outputs_dir + "/" + domain + "-" + date + "-" + time + ".json";
 
 export const defaultConfig: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
+  url: starting_url,
+  match: match_url,
   maxPagesToCrawl: 50,
   outputFileName: outputFileName,  
   waitPerPageCrawlTimeoutRange: {min:1000, max:1000},
