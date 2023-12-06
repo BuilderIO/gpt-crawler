@@ -28,8 +28,9 @@ RUN cd /home && git clone https://github.com/builderio/gpt-crawler && cd gpt-cra
     npx playwright install && \
     npx playwright install-deps
 
-# Directory to mount in the docker container to get the output.json data
+# Directories to mount in the docker container to get the output json data
 RUN cd /home && mkdir data
-
+# Final output directory
+RUN cd /home && mkdir outputs
 
 WORKDIR /home

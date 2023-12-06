@@ -47,6 +47,13 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
 }
 
 export async function crawl(config: Config) {
+  // Function to delay the next crawl
+  function delay(time: number) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, time);
+    });
+  }
+
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
@@ -55,6 +62,14 @@ export async function crawl(config: Config) {
     const crawler = new PlaywrightCrawler({
       // Use the requestHandler to process each of the crawled pages.
       async requestHandler({ request, page, enqueueLinks, log, pushData }) {
+        // Warn if unlimited crawling is enabled
+        if (config.maxPagesToCrawl == 0) {
+          config.maxPagesToCrawl = undefined;
+          log.warningOnce(
+            `maxPagesToCrawl is set to ${config.maxPagesToCrawl} which means it will contine until it cannot find anymore links defined by match: ${config.match}`,
+          );
+        }
+
         if (config.cookie) {
           // Set the cookie for the specific URL
           const cookie = {
@@ -66,9 +81,12 @@ export async function crawl(config: Config) {
         }
 
         const title = await page.title();
+        // Display the pageCounter/maxPagesToCrawl number or pageCounter/∞ if maxPagesToCrawl=0
+        const maxPagesToCrawlDisplay =
+          config.maxPagesToCrawl == undefined ? "∞" : config.maxPagesToCrawl;
         pageCounter++;
         log.info(
-          `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+          `Crawling: Page ${pageCounter} / ${maxPagesToCrawlDisplay} - URL: ${request.loadedUrl}...`,
         );
 
         // Use custom handling for XPath selector
@@ -101,11 +119,29 @@ export async function crawl(config: Config) {
           globs:
             typeof config.match === "string" ? [config.match] : config.match,
         });
+        // Use waitPerPageCrawlTimeoutRange to handle rate limiting
+        if (config.waitPerPageCrawlTimeoutRange) {
+          // Create a random number between min and max
+          const randomTimeout = Math.floor(
+            Math.random() *
+              (config.waitPerPageCrawlTimeoutRange.max -
+                config.waitPerPageCrawlTimeoutRange.min +
+                1) +
+              config.waitPerPageCrawlTimeoutRange.min,
+          );
+          log.info(
+            `Waiting ${randomTimeout} milliseconds before next crawl to avoid rate limiting...`,
+          );
+          // Wait for the random amount of time before crawling the next page
+          await delay(randomTimeout);
+        } else {
+          // Wait for 1 second before crawling the next page
+          await delay(1000);
+        }
       },
-      // Comment this option to scrape the full website.
-      maxRequestsPerCrawl: config.maxPagesToCrawl,
-      // Uncomment this option to see the browser window.
-      // headless: false,
+      maxConcurrency: config.maxConcurrency || 1, // Set the max concurrency
+      maxRequestsPerCrawl: config.maxPagesToCrawl, // Set the max pages to crawl or set to 0 to scrape the full website.
+      headless: config.headless ?? true, // Set to false to see the browser in action
       preNavigationHooks: [
         // Abort requests for certain resource types
         async ({ page, log }) => {

@@ -15,3 +15,9 @@ storage
 # any output from the crawler
 *.json
 pnpm-lock.yaml
+
+# Final ouputs folder
+outputs
+
+# VS Code workspace files
+*.code-workspace

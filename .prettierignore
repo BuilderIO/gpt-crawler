@@ -1,0 +1,30 @@
+# Ignore artifacts
+
+node_modules
+.github
+storage
+outputs
+*.code-workspace
+
+## This file tells which files shouldn't be added to source control
+
+.idea
+dist
+node_modules
+apify_storage
+crawlee_storage
+storage
+.DS_Store
+
+## any output from the crawler
+
+*.json
+pnpm-lock.yaml
+
+## Final ouputs folder
+
+outputs
+
+## VS Code workspace files
+
+*.code-workspace
