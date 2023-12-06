@@ -66,52 +66,110 @@ export const defaultConfig: Config = {
 
 See [config.ts](src/config.ts) for all available options. Here is a sample of the common config options:
 
-```ts
+````ts
 type Config = {
-  
-  /** Required - URL to start the crawl, if sitemap is provided then it will be used instead and download all pages in the sitemap */
+  /**
+   * URL to start the crawl, if url is a sitemap, it will crawl all pages in the sitemap
+   * @example "https://www.builder.io/c/docs/developers"
+   * @example "https://www.builder.io/sitemap.xml"
+   * @default ""
+   * @required
+   */
   url: string;
-
-  /** Required - Pattern to match against for links on a page to subsequently crawl */
+  /**
+   * Pattern to match against for links on a page to subsequently crawl
+   * @example "https://www.builder.io/c/docs/**"
+   * @default ""
+   */
   match: string;
-
-  /** Optional - Selector to grab the inner text from */
+  /**
+   * Selector to grab the inner text from
+   * @example ".docs-builder-container"
+   * @default ""
+   * @required
+   */
   selector: string;
-
-  /** Optional - Don't crawl more than this many pages (0 = Crawl all, Default = 50)*/
+  /**
+   * Don't crawl more than this many pages
+   * @default 50
+   */
   maxPagesToCrawl: number;
-
-  /** Optional - File name for the finished data */
+  /**
+   * File name for the finished data
+   * @example "output.json"
+   */
   outputFileName: string;
-
-  /** Optional - Timeout for waiting for a selector to appear */
-  waitForSelectorTimeout: number;
-
-  /** Optional - Resource file extensions to exclude from crawl
-   * 
+  /**
+   * Cookie to be set. E.g. for Cookie Consent
+   */
+  cookie?: {
+    name: string,
+    value: string,
+    url: string,
+  };
+  /**
+   * Function to run for each page found
+   */
+  onVisitPage?: (page: object, data: string);
+  /**
+   * Timeout to wait for a selector to appear
+   */
+  waitForSelectorTimeout: object;
+  /**
+   * Resource file extensions to exclude from crawl
    * @example
    * ['png','jpg','jpeg','gif','svg','css','js','ico','woff','woff2','ttf','eot','otf','mp4','mp3','webm','ogg','wav','flac','aac','zip','tar','gz','rar','7z','exe','dmg','apk','csv','xls','xlsx','doc','docx','pdf','epub','iso','dmg','bin','ppt','pptx','odt','avi','mkv','xml','json','yml','yaml','rss','atom','swf','txt','dart','webp','bmp','tif','psd','ai','indd','eps','ps','zipx','srt','wasm','m4v','m4a','webp','weba','m4b','opus','ogv','ogm','oga','spx','ogx','flv','3gp','3g2','jxr','wdp','jng','hief','avif','apng','avifs','heif','heic','cur','ico','ani','jp2','jpm','jpx','mj2','wmv','wma','aac','tif','tiff','mpg','mpeg','mov','avi','wmv','flv','swf','mkv','m4v','m4p','m4b','m4r','m4a','mp3','wav','wma','ogg','oga','webm','3gp','3g2','flac','spx','amr','mid','midi','mka','dts','ac3','eac3','weba','m3u','m3u8','ts','wpl','pls','vob','ifo','bup','svcd','drc','dsm','dsv','dsa','dss','vivo','ivf','dvd','fli','flc','flic','flic','mng','asf','m2v','asx','ram','ra','rm','rpm','roq','smi','smil','wmf','wmz','wmd','wvx','wmx','movie','wri','ins','isp','acsm','djvu','fb2','xps','oxps','ps','eps','ai','prn','svg','dwg','dxf','ttf','fnt','fon','otf','cab']
    */
   resourceExclusions?: string[];
-  /** Optional maximum file size in megabytes to include in the output file */
+  /**
+   * Maximum file size in megabytes to include in the output file
+   * @example 1
+   */
   maxFileSize?: number;
-  /** Optional maximum number tokens to include in the output file */
+  /**
+   * The maximum number tokens to include in the output file
+   * @example 5000
+   */
   maxTokens?: number;
-   /** Optional - Maximum concurent parellel requets at a time */
+  /**
+   * Maximum concurent parellel requets at a time Maximum concurent parellel requets at a time
+   * @example
+   * Specific number of parellel requests
+   * ```ts
+   * maxConcurrency: 2;
+   * ```
+   * @example
+   *  0 = Unlimited, Doesn't stop until cancelled
+   * text outside of the code block as regular text.
+   * ```ts
+   * maxConcurrency: 0;
+   * ```
+   * @example
+   * undefined = max parellel requests possible
+   * ```ts
+   * maxConcurrency: undefined;
+   * ```
+   * @default 1
+   */
   maxConcurrency?: number;
-
-  /** Optional - waitPerPageCrawlTimeoutRange is a object containing a min and max each for the number of milliseconds to wait after each page crawl.
-   * Use waitPerPageCrawlTimeoutRange to handle rate limiting.
-  */
+  /**
+   * Range for random number of milliseconds between **min** and **max** to wait after each page crawl
+   * @default {min:1000,max:1000}
+   * @example {min:1000, max:2000}
+   */
   waitPerPageCrawlTimeoutRange?: {
-    min: number, 
+    min: number,
     max: number,
   };
 
   /** Optional - Boolean parameter to use PlayWright with displayed browser or headless ( default headless=True ). */
+  /**
+  * Headless mode
+  * @default true
+  */
   headless?: boolean;
 };
-```
+````
 
 #### Run your crawler
 
@@ -124,6 +182,22 @@ npm start
 #### [Running in a container with Docker](./containerapp/README.md)
 
 To obtain the `output.json` with a containerized execution. Go into the `containerapp` directory. Modify the `config.ts` same as above, the `output.json`file should be generated in the data folder. Note : the `outputFileName` property in the `config.ts` file in containerapp folder is configured to work with the container.
+
+#### [Running as a CLI](#running-as-a-cli)
+
+To run the `./dist/cli.ts` command line interface, follow these instructions:
+
+1. Open a terminal.
+2. Navigate to the root directory of the project.
+3. Run the following command: `./dist/cli.ts [arguments]`
+   Replace `[arguments]` with the appropriate command line arguments for your use case.
+4. The CLI will execute the specified command and display the output in the terminal.
+
+> Note: Make sure you have the necessary dependencies installed and the project has been built before running the CLI.
+
+#### [Development](#development)
+
+> Instructions for Development will go here...
 
 ### Upload your data to OpenAI
 
