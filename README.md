@@ -72,7 +72,7 @@ type Config = {
   url: string;
   /** Pattern to match against for links on a page to subsequently crawl */
   match: string | string[] | {
-    pattern: string;
+    pattern: string; // url glob expressions from https://github.com/isaacs/minimatch
     selector?: string | undefined; // Selector to grab the inner text from
     skip?: boolean | undefined; // Whether skip to not grab any content from this pattern
   }[];

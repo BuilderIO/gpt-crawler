@@ -4,6 +4,11 @@ import type { Page } from "playwright";
 
 const Page: z.ZodType<Page> = z.any();
 
+/**
+ * Pattern to match against for links on a page to subsequently crawl
+ * @example "https://www.builder.io/c/docs/**"
+ * @default ""
+ */
 export const OriginMatch = z.string().or(z.array(z.string()))
 
 export const PatternMatch = z.array(z.object({
@@ -20,10 +25,10 @@ export const PatternMatch = z.array(z.object({
    * @default "body"
    */
   selector: z.string().optional(),
-  /*
-    * Skip to grap this for this pattern
-    * @default false
-  */
+  /**
+   * Skip to grap inner text for this pattern
+   * @default false
+   */
   skip: z.boolean().optional()
 }))
 
