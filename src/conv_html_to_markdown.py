@@ -262,7 +262,6 @@ def main():
 
         chunks = list(chunk_dataset(original_data, chunk_size))
         formatted_contents = []
-
         logging.info("Processing and saving dataset in chunks.")
         with ThreadPoolExecutor(max_workers=max_threads) as executor:
             results = executor.map(process_chunk, chunks)
@@ -272,7 +271,6 @@ def main():
         output_file_name = "gpt-crawler-curated_markdown.md"
         save_output_in_chunks(output_file_name, formatted_contents)
         logging.info("Content formatted and saved in chunks successfully.")
-
         logging.info("\nConversion process successful. Exiting program.")
     except Exception as e:
         logging.error("An error occurred in the main function: %s", e)
