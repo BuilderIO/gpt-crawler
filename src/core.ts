@@ -2,8 +2,15 @@
 import { PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
-import { minimatch } from 'minimatch'
-import { Config, configSchema, PatternMatch, PatternMatchType, OriginMatch, OriginMatchType } from "./config.js";
+import { minimatch } from "minimatch";
+import {
+  Config,
+  configSchema,
+  PatternMatch,
+  PatternMatchType,
+  OriginMatch,
+  OriginMatchType,
+} from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 
@@ -72,22 +79,22 @@ export async function crawl(config: Config) {
           `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
         );
 
-        let globs: string | string[] = []
+        let globs: string | string[] = [];
 
         if (PatternMatch.safeParse(config.match).success) {
-          const matchPattern = config.match as PatternMatchType
-          globs = matchPattern.map(s => s.pattern)
+          const matchPattern = config.match as PatternMatchType;
+          globs = matchPattern.map((s) => s.pattern);
           const matchedPattern = matchPattern.find((match) => {
             return minimatch(request.url, match.pattern);
-          })
+          });
           if (matchedPattern && !matchedPattern.skip) {
-            const selector = matchedPattern?.selector || 'body';
+            const selector = matchedPattern?.selector || "body";
             // Use custom handling for XPath selector
             if (selector.startsWith("/")) {
               await waitForXPath(
                 page,
                 selector,
-                config.waitForSelectorTimeout ?? 1000
+                config.waitForSelectorTimeout ?? 1000,
               );
             } else {
               await page.waitForSelector(selector, {
@@ -95,13 +102,16 @@ export async function crawl(config: Config) {
               });
             }
             const html = await getPageHtml(page, selector);
-          
+
             // Save results as JSON to ./storage/datasets/default
             await pushData({ title, url: request.loadedUrl, html });
           }
-        } else if (OriginMatch.safeParse(config.match).success && config.selector) {
-          const match = config.match as OriginMatchType
-          globs = typeof match === "string" ? [match] : match
+        } else if (
+          OriginMatch.safeParse(config.match).success &&
+          config.selector
+        ) {
+          const match = config.match as OriginMatchType;
+          globs = typeof match === "string" ? [match] : match;
           // Use custom handling for XPath selector
           if (config.selector.startsWith("/")) {
             await waitForXPath(
@@ -127,7 +137,7 @@ export async function crawl(config: Config) {
         // Extract links from the current page
         // and add them to the crawling queue.
         await enqueueLinks({
-          globs
+          globs,
         });
       },
       // Comment this option to scrape the full website.
