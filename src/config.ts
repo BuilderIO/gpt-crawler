@@ -18,7 +18,12 @@ export const configSchema = z.object({
    * @default ""
    */
   match: z.string().or(z.array(z.string())),
-
+   /**
+   * Selector to grab links from
+   * @example "li > a.block"
+   * @default ""
+   */
+   matchSelector: z.string().optional(),
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
