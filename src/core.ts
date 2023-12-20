@@ -56,13 +56,15 @@ export async function crawl(config: Config) {
       // Use the requestHandler to process each of the crawled pages.
       async requestHandler({ request, page, enqueueLinks, log, pushData }) {
         if (config.cookie) {
-          // Set the cookie for the specific URL
-          const cookie = {
-            name: config.cookie.name,
-            value: config.cookie.value,
-            url: request.loadedUrl,
-          };
-          await page.context().addCookies([cookie]);
+          const cookies = (Array.isArray(config.cookie) ? config.cookie : [config.cookie])
+            .map((cookie)=>{
+              return {
+                name:cookie.name,
+                value:cookie.value,
+                url:request.loadedUrl
+              }
+          });
+          await page.context().addCookies(cookies);
         }
 
         const title = await page.title();
