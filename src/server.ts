@@ -1,12 +1,13 @@
 import express from "express";
 import cors from "cors";
 import { readFile } from "fs/promises";
-import { crawl, write } from "./core.js";
 import { Config, configSchema } from "./config.js";
 import { configDotenv } from "dotenv";
 import swaggerUi from "swagger-ui-express";
 // @ts-ignore
 import swaggerDocument from "../swagger-output.json" assert { type: "json" };
+import GPTCrawlerCore from "./core.js";
+import { PathLike } from "fs";
 
 configDotenv();
 
@@ -23,12 +24,10 @@ app.post("/crawl", async (req, res) => {
   const config: Config = req.body;
   try {
     const validatedConfig = configSchema.parse(config);
-    await crawl(validatedConfig);
-    await write(validatedConfig);
-    const outputFileContent = await readFile(
-      validatedConfig.outputFileName,
-      "utf-8",
-    );
+    const crawler = new GPTCrawlerCore(validatedConfig);
+    await crawler.crawl();
+    const outputFileName: PathLike = await crawler.write();
+    const outputFileContent = await readFile(outputFileName, "utf-8");
     res.contentType("application/json");
     return res.send(outputFileContent);
   } catch (error) {
