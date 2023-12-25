@@ -39,14 +39,16 @@ export const configSchema = z.object({
   cookie: z
     .union([
       z.object({
-       name: z.string(),
-       value: z.string(),
+        name: z.string(),
+        value: z.string(),
       }),
-      z.array(z.object({
-       name: z.string(),
-       value: z.string(),
-      })),
-     ])
+      z.array(
+        z.object({
+          name: z.string(),
+          value: z.string(),
+        }),
+      ),
+    ])
     .optional(),
   /** Optional function to run for each page found */
   onVisitPage: z
