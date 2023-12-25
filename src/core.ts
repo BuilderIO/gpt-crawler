@@ -55,16 +55,6 @@ export async function crawl(config: Config) {
     const crawler = new PlaywrightCrawler({
       // Use the requestHandler to process each of the crawled pages.
       async requestHandler({ request, page, enqueueLinks, log, pushData }) {
-        if (config.cookie) {
-          // Set the cookie for the specific URL
-          const cookie = {
-            name: config.cookie.name,
-            value: config.cookie.value,
-            url: request.loadedUrl,
-          };
-          await page.context().addCookies([cookie]);
-        }
-
         const title = await page.title();
         pageCounter++;
         log.info(
@@ -108,11 +98,23 @@ export async function crawl(config: Config) {
       // headless: false,
       preNavigationHooks: [
         // Abort requests for certain resource types
-        async ({ page, log }) => {
+        async ({ request, page, log }) => {
           // If there are no resource exclusions, return
           const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
           if (RESOURCE_EXCLUSTIONS.length === 0) {
             return;
+          }
+          if (config.cookie) {
+            const cookies = (
+              Array.isArray(config.cookie) ? config.cookie : [config.cookie]
+            ).map((cookie) => {
+              return {
+                name: cookie.name,
+                value: cookie.value,
+                url: request.loadedUrl,
+              };
+            });
+            await page.context().addCookies(cookies);
           }
           await page.route(`**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`, (route) =>
             route.abort("aborted"),

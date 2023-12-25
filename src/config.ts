@@ -37,10 +37,18 @@ export const configSchema = z.object({
   outputFileName: z.string(),
   /** Optional cookie to be set. E.g. for Cookie Consent */
   cookie: z
-    .object({
-      name: z.string(),
-      value: z.string(),
-    })
+    .union([
+      z.object({
+        name: z.string(),
+        value: z.string(),
+      }),
+      z.array(
+        z.object({
+          name: z.string(),
+          value: z.string(),
+        }),
+      ),
+    ])
     .optional(),
   /** Optional function to run for each page found */
   onVisitPage: z
