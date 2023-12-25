@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { readFile } from 'fs/promises';
 import { crawl, write } from "./core.js";
-import { Config, ConfigSchema } from './config.js';
+import { Config, configSchema } from './config.js';
 import { configDotenv } from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 // @ts-ignore
@@ -22,7 +22,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.post('/crawl', async (req, res) => {
     const config: Config = req.body;
     try {
-        const validatedConfig = ConfigSchema.validate(config).value;
+        const validatedConfig = configSchema.parse(config);
         await crawl(validatedConfig);
         await write(validatedConfig);
         const outputFileContent = await readFile(validatedConfig.outputFileName, 'utf-8');
