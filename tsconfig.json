@@ -4,6 +4,7 @@
     "module": "ES2022",
     "target": "ES2022",
     "outDir": "dist",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "noUnusedLocals": false,
     "skipLibCheck": true,

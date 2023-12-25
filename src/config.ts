@@ -1,6 +1,8 @@
 import { z } from "zod";
-
 import type { Page } from "playwright";
+import { configDotenv } from "dotenv";
+
+configDotenv();
 
 const Page: z.ZodType<Page> = z.any();
 
