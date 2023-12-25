@@ -13,8 +13,6 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
     - [Run your crawler](#run-your-crawler)
   - [Alternative methods](#alternative-methods)
     - [Running in a container with Docker](#running-in-a-container-with-docker)
-    - [Running as a CLI](#running-as-a-cli)
-      - [Development](#development)
   - [Upload your data to OpenAI](#upload-your-data-to-openai)
     - [Create a custom GPT](#create-a-custom-gpt)
     - [Create a custom assistant](#create-a-custom-assistant)
@@ -32,6 +30,8 @@ This project crawled the docs and generated the file that I uploaded as the basi
 
 ## Get started
 
+This update comes with custom json names and latest npm libraries for 2024 support! just `npm i` or `pnpm i` and `npm start` or `pnpm start` to begin having fun!
+
 ### Running locally
 
 #### Clone the repository
@@ -48,19 +48,38 @@ git clone https://github.com/builderio/gpt-crawler
 npm i
 ```
 
+or 
+
+```sh
+pnpm i
+```
+
 #### Configure the crawler
 
 Open [config.ts](config.ts) and edit the `url` and `selector` properties to match your needs.
 
 E.g. to crawl the Builder.io docs to make our custom GPT you can use:
+This way will generate a unique json everytime!
 
 ```ts
+import { Config } from "./src/config";
+
+// protocol
+let protocol = "https://www.";
+// Important staff for eg: https://www.builder.io/c/docs/**
+let domain = "builder";
+let tld = ".io";
+// url
+let extra = "/c/docs/developers";
+// match
+let content = "/c/docs";
+let rest = "/**";
+
 export const defaultConfig: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
+  url: protocol + domain + tld + extra,
+  match: protocol + domain + tld + content + rest,
   maxPagesToCrawl: 50,
-  outputFileName: "output.json",
+  outputFileName: domain + ".json",
 };
 ```
 

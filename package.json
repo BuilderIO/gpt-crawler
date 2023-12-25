@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/gpt-crawler",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "bin": {
     "gpt-crawler": "./dist/src/cli.js"
@@ -8,7 +8,7 @@
   "description": "Crawl a site to generate knowledge files to create your own custom GPT",
   "dependencies": {
     "commander": "^11.1.0",
-    "crawlee": "^3.0.0",
+    "crawlee": "^3.7.0",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
     "gpt-tokenizer": "^2.1.2",
@@ -21,11 +21,11 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.0.0",
-    "prettier": "^3.1.0",
-    "semantic-release": "^22.0.8",
-    "ts-node": "^10.8.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^20.10.5",
+    "prettier": "^3.1.1",
+    "semantic-release": "^22.0.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "semantic-release": "semantic-release",
