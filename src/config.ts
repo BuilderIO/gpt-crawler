@@ -1,5 +1,4 @@
 import { z } from "zod";
-import Joi from "joi";
 import type { Page } from "playwright";
 import { configDotenv } from "dotenv";
 
