@@ -4,6 +4,9 @@ import { readFile } from 'fs/promises';
 import { crawl, write } from "./core.js";
 import { Config, ConfigSchema } from './config.js';
 import { configDotenv } from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
+// @ts-ignore
+import swaggerDocument from '../swagger-output.json' assert { type: 'json' };
 
 configDotenv();
 
@@ -13,6 +16,7 @@ const hostname = process.env.API_HOST || 'localhost';
 
 app.use(cors());
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Define a POST route to accept config and run the crawler
 app.post('/crawl', async (req, res) => {

@@ -17,7 +17,8 @@
     "inquirer": "^9.2.12",
     "joi": "^17.11.0",
     "playwright": "*",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.0",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
@@ -26,6 +27,8 @@
     "@types/express-fileupload": "^1.4.4",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.0.0",
+    "@types/swagger-ui-express": "^4.1.6",
+    "swagger-autogen": "^2.23.7",
     "ts-node": "^10.8.0",
     "typescript": "^5.0.0"
   },
