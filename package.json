@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/gpt-crawler",
-  "version": "0.0.1",
+  "version": "1.1.0",
   "type": "module",
   "bin": {
     "gpt-crawler": "./dist/src/cli.js"
@@ -13,7 +13,9 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
+    "cross-env": "^7.0.3",
     "glob": "^10.3.10",
+    "gpt-tokenizer": "^2.1.2",
     "inquirer": "^9.2.12",
     "joi": "^17.11.0",
     "playwright": "*",
@@ -25,23 +27,30 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/express-fileupload": "^1.4.4",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.0.0",
+    "prettier": "^3.1.0",
+    "semantic-release": "^22.0.8",
+    "ts-node": "^10.8.0",
+    "typescript": "^5.0.0",
     "@types/swagger-ui-express": "^4.1.6",
     "swagger-autogen": "^2.23.7",
-    "ts-node": "^10.8.0",
-    "typescript": "^5.0.0"
+    "zod": "^3.22.4"
   },
   "scripts": {
+    "semantic-release": "semantic-release",
     "preinstall": "npx playwright install",
     "start": "npm run start:dev",
-    "start:cli": "NODE_ENV=development npm run build && node dist/src/cli.js",
-    "start:dev": "NODE_ENV=development npm run build && node dist/src/main.js",
     "start:server": "NODE_ENV=development npm run build && node dist/src/server.js",
-    "start:prod": "node dist/main.js",
     "start:server:prod": "npm run build && node dist/src/server.js",
+    "start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
+    "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
+    "start:prod": "node dist/src/main.js",
     "build": "tsc",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "prettier:check": "prettier --check ."
   },
   "author": "It's not you it's me",
   "license": "ISC"

@@ -8,3 +8,6 @@ storage
 
 # installed files
 node_modules
+
+# ignore base image 'main.js'
+main.js
