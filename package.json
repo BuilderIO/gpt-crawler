@@ -42,7 +42,7 @@
     "semantic-release": "semantic-release",
     "preinstall": "npx playwright install",
     "start": "npm run start:dev",
-    "start:server": "NODE_ENV=development npm run build && node dist/src/server.js",
+    "start:server": "NODE_ENV=development node swagger.js && npm run build && node dist/src/server.js",
     "start:server:prod": "npm run build && node dist/src/server.js",
     "start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
     "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
