@@ -9,7 +9,9 @@ import swaggerDocument from "../swagger-output.json" assert { type: "json" };
 import GPTCrawlerCore from "./core.js";
 import { PathLike } from "fs";
 
-configDotenv();
+configDotenv({
+  path: `.env.${process.env.NODE_ENV}`
+});
 
 const app = express();
 const port = Number(process.env.API_PORT) || 3000;
