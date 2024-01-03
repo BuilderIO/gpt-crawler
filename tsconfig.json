@@ -1,6 +1,7 @@
 {
   "extends": "@apify/tsconfig",
   "compilerOptions": {
+    "esModuleInterop": true,
     "module": "ES2022",
     "target": "ES2022",
     "outDir": "dist",
@@ -11,5 +12,9 @@
     "lib": ["DOM"],
     "strict": true,
   },
-  "include": ["./src/**/*", "config.ts"]
+  "include": ["./src/**/*", "config.ts"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+  }
 }

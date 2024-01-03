@@ -1,11 +1,12 @@
 // For more information, see https://crawlee.dev/
-import { PlaywrightCrawler, downloadListOfUrls } from "crawlee";
+import {PlaywrightCrawler, downloadListOfUrls, Dataset} from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
+import prismaService from "./projectService";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
@@ -48,7 +49,7 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
   );
 }
 
-export async function crawl(config: Config) {
+export async function crawl(config: Config, uuid: string) {
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
@@ -56,7 +57,7 @@ export async function crawl(config: Config) {
     // browser controlled by the Playwright library.
     crawler = new PlaywrightCrawler({
       // Use the requestHandler to process each of the crawled pages.
-      async requestHandler({ request, page, enqueueLinks, log, pushData }) {
+      async requestHandler({ request, page, enqueueLinks, log }) {
         const title = await page.title();
         pageCounter++;
         log.info(
@@ -81,10 +82,11 @@ export async function crawl(config: Config) {
         const html = await getPageHtml(page, config.selector);
 
         // Save results as JSON to ./storage/datasets/default
-        await pushData({ title, url: request.loadedUrl, html });
+        const dataSet = await Dataset.open(uuid)
+        await dataSet.pushData({ title, url: request.loadedUrl, html });
 
         if (config.onVisitPage) {
-          await config.onVisitPage({ page, pushData });
+          await config.onVisitPage({ page, pushData: dataSet.pushData });
         }
 
         // Extract links from the current page
@@ -146,9 +148,9 @@ export async function crawl(config: Config) {
   }
 }
 
-export async function write(config: Config) {
+export async function write(config: Config, uuid: string) {
   let nextFileNameString: PathLike = "";
-  const jsonFiles = await glob("storage/datasets/default/*.json", {
+  const jsonFiles = await glob(`storage/datasets/${uuid}/*.json`, {
     absolute: true,
   });
 
@@ -165,10 +167,11 @@ export async function write(config: Config) {
     Buffer.byteLength(str, "utf-8");
 
   const nextFileName = (): string =>
-    `${config.outputFileName.replace(/\.json$/, "")}-${fileCounter}.json`;
+    `data/${config.outputFileName.replace(/\.json$/, "")}-${fileCounter}.json`;
 
   const writeBatchToFile = async (): Promise<void> => {
     nextFileNameString = nextFileName();
+    console.log(nextFileNameString)
     await writeFile(
       nextFileNameString,
       JSON.stringify(currentResults, null, 2),
@@ -235,14 +238,21 @@ class GPTCrawlerCore {
     this.config = config;
   }
 
-  async crawl() {
-    await crawl(this.config);
+  async crawl(uuid: string) {
+    await prismaService.createProject(uuid)
+    await crawl(this.config, uuid);
+    const outputFileName: PathLike = await this.write(uuid);
+    await prismaService.finishProject({
+      uuid,
+      state: 'finished',
+      outputFile: outputFileName as string
+    })
   }
 
-  async write(): Promise<PathLike> {
+  async write(uuid: string): Promise<PathLike> {
     // we need to wait for the file path as the path can change
     return new Promise((resolve, reject) => {
-      write(this.config)
+      write(this.config, uuid)
         .then((outputFilePath) => {
           resolve(outputFilePath);
         })

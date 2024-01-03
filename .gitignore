@@ -16,3 +16,4 @@ storage
 *.json
 .env
 pnpm-lock.yaml
+data/

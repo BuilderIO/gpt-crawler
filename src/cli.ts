@@ -5,6 +5,7 @@ import { Config } from "./config.js";
 import { crawl, write } from "./core.js";
 import { createRequire } from "node:module";
 import inquirer from "inquirer";
+import {randomUUID} from "node:crypto";
 
 const require = createRequire(import.meta.url);
 const { version, description } = require("../../package.json");
@@ -73,8 +74,9 @@ async function handler(options: Config) {
       };
     }
 
-    await crawl(config);
-    await write(config);
+    const uuid = randomUUID()
+    await crawl(config, uuid);
+    await write(config, uuid);
   } catch (error) {
     console.log(error);
   }

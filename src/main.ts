@@ -1,5 +1,7 @@
 import { defaultConfig } from "../config.js";
 import { crawl, write } from "./core.js";
+import {randomUUID} from "node:crypto";
 
-await crawl(defaultConfig);
-await write(defaultConfig);
+const uuid = randomUUID()
+await crawl(defaultConfig, uuid);
+await write(defaultConfig, uuid);
