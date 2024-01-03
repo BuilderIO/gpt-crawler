@@ -36,7 +36,8 @@
     "typescript": "^5.0.0",
     "@types/swagger-ui-express": "^4.1.6",
     "swagger-autogen": "^2.23.7",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "husky": "^8.0.0"
   },
   "scripts": {
     "semantic-release": "semantic-release",
@@ -47,9 +48,11 @@
     "start:cli": "cross-env NODE_ENV=development npm run build && node dist/src/cli.js",
     "start:dev": "cross-env NODE_ENV=development npm run build && node dist/src/main.js",
     "start:prod": "node dist/src/main.js",
+    "test": "echo \"No test specified, please create tests.\" && exit 0",
     "build": "tsc",
     "fmt": "prettier --write .",
-    "prettier:check": "prettier --check ."
+    "prettier:check": "prettier --check .",
+    "prepare": "husky install"
   },
   "author": "It's not you it's me",
   "license": "ISC"

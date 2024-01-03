@@ -7,6 +7,9 @@ FROM apify/actor-node-playwright-chrome:18 AS builder
 # to speed up the build using Docker layer cache.
 COPY --chown=myuser package*.json ./
 
+# Delete the prepare script. It's not needed in the final image.
+RUN npm pkg delete scripts.prepare
+
 # Install all dependencies. Don't audit to speed up the installation.
 RUN npm install --include=dev --audit=false
 
@@ -31,7 +34,8 @@ COPY --chown=myuser package*.json ./
 # Install NPM packages, skip optional and development dependencies to
 # keep the image small. Avoid logging too much and print the dependency
 # tree for debugging
-RUN npm --quiet set progress=false \
+RUN npm pkg delete scripts.prepare \
+    && npm --quiet set progress=false \
     && npm install --omit=dev --omit=optional \
     && echo "Installed NPM packages:" \
     && (npm list --omit=dev --all || true) \
