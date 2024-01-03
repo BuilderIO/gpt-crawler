@@ -48,6 +48,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
+        env:
+          HUSKY: 0
   semantic-pr:
     name: Validate PR title for semantic versioning
     runs-on: ubuntu-latest
