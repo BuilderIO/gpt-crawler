@@ -128,8 +128,7 @@ export async function crawl(config: Config) {
       ],
     });
 
-    const SITEMAP_SUFFIX = "sitemap.xml";
-    const isUrlASitemap = config.url.endsWith(SITEMAP_SUFFIX);
+    const isUrlASitemap = /sitemap.*\.xml$/.test(config.url);
 
     if (isUrlASitemap) {
       const listOfUrls = await downloadListOfUrls({ url: config.url });
