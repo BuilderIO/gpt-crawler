@@ -1,4 +1,4 @@
-import express, {Express} from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import { readFile } from "fs/promises";
 import { Config, configSchema } from "./config.js";
