@@ -6,6 +6,36 @@ configDotenv();
 
 const Page: z.ZodType<Page> = z.any();
 
+/**
+ * Pattern to match against for links on a page to subsequently crawl
+ * @example "https://www.builder.io/c/docs/**"
+ * @default ""
+ */
+export const OriginMatch = z.string().or(z.array(z.string()));
+
+export const PatternMatch = z.array(
+  z.object({
+    /**
+     * Pattern to match against for links on a page to subsequently crawl
+     * @example "https://www.builder.io/c/docs/**"
+     * @refer https://github.com/isaacs/minimatch
+     * @default ""
+     */
+    pattern: z.string(),
+    /**
+     * Selector to grab the inner text from, limited to pattern
+     * @example ".docs-builder-container"
+     * @default "body"
+     */
+    selector: z.string().optional(),
+    /**
+     * Skip to grap inner text for this pattern
+     * @default false
+     */
+    skip: z.boolean().optional(),
+  }),
+);
+
 export const configSchema = z.object({
   /**
    * URL to start the crawl, if url is a sitemap, it will crawl all pages in the sitemap
@@ -19,8 +49,7 @@ export const configSchema = z.object({
    * @example "https://www.builder.io/c/docs/**"
    * @default ""
    */
-  match: z.string().or(z.array(z.string())),
-
+  match: OriginMatch.or(PatternMatch),
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
@@ -83,3 +112,5 @@ export const configSchema = z.object({
 });
 
 export type Config = z.infer<typeof configSchema>;
+export type PatternMatchType = z.infer<typeof PatternMatch>;
+export type OriginMatchType = z.infer<typeof OriginMatch>;

@@ -17,6 +17,7 @@
     "glob": "^10.3.10",
     "gpt-tokenizer": "^2.1.2",
     "inquirer": "^9.2.12",
+    "minimatch": "^9.0.3",
     "playwright": "*",
     "prettier": "^3.1.0",
     "swagger-ui-express": "^5.0.0"
