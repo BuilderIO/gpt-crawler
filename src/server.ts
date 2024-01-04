@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import { readFile } from "fs/promises";
 import { Config, configSchema } from "./config.js";
@@ -11,7 +11,7 @@ import { PathLike } from "fs";
 
 configDotenv();
 
-const app = express();
+const app: Express = express();
 const port = Number(process.env.API_PORT) || 3000;
 const hostname = process.env.API_HOST || "localhost";
 
