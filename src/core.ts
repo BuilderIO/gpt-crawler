@@ -92,6 +92,8 @@ export async function crawl(config: Config) {
         await enqueueLinks({
           globs:
             typeof config.match === "string" ? [config.match] : config.match,
+          exclude:
+            typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [],
         });
       },
       // Comment this option to scrape the full website.

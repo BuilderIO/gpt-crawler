@@ -20,7 +20,12 @@ export const configSchema = z.object({
    * @default ""
    */
   match: z.string().or(z.array(z.string())),
-
+  /**
+   * Pattern to match against for links on a page to exclude from crawling
+   * @example "https://www.builder.io/c/docs/**"
+   * @default ""
+   */
+  exclude: z.string().or(z.array(z.string())).optional(),
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
