@@ -106,7 +106,7 @@ To obtain the `output.json` with a containerized execution, go into the `contain
 
 #### Running as an API
 
-To run the app as a API server you will need to do an `npm install` to install the dependencies. The server is written in Express JS. 
+To run the app as a API server you will need to do an `npm install` to install the dependencies. The server is written in Express JS.
 
 To run the server.
 
