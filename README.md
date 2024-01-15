@@ -15,6 +15,7 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
     - [Running in a container with Docker](#running-in-a-container-with-docker)
     - [Running as a CLI](#running-as-a-cli)
       - [Development](#development)
+    - [Running as an API](#running-as-an-api)
   - [Upload your data to OpenAI](#upload-your-data-to-openai)
     - [Create a custom GPT](#create-a-custom-gpt)
     - [Create a custom assistant](#create-a-custom-assistant)
@@ -102,6 +103,18 @@ npm start
 #### [Running in a container with Docker](./containerapp/README.md)
 
 To obtain the `output.json` with a containerized execution, go into the `containerapp` directory and modify the `config.ts` as shown above. The `output.json`file should be generated in the data folder. Note: the `outputFileName` property in the `config.ts` file in the `containerapp` directory is configured to work with the container.
+
+#### Running as an API
+
+To run the app as a API server you will need to do an `npm install` to install the dependencies. The server is written in Express JS.
+
+To run the server.
+
+`npm run start:server` to start the server. The server runs by default on port 3000.
+
+You can use the endpoint `/crawl` with the post request body of config json to run the crawler. The api docs are served on the endpoint `/api-docs` and are served using swagger.
+
+To modify the environment you can copy over the `.env.example` to `.env` and set your values like port, etc. to override the variables for the server.
 
 ### Upload your data to OpenAI
 
