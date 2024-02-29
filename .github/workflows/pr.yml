@@ -3,6 +3,7 @@ name: Pull request workflow
 on:
   pull_request:
     types: [opened, reopened, synchronize, edited]
+  workflow_dispatch:
 
 permissions:
   pull-requests: read
