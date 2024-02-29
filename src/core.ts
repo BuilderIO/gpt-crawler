@@ -65,9 +65,8 @@ export async function crawl(config: Config) {
           );
 
           // Use custom handling for XPath selector
-          let html: string | null = null; // 初始化为null或空字符串"" 
+          let html: string | null = null; // 初始化为null或空字符串""
           if (config.selector) {
-            
             if (config.selector.startsWith("/")) {
               await waitForXPath(
                 page,
@@ -84,7 +83,9 @@ export async function crawl(config: Config) {
                 html = await getPageHtml(page, config.selector);
               } catch (error) {
                 // 如果CSS选择器等待失败，则输出日志并等待<body>
-                console.log(`CSS Selector "${config.selector}" not found. Waiting for <body> instead.`);
+                console.log(
+                  `CSS Selector "${config.selector}" not found. Waiting for <body> instead.`,
+                );
                 await page.waitForSelector("body", {
                   timeout: config.waitForSelectorTimeout ?? 1000,
                 });
