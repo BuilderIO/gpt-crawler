@@ -13,8 +13,6 @@ Crawl a site to generate knowledge files to create your own custom GPT from one 
     - [Run your crawler](#run-your-crawler)
   - [Alternative methods](#alternative-methods)
     - [Running in a container with Docker](#running-in-a-container-with-docker)
-    - [Running as a CLI](#running-as-a-cli)
-      - [Development](#development)
     - [Running as an API](#running-as-an-api)
   - [Upload your data to OpenAI](#upload-your-data-to-openai)
     - [Create a custom GPT](#create-a-custom-gpt)
