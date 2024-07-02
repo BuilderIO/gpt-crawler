@@ -12,6 +12,9 @@ storage
 !package-lock.json
 !tsconfig.json
 
+.history
+crawled
+
 # any output from the crawler
 *.json
 .env

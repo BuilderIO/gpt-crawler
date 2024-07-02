@@ -25,7 +25,7 @@ export const configSchema = z.object({
    * @example "https://www.builder.io/c/docs/**"
    * @default ""
    */
-  exclude: z.string().or(z.array(z.string())).optional(),
+  exclude: z.union([z.string(), z.array(z.string())]).optional(),
   /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
@@ -42,6 +42,13 @@ export const configSchema = z.object({
    * @default "output.json"
    */
   outputFileName: z.string(),
+  /**
+   * Output file format (json, markdown, or human_readable_markdown)
+   * @default "json"
+   */
+  outputFileFormat: z
+    .enum(["json", "markdown", "human_readable_markdown"])
+    .default("json"),
   /** Optional cookie to be set. E.g. for Cookie Consent */
   cookie: z
     .union([
