@@ -106,7 +106,7 @@ export async function crawl(config: Config) {
             exclude:
               typeof config.exclude === "string"
                 ? [config.exclude]
-                : (config.exclude ?? []),
+                : config.exclude ?? [],
           });
         },
         // Comment this option to scrape the full website.
