@@ -1,5 +1,10 @@
 // For more information, see https://crawlee.dev/
-import { Configuration, PlaywrightCrawler, ProxyConfiguration, downloadListOfUrls } from "crawlee";
+import {
+  Configuration,
+  PlaywrightCrawler,
+  ProxyConfiguration,
+  downloadListOfUrls,
+} from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { Config, configSchema } from "./config.js";
@@ -101,7 +106,7 @@ export async function crawl(config: Config) {
             exclude:
               typeof config.exclude === "string"
                 ? [config.exclude]
-                : config.exclude ?? [],
+                : (config.exclude ?? []),
           });
         },
         // Comment this option to scrape the full website.
