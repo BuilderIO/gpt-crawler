@@ -85,6 +85,10 @@ export const configSchema = z.object({
    * @example 5000
    */
   maxTokens: z.number().int().positive().optional(),
+  /** Optional proxy server
+   * @example ['http://username:password@proxyserver:port', 'socks5://username:password@proxyserver:port']
+   */
+  proxyUrls: z.array(z.string()).optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
