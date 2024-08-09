@@ -1,10 +1,5 @@
 // For more information, see https://crawlee.dev/
-import {
-  Configuration,
-  PlaywrightCrawler,
-  ProxyConfiguration,
-  downloadListOfUrls,
-} from "crawlee";
+import { Configuration, PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
 import { Config, configSchema } from "./config.js";
@@ -59,13 +54,8 @@ export async function crawl(config: Config) {
   if (process.env.NO_CRAWL !== "true") {
     // PlaywrightCrawler crawls the web using a headless
     // browser controlled by the Playwright library.
-    const proxyConfiguration = new ProxyConfiguration({
-      proxyUrls: config.proxyUrls,
-    });
-
     crawler = new PlaywrightCrawler(
       {
-        proxyConfiguration,
         // Use the requestHandler to process each of the crawled pages.
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
           const title = await page.title();
