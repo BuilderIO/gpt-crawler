@@ -15,6 +15,8 @@ const messages = {
   selector: "What is the CSS selector you want to match?",
   maxPagesToCrawl: "How many pages do you want to crawl?",
   outputFileName: "What is the name of the output file?",
+  outputFileFormat:
+    "What format do you want to output? (json/markdown/human_readable_markdown)",
 };
 
 async function handler(options: Config) {
@@ -25,6 +27,7 @@ async function handler(options: Config) {
       selector,
       maxPagesToCrawl: maxPagesToCrawlStr,
       outputFileName,
+      outputFileFormat,
     } = options;
 
     // @ts-ignore
@@ -36,9 +39,15 @@ async function handler(options: Config) {
       selector,
       maxPagesToCrawl,
       outputFileName,
+      outputFileFormat,
     };
 
-    if (!config.url || !config.match || !config.selector) {
+    if (
+      !config.url ||
+      !config.match ||
+      !config.selector ||
+      !config.outputFileFormat
+    ) {
       const questions = [];
 
       if (!config.url) {
@@ -62,6 +71,16 @@ async function handler(options: Config) {
           type: "input",
           name: "selector",
           message: messages.selector,
+        });
+      }
+
+      if (!config.outputFileFormat) {
+        questions.push({
+          type: "list",
+          name: "outputFileFormat",
+          message: messages.outputFileFormat,
+          choices: ["json", "markdown", "human_readable_markdown"],
+          default: "json",
         });
       }
 
@@ -92,6 +111,7 @@ program
     messages.outputFileName,
     "output.json",
   )
+  .option("-f, --outputFileFormat <string>", messages.outputFileFormat, "json")
   .action(handler);
 
 program.parse();
