@@ -97,6 +97,10 @@ export async function crawl(config: Config) {
               typeof config.exclude === "string"
                 ? [config.exclude]
                 : config.exclude ?? [],
+            strategy:
+              typeof config.crawlStrategy === "string"
+                ? config.crawlStrategy
+                : undefined,
           });
         },
         // Comment this option to scrape the full website.

@@ -27,6 +27,15 @@ export const configSchema = z.object({
    */
   exclude: z.string().or(z.array(z.string())).optional(),
   /**
+   * Set Crawlee strategy to check certain parts of the URLs found.
+   * @example "same-origin"
+   * @default "same-hostname"
+   * @see https://crawlee.dev/api/core/enum/EnqueueStrategy
+   */
+  crawlStrategy: z
+    .enum(["all", "same-origin", "same-hostname", "same-domain"])
+    .optional(),
+  /**
    * Selector to grab the inner text from
    * @example ".docs-builder-container"
    * @default ""
