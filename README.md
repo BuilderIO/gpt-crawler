@@ -159,3 +159,40 @@ Know how to make this project better? Send a PR!
        </picture>
    </a>
 </p>
+
+### Running the `gpt-crawler` from an External Script
+
+This example demonstrates how to use the core functionalities of the `gpt-crawler` package **outside of its CLI interface** by directly importing the module’s functions programmatically using Node.js. Since `gpt-crawler` is an ES module, we need to use **dynamic imports** in a CommonJS environment to ensure it works seamlessly.
+
+```js
+// test-direct-call.js (using dynamic import in CommonJS)
+(async () => {
+    try {
+        // Dynamically import the ES module
+        const { crawl, write } = await import('./node_modules/@builder.io/gpt-crawler/dist/src/core.js');
+
+        // Define your custom configuration for the crawl
+        const config = {
+            url: "https://example.com",
+            match: "/articles/",
+            selector: "h1",
+            maxPagesToCrawl: 10,
+            outputFileName: "output.json",
+            maxTokens: 5000,   // Optional for token limit logic
+            maxFileSize: 5,    // Maximum file size in MB
+        };
+
+        // Call the crawl function directly from the core.js file
+        console.log("Starting crawl...");
+        await crawl(config);
+        console.log("Crawl complete.");
+
+        // Call the write function to store results
+        console.log("Writing output...");
+        await write(config);
+        console.log("Output written to:", config.outputFileName);
+
+    } catch (error) {
+        console.error("An error occurred:", error.message);
+    }
+})();
