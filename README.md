@@ -1,155 +1,233 @@
-# GPT Crawler <!-- omit from toc -->
+# GPT Crawler Plus
 
-Crawl a site to generate knowledge files to create your own custom GPT from one or multiple URLs
+Create knowledge files for custom GPTs or AI assistants with this advanced web crawler. Enhanced version featuring OpenAI integration, batch processing, and Markdown support.
 
-![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
+## Features
 
-- [Example](#example)
-- [Get started](#get-started)
-  - [Running locally](#running-locally)
-    - [Clone the repository](#clone-the-repository)
-    - [Install dependencies](#install-dependencies)
-    - [Configure the crawler](#configure-the-crawler)
-    - [Run your crawler](#run-your-crawler)
-  - [Alternative methods](#alternative-methods)
-    - [Running in a container with Docker](#running-in-a-container-with-docker)
-    - [Running as an API](#running-as-an-api)
-  - [Upload your data to OpenAI](#upload-your-data-to-openai)
-    - [Create a custom GPT](#create-a-custom-gpt)
-    - [Create a custom assistant](#create-a-custom-assistant)
-- [Contributing](#contributing)
+- 🤖 **OpenAI Integration**: Automatic content processing and enrichment with OpenAI API
+- 📊 **Token Usage Tracking**: Automatic calculation of OpenAI API usage and costs
+- 📑 **Batch Processing**: Process large sites in chunks and segment outputs
+- 📝 **Markdown Support**: Output content in structured Markdown format
+- 🔍 **Advanced Content Processing**: Titles, summaries, key points, and more
+- 🕷️ **Flexible Crawling**: Sitemap support and customizable crawling rules
 
-## Example
+## Getting Started
 
-[Here is a custom GPT](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) that I quickly made to help answer questions about how to use and integrate [Builder.io](https://www.builder.io) by simply providing the URL to the Builder docs.
+### Installation
 
-This project crawled the docs and generated the file that I uploaded as the basis for the custom GPT.
-
-[Try it out yourself](https://chat.openai.com/g/g-kywiqipmR-builder-io-assistant) by asking questions about how to integrate Builder.io into a site.
-
-> Note that you may need a paid ChatGPT plan to access this feature
-
-## Get started
-
-### Running locally
-
-#### Clone the repository
-
-Be sure you have Node.js >= 16 installed.
-
-```sh
-git clone https://github.com/builderio/gpt-crawler
+```bash
+git clone https://github.com/[your-username]/gpt-crawler
+cd gpt-crawler
+npm install
 ```
 
-#### Install dependencies
+### Configuration
 
-```sh
-npm i
-```
+Configure the crawler by editing `config.ts`:
 
-#### Configure the crawler
-
-Open [config.ts](config.ts) and edit the `url` and `selector` properties to match your needs.
-
-E.g. to crawl the Builder.io docs to make our custom GPT you can use:
-
-```ts
+```typescript
 export const defaultConfig: Config = {
-  url: "https://www.builder.io/c/docs/developers",
-  match: "https://www.builder.io/c/docs/**",
-  selector: `.docs-builder-container`,
+  url: "https://example.com",
+  match: "https://example.com/**",
+  selector: ".content-container",
   maxPagesToCrawl: 50,
-  outputFileName: "output.json",
+  outputFileName: "output.md",
+  maxTokens: 5000,
+  pagesPerFile: 5,
+  openai: {
+    enabled: true,
+    model: "gpt-3.5-turbo",
+    prompt: {
+      system: "Analyze and structure the content",
+      temperature: 0.7,
+      maxTokens: 1000
+    },
+    costPerInputToken: 0.3,  // USD/1M tokens
+    costPerOutputToken: 0.6  // USD/1M tokens
+  }
 };
 ```
 
-See [config.ts](src/config.ts) for all available options. Here is a sample of the common configuration options:
+### Important Configuration Options
 
-```ts
-type Config = {
-  /** URL to start the crawl, if sitemap is provided then it will be used instead and download all pages in the sitemap */
-  url: string;
-  /** Pattern to match against for links on a page to subsequently crawl */
-  match: string;
-  /** Selector to grab the inner text from */
-  selector: string;
-  /** Don't crawl more than this many pages */
-  maxPagesToCrawl: number;
-  /** File name for the finished data */
-  outputFileName: string;
-  /** Optional resources to exclude
-   *
-   * @example
-   * ['png','jpg','jpeg','gif','svg','css','js','ico','woff','woff2','ttf','eot','otf','mp4','mp3','webm','ogg','wav','flac','aac','zip','tar','gz','rar','7z','exe','dmg','apk','csv','xls','xlsx','doc','docx','pdf','epub','iso','dmg','bin','ppt','pptx','odt','avi','mkv','xml','json','yml','yaml','rss','atom','swf','txt','dart','webp','bmp','tif','psd','ai','indd','eps','ps','zipx','srt','wasm','m4v','m4a','webp','weba','m4b','opus','ogv','ogm','oga','spx','ogx','flv','3gp','3g2','jxr','wdp','jng','hief','avif','apng','avifs','heif','heic','cur','ico','ani','jp2','jpm','jpx','mj2','wmv','wma','aac','tif','tiff','mpg','mpeg','mov','avi','wmv','flv','swf','mkv','m4v','m4p','m4b','m4r','m4a','mp3','wav','wma','ogg','oga','webm','3gp','3g2','flac','spx','amr','mid','midi','mka','dts','ac3','eac3','weba','m3u','m3u8','ts','wpl','pls','vob','ifo','bup','svcd','drc','dsm','dsv','dsa','dss','vivo','ivf','dvd','fli','flc','flic','flic','mng','asf','m2v','asx','ram','ra','rm','rpm','roq','smi','smil','wmf','wmz','wmd','wvx','wmx','movie','wri','ins','isp','acsm','djvu','fb2','xps','oxps','ps','eps','ai','prn','svg','dwg','dxf','ttf','fnt','fon','otf','cab']
-   */
-  resourceExclusions?: string[];
-  /** Optional maximum file size in megabytes to include in the output file */
-  maxFileSize?: number;
-  /** Optional maximum number tokens to include in the output file */
-  maxTokens?: number;
-};
-```
+- **url**: Starting URL for crawling (can be sitemap.xml)
+- **match**: URL patterns to crawl
+- **selector**: Content selector (CSS or XPath)
+- **maxPagesToCrawl**: Maximum number of pages to crawl
+- **outputFileName**: Output file name
+- **maxTokens**: Maximum tokens per file
+- **pagesPerFile**: Number of pages per output file
+- **openai**: OpenAI integration settings
 
-#### Run your crawler
+### Running
 
-```sh
+```bash
 npm start
 ```
 
-### Alternative methods
+## Output Format
 
-#### [Running in a container with Docker](./containerapp/README.md)
+The crawler saves content in structured Markdown format:
 
-To obtain the `output.json` with a containerized execution, go into the `containerapp` directory and modify the `config.ts` as shown above. The `output.json`file should be generated in the data folder. Note: the `outputFileName` property in the `config.ts` file in the `containerapp` directory is configured to work with the container.
+```markdown
+# Token Usage and Cost Summary
+Total Prompt Tokens: 1,234
+Total Completion Tokens: 5,678
+Total Tokens: 6,912
 
-#### Running as an API
+Estimated Cost:
+- Input Cost: $0.3702
+- Output Cost: $3.4068
+- Total Cost: $3.7770
 
-To run the app as an API server you will need to do an `npm install` to install the dependencies. The server is written in Express JS.
+---
 
-To run the server.
+# Page Title
 
-`npm run start:server` to start the server. The server runs by default on port 3000.
+## Summary
+[Page summary]
 
-You can use the endpoint `/crawl` with the post request body of config json to run the crawler. The api docs are served on the endpoint `/api-docs` and are served using swagger.
+## Tags
+[Related tags]
 
-To modify the environment you can copy over the `.env.example` to `.env` and set your values like port, etc. to override the variables for the server.
+## Key Points
+[Important points]
 
-### Upload your data to OpenAI
+## Formatted Text
+[Processed content]
+```
 
-The crawl will generate a file called `output.json` at the root of this project. Upload that [to OpenAI](https://platform.openai.com/docs/assistants/overview) to create your custom assistant or custom GPT.
+## Advanced Features
 
-#### Create a custom GPT
+### Batch Processing
+- Separate file creation for each batch
+- Configurable delay between batches
+- Automatic segmentation based on token limits
 
-Use this option for UI access to your generated knowledge that you can easily share with others
+### OpenAI Integration
+- Content analysis and structuring
+- Token usage tracking
+- Cost calculation
+- Customizable prompts
 
-> Note: you may need a paid ChatGPT plan to create and use custom GPTs right now
+### Resource Management
+- Selective resource filtering
+- Maximum file size control
+- Concurrent request management
 
-1. Go to [https://chat.openai.com/](https://chat.openai.com/)
-2. Click your name in the bottom left corner
-3. Choose "My GPTs" in the menu
-4. Choose "Create a GPT"
-5. Choose "Configure"
-6. Under "Knowledge" choose "Upload a file" and upload the file you generated
-7. if you get an error about the file being too large, you can try to split it into multiple files and upload them separately using the option maxFileSize in the config.ts file or also use tokenization to reduce the size of the file with the option maxTokens in the config.ts file
+## Usage Methods
 
-![Gif of how to upload a custom GPT](https://github.com/BuilderIO/gpt-crawler/assets/844291/22f27fb5-6ca5-4748-9edd-6bcf00b408cf)
+### 1. Direct URL Crawling
 
-#### Create a custom assistant
+This method crawls a website starting from a single URL and follows links based on your patterns:
 
-Use this option for API access to your generated knowledge that you can integrate into your product.
+```typescript
+export const defaultConfig: Config = {
+  url: "https://example.com/docs",
+  match: "https://example.com/docs/**",
+  selector: ".content-container",
+  maxPagesToCrawl: 50,
+  outputFileName: "output.md",
+  maxTokens: 5000,
+  pagesPerFile: 5,
+  openai: {
+    enabled: true,
+    model: "gpt-3.5-turbo",
+    prompt: {
+      system: "Analyze and structure the content",
+      temperature: 0.7,
+      maxTokens: 1000
+    }
+  }
+};
+```
 
-1. Go to [https://platform.openai.com/assistants](https://platform.openai.com/assistants)
-2. Click "+ Create"
-3. Choose "upload" and upload the file you generated
+In this method:
+- Crawler starts from the specified URL
+- Follows links matching the `match` pattern
+- Processes each page it finds
+- Stops when reaching `maxPagesToCrawl` limit
+- Useful for smaller sites or specific sections
 
-![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
+### 2. Sitemap-Based Crawling
+
+This method uses a sitemap XML file to crawl pre-defined URLs:
+
+1. Create a sitemap file in `local_xmls/sitemap.xml`:
+```xml
+<?xml version="1.0" ?>
+<urls base_url="https://example.com" total_count="50">
+  <url>https://example.com/page1</url>
+  <url>https://example.com/page2</url>
+  <url>https://example.com/docs/section1</url>
+  <!-- Add more URLs -->
+</urls>
+```
+
+2. Configure the crawler to use the sitemap:
+```typescript
+export const defaultConfig: Config = {
+  url: "local_xmls/sitemap.xml",  // Local sitemap file
+  match: "https://example.com/**", // Pattern to filter URLs
+  selector: ".content-container",
+  maxPagesToCrawl: 50,
+  outputFileName: "output.md",
+  maxTokens: 5000,
+  pagesPerFile: 5,
+  openai: {
+    enabled: true,
+    model: "gpt-3.5-turbo",
+    prompt: {
+      system: "Analyze and structure the content",
+      temperature: 0.7,
+      maxTokens: 1000
+    }
+  }
+};
+```
+
+Benefits of Sitemap-Based Crawling:
+- **Precise Control**: Exactly specify which URLs to crawl
+- **Better Organization**: Pre-define the structure of your crawl
+- **Efficient Processing**: No need to discover URLs during crawling
+- **Filtering Capabilities**: Can still use match/exclude patterns
+- **Batch Processing**: Works well with `pagesPerFile` for large sites
+
+The crawler will:
+1. Read the sitemap file
+2. Filter URLs based on match/exclude patterns
+3. Process URLs up to maxPagesToCrawl limit
+4. Generate structured output files
+
+Both methods support all features like:
+- OpenAI processing
+- Token tracking
+- Batch processing
+- Markdown output
+- Resource filtering
+
+Choose the method based on your needs:
+- Use **Direct URL** for:
+  - Small to medium sites
+  - Dynamic exploration
+  - Unknown site structure
+  
+- Use **Sitemap-Based** for:
+  - Large sites
+  - Known URL structure
+  - Precise control
+  - Batch processing
+  - Selective crawling
 
 ## Contributing
 
-Know how to make this project better? Send a PR!
+We welcome your suggestions and pull requests to improve the project!
 
-<br>
-<br>
+## License
+
+MIT
+
+---
 
 <p align="center">
    <a href="https://www.builder.io/m/developers">
