@@ -104,13 +104,11 @@ export async function crawl(config: Config) {
         // Uncomment this option to see the browser window.
         // headless: false,
         preNavigationHooks: [
-          // Abort requests for certain resource types
-          async ({ request, page, log }) => {
-            // If there are no resource exclusions, return
-            const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
-            if (RESOURCE_EXCLUSTIONS.length === 0) {
-              return;
-            }
+          // Abort requests for certain resource types and add cookies
+          async (crawlingContext, _gotoOptions) => {
+            const { request, page, log } = crawlingContext;
+            // Add cookies to the page
+            // Because the crawler has not yet navigated to the page, so the loadedUrl is always undefined. Use the request url instead.
             if (config.cookie) {
               const cookies = (
                 Array.isArray(config.cookie) ? config.cookie : [config.cookie]
@@ -118,10 +116,15 @@ export async function crawl(config: Config) {
                 return {
                   name: cookie.name,
                   value: cookie.value,
-                  url: request.loadedUrl,
+                  url: request.url,
                 };
               });
               await page.context().addCookies(cookies);
+            }
+            const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
+            // If there are no resource exclusions, return
+            if (RESOURCE_EXCLUSTIONS.length === 0) {
+              return;
             }
             await page.route(
               `**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`,
