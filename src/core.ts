@@ -65,22 +65,28 @@ export async function crawl(config: Config) {
           );
 
           // Use custom handling for XPath selector
-          if (config.selector) {
-            if (config.selector.startsWith("/")) {
-              await waitForXPath(
-                page,
-                config.selector,
-                config.waitForSelectorTimeout ?? 1000,
+          let effectiveSelector = config.selector;
+          if (effectiveSelector) {
+            try {
+              if (effectiveSelector.startsWith("/")) {
+                await waitForXPath(
+                  page,
+                  effectiveSelector,
+                  config.waitForSelectorTimeout ?? 1000,
+                );
+              } else {
+                await page.waitForSelector(effectiveSelector, {
+                  timeout: config.waitForSelectorTimeout ?? 1000,
+                });
+              }
+            } catch (error) {
+              console.log(
+                `Selector "${config.selector}" not found. Defaulting to <body>.`,
               );
-            } else {
-              await page.waitForSelector(config.selector, {
-                timeout: config.waitForSelectorTimeout ?? 1000,
-              });
+              effectiveSelector = undefined;
             }
           }
-
-          const html = await getPageHtml(page, config.selector);
-
+          const html = await getPageHtml(page, effectiveSelector);
           // Save results as JSON to ./storage/datasets/default
           await pushData({ title, url: request.loadedUrl, html });
 
