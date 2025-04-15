@@ -8,7 +8,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" assert { type: "json" };
 import GPTCrawlerCore from "./core.js";
 import { PathLike } from "fs";
-import path from 'path';
+import path from "path";
 
 configDotenv();
 
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Add this line to serve static files
-app.use('/static', express.static(path.join(process.cwd(), 'local_xmls')));
+app.use("/static", express.static(path.join(process.cwd(), "local_xmls")));
 
 // Define a POST route to accept config and run the crawler
 app.post("/crawl", async (req, res) => {

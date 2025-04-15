@@ -40,11 +40,11 @@ export const defaultConfig: Config = {
     prompt: {
       system: "Analyze and structure the content",
       temperature: 0.7,
-      maxTokens: 1000
+      maxTokens: 1000,
     },
-    costPerInputToken: 0.3,  // USD/1M tokens
-    costPerOutputToken: 0.6  // USD/1M tokens
-  }
+    costPerInputToken: 0.3, // USD/1M tokens
+    costPerOutputToken: 0.6, // USD/1M tokens
+  },
 };
 ```
 
@@ -71,11 +71,13 @@ The crawler saves content in structured Markdown format:
 
 ```markdown
 # Token Usage and Cost Summary
+
 Total Prompt Tokens: 1,234
 Total Completion Tokens: 5,678
 Total Tokens: 6,912
 
 Estimated Cost:
+
 - Input Cost: $0.3702
 - Output Cost: $3.4068
 - Total Cost: $3.7770
@@ -85,32 +87,39 @@ Estimated Cost:
 # Page Title
 
 ## Summary
+
 [Page summary]
 
 ## Tags
+
 [Related tags]
 
 ## Key Points
+
 [Important points]
 
 ## Formatted Text
+
 [Processed content]
 ```
 
 ## Advanced Features
 
 ### Batch Processing
+
 - Separate file creation for each batch
 - Configurable delay between batches
 - Automatic segmentation based on token limits
 
 ### OpenAI Integration
+
 - Content analysis and structuring
 - Token usage tracking
 - Cost calculation
 - Customizable prompts
 
 ### Resource Management
+
 - Selective resource filtering
 - Maximum file size control
 - Concurrent request management
@@ -136,13 +145,14 @@ export const defaultConfig: Config = {
     prompt: {
       system: "Analyze and structure the content",
       temperature: 0.7,
-      maxTokens: 1000
-    }
-  }
+      maxTokens: 1000,
+    },
+  },
 };
 ```
 
 In this method:
+
 - Crawler starts from the specified URL
 - Follows links matching the `match` pattern
 - Processes each page it finds
@@ -154,6 +164,7 @@ In this method:
 This method uses a sitemap XML file to crawl pre-defined URLs:
 
 1. Create a sitemap file in `local_xmls/sitemap.xml`:
+
 ```xml
 <?xml version="1.0" ?>
 <urls base_url="https://example.com" total_count="50">
@@ -165,9 +176,10 @@ This method uses a sitemap XML file to crawl pre-defined URLs:
 ```
 
 2. Configure the crawler to use the sitemap:
+
 ```typescript
 export const defaultConfig: Config = {
-  url: "local_xmls/sitemap.xml",  // Local sitemap file
+  url: "local_xmls/sitemap.xml", // Local sitemap file
   match: "https://example.com/**", // Pattern to filter URLs
   selector: ".content-container",
   maxPagesToCrawl: 50,
@@ -180,13 +192,14 @@ export const defaultConfig: Config = {
     prompt: {
       system: "Analyze and structure the content",
       temperature: 0.7,
-      maxTokens: 1000
-    }
-  }
+      maxTokens: 1000,
+    },
+  },
 };
 ```
 
 Benefits of Sitemap-Based Crawling:
+
 - **Precise Control**: Exactly specify which URLs to crawl
 - **Better Organization**: Pre-define the structure of your crawl
 - **Efficient Processing**: No need to discover URLs during crawling
@@ -194,12 +207,14 @@ Benefits of Sitemap-Based Crawling:
 - **Batch Processing**: Works well with `pagesPerFile` for large sites
 
 The crawler will:
+
 1. Read the sitemap file
 2. Filter URLs based on match/exclude patterns
 3. Process URLs up to maxPagesToCrawl limit
 4. Generate structured output files
 
 Both methods support all features like:
+
 - OpenAI processing
 - Token tracking
 - Batch processing
@@ -207,11 +222,11 @@ Both methods support all features like:
 - Resource filtering
 
 Choose the method based on your needs:
+
 - Use **Direct URL** for:
   - Small to medium sites
   - Dynamic exploration
   - Unknown site structure
-  
 - Use **Sitemap-Based** for:
   - Large sites
   - Known URL structure
