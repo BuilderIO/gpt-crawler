@@ -219,6 +219,26 @@ Choose the method based on your needs:
   - Batch processing
   - Selective crawling
 
+## Serving Local XML Files for the Crawler
+
+To serve your local sitemap or other XML files for the crawler, you can use Python's built-in HTTP server. This is useful for testing or development when you want to provide a local sitemap file.
+
+1. Place your sitemap or XML files in the `local_xmls` folder.
+2. Start a simple HTTP server in the project root (or inside the `local_xmls` folder):
+
+```bash
+cd local_xmls
+python -m http.server 8000
+```
+
+3. Access your XML file in your browser or crawler at:
+
+```
+http://localhost:8000/your_sitemap.xml
+```
+
+Replace `your_sitemap.xml` with the actual file name you want to serve.
+
 ## Contributing
 
 We welcome your suggestions and pull requests to improve the project!

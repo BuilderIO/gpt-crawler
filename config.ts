@@ -1,13 +1,12 @@
 import { Config } from "./src/config";
 
 export const defaultConfig: Config = {
-  // url: "http://localhost:8000/sitemap.xml",
-  url: "https://docs.trychroma.com",
-  match: "https://docs.trychroma.com/**",
-  maxPagesToCrawl: 99999, // Pratik olarak sınırsız
+  url: "http://localhost:8000/docs_n8n_io_sitemap.xml",
+  match: "http://docs.n8n.io/**",
+  maxPagesToCrawl: 1000, // Pratik olarak sınırsız
   pagesPerFile: 100,
   batchDelay: 50000, // 60 seconds delay between batches
-  outputFileName: "markdown_output/chromadb-docs.md",
+  outputFileName: "markdown_output/n8n-docs.md",
   maxTokens: 2000000,
   maxConcurrency: 5, // Limit concurrent requests
   openai: {

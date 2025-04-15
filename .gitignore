@@ -16,3 +16,10 @@ storage
 *.json
 .env
 pnpm-lock.yaml
+
+# Track folders but ignore all files inside
+local_xmls/*
+!local_xmls/.gitkeep
+
+markdown_output/*
+!markdown_output/.gitkeep
