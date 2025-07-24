@@ -6,7 +6,10 @@ import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
-import { PerformanceManager, ConcurrencyManager } from "./performance-manager.js";
+import {
+  PerformanceManager,
+  ConcurrencyManager,
+} from "./performance-manager.js";
 import { SmartCrawlingManager } from "./smart-crawling.js";
 import { discoverLinks } from "./enhanced-link-discovery.js";
 
@@ -58,13 +61,13 @@ export async function crawl(config: Config) {
 
   if (process.env.NO_CRAWL !== "true") {
     // Initialize performance management
-    console.log('🚀 Initializing performance-optimized crawler...');
+    console.log("🚀 Initializing performance-optimized crawler...");
     performanceManager = new PerformanceManager({
       enableMemoryManagement: true,
       maxMemoryUsage: 1024, // 1GB
       enableCaching: true,
       enableMonitoring: true,
-      enableSmartRetry: true
+      enableSmartRetry: true,
     });
 
     smartCrawlingManager = new SmartCrawlingManager();
@@ -76,14 +79,14 @@ export async function crawl(config: Config) {
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
           const startTime = Date.now();
           let success = false;
-          
+
           try {
             const title = await page.title();
             pageCounter++;
-            
+
             // Update performance metrics
             performanceManager.updateCrawledPages(pageCounter);
-            
+
             log.info(
               `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
             );
@@ -91,10 +94,16 @@ export async function crawl(config: Config) {
             // Analyze site and apply smart crawling strategy on first page
             if (pageCounter === 1) {
               await performanceManager.executeWithRetry(async () => {
-                const siteAnalysis = await smartCrawlingManager.analyzeSite(page);
-                await smartCrawlingManager.applyStrategy(page, siteAnalysis.recommendedStrategy);
-                console.log(`🎯 Applied crawling strategy: ${siteAnalysis.recommendedStrategy.name}`);
-              }, 'Site analysis');
+                const siteAnalysis =
+                  await smartCrawlingManager.analyzeSite(page);
+                await smartCrawlingManager.applyStrategy(
+                  page,
+                  siteAnalysis.recommendedStrategy,
+                );
+                console.log(
+                  `🎯 Applied crawling strategy: ${siteAnalysis.recommendedStrategy.name}`,
+                );
+              }, "Site analysis");
             } else {
               // Apply strategy to subsequent pages
               await smartCrawlingManager.applyStrategy(page);
@@ -128,53 +137,74 @@ export async function crawl(config: Config) {
             const strategy = smartCrawlingManager.getStrategy();
             if (strategy?.settings.enableLinkDiscovery) {
               // Use enhanced link discovery instead of basic enqueueLinks
-              const discoveredLinks = await performanceManager.executeWithRetry(async () => {
-                return await discoverLinks(page, strategy.settings.linkDiscoveryOptions);
-              }, 'Link discovery');
+              const discoveredLinks = await performanceManager.executeWithRetry(
+                async () => {
+                  return await discoverLinks(
+                    page,
+                    strategy.settings.linkDiscoveryOptions,
+                  );
+                },
+                "Link discovery",
+              );
 
               // Filter links and add to queue
               const validUrls = discoveredLinks
-                .filter(link => {
+                .filter((link) => {
                   const url = link.url;
-                  const matches = typeof config.match === "string" ? [config.match] : config.match;
-                  const excludes = typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [];
-                  
+                  const matches =
+                    typeof config.match === "string"
+                      ? [config.match]
+                      : config.match;
+                  const excludes =
+                    typeof config.exclude === "string"
+                      ? [config.exclude]
+                      : config.exclude ?? [];
+
                   // Check if URL matches include patterns
-                  const matchesPattern = matches.some(pattern => {
-                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                  const matchesPattern = matches.some((pattern) => {
+                    const regex = new RegExp(pattern.replace(/\*/g, ".*"));
                     return regex.test(url);
                   });
-                  
+
                   // Check if URL matches exclude patterns
-                  const excludesPattern = excludes.some(pattern => {
-                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                  const excludesPattern = excludes.some((pattern) => {
+                    const regex = new RegExp(pattern.replace(/\*/g, ".*"));
                     return regex.test(url);
                   });
-                  
+
                   return matchesPattern && !excludesPattern;
                 })
-                .map(link => ({ url: link.url }));
+                .map((link) => ({ url: link.url }));
 
               // Add discovered links to crawler queue
               if (validUrls.length > 0) {
                 await crawler.addRequests(validUrls);
-                log.info(`🔗 Discovered ${validUrls.length} links using enhanced discovery`);
+                log.info(
+                  `🔗 Discovered ${validUrls.length} links using enhanced discovery`,
+                );
               }
             } else {
               // Fallback to traditional link discovery
               await enqueueLinks({
-                globs: typeof config.match === "string" ? [config.match] : config.match,
-                exclude: typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [],
+                globs:
+                  typeof config.match === "string"
+                    ? [config.match]
+                    : config.match,
+                exclude:
+                  typeof config.exclude === "string"
+                    ? [config.exclude]
+                    : config.exclude ?? [],
               });
             }
 
             success = true;
-            
+
             // Memory cleanup check
             await performanceManager.performMemoryCleanup();
-            
           } catch (error) {
-            log.error(`Error processing page ${request.loadedUrl}:`, { error: error instanceof Error ? error.message : String(error) });
+            log.error(`Error processing page ${request.loadedUrl}:`, {
+              error: error instanceof Error ? error.message : String(error),
+            });
             throw error;
           } finally {
             // Record request performance
@@ -188,7 +218,10 @@ export async function crawl(config: Config) {
         // Comment this option to scrape the full website.
         maxRequestsPerCrawl: config.maxPagesToCrawl,
         // Dynamic concurrency based on performance
-        maxConcurrency: Math.min(10, Math.max(1, performanceManager.calculateOptimalConcurrency())),
+        maxConcurrency: Math.min(
+          10,
+          Math.max(1, performanceManager.calculateOptimalConcurrency()),
+        ),
         // Uncomment this option to see the browser window.
         // headless: false,
         preNavigationHooks: [
@@ -244,17 +277,19 @@ export async function crawl(config: Config) {
         // Add first URL to the queue and start the crawl.
         await crawler.run([config.url]);
       }
-      
-      console.log('✅ Crawling completed successfully!');
-      
+
+      console.log("✅ Crawling completed successfully!");
     } catch (error) {
-      console.error('❌ Crawling failed:', error instanceof Error ? error.message : String(error));
+      console.error(
+        "❌ Crawling failed:",
+        error instanceof Error ? error.message : String(error),
+      );
       throw error;
     } finally {
       // Cleanup performance manager
       if (performanceManager) {
         performanceManager.cleanup();
-        console.log('🧹 Performance cleanup completed');
+        console.log("🧹 Performance cleanup completed");
       }
     }
   }

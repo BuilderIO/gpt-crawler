@@ -1,6 +1,6 @@
 /**
  * Performance Optimization Module for GPT Crawler
- * 
+ *
  * This module provides various performance improvements:
  * - Memory management and garbage collection
  * - Request optimization and caching
@@ -68,7 +68,7 @@ export class PerformanceManager {
       enableSmartRetry: true,
       maxRetries: 3,
       retryDelay: 1000,
-      ...options
+      ...options,
     };
 
     this.metrics = {
@@ -79,7 +79,7 @@ export class PerformanceManager {
       avgResponseTime: 0,
       startTime: Date.now(),
       crawledPages: 0,
-      queueSize: 0
+      queueSize: 0,
     };
 
     if (this.options.enableMonitoring) {
@@ -94,19 +94,20 @@ export class PerformanceManager {
     const context = await browser.newContext({
       // Reduce memory usage
       viewport: { width: 1280, height: 720 },
-      
+
       // Disable unnecessary features for headless crawling
       javaScriptEnabled: true, // Keep enabled for SPA support
-      
+
       // Optimize for crawling
       ignoreHTTPSErrors: true,
-      
+
       // Reduce resource usage
-      userAgent: 'Mozilla/5.0 (compatible; GPTCrawler/1.0; +https://github.com/BuilderIO/gpt-crawler)',
+      userAgent:
+        "Mozilla/5.0 (compatible; GPTCrawler/1.0; +https://github.com/BuilderIO/gpt-crawler)",
     });
 
     // Set up request interception for performance
-    await context.route('**/*', async (route) => {
+    await context.route("**/*", async (route) => {
       const request = route.request();
       const url = request.url();
 
@@ -138,9 +139,9 @@ export class PerformanceManager {
    */
   async optimizePage(page: Page, config: Config): Promise<void> {
     // Set up performance monitoring
-    page.on('response', (response) => {
+    page.on("response", (response) => {
       this.metrics.requestCount++;
-      
+
       // Cache successful responses if enabled
       if (this.options.enableCaching && response.status() < 400) {
         const url = response.url();
@@ -149,25 +150,39 @@ export class PerformanceManager {
           this.requestCache.set(url, {
             status: response.status(),
             headers: response.headers(),
-            url: url
+            url: url,
           });
         }
       }
     });
 
-    page.on('pageerror', (error) => {
-      console.warn('Page error:', error.message);
+    page.on("pageerror", (error) => {
+      console.warn("Page error:", error.message);
       this.metrics.errorCount++;
     });
 
     // Optimize resource loading
     const resourceExclusions = config.resourceExclusions || [
-      'png', 'jpg', 'jpeg', 'gif', 'svg', 'css', 'js', 'ico', 
-      'woff', 'woff2', 'ttf', 'eot', 'otf', 'mp4', 'mp3', 'webm'
+      "png",
+      "jpg",
+      "jpeg",
+      "gif",
+      "svg",
+      "css",
+      "js",
+      "ico",
+      "woff",
+      "woff2",
+      "ttf",
+      "eot",
+      "otf",
+      "mp4",
+      "mp3",
+      "webm",
     ];
 
     if (resourceExclusions.length > 0) {
-      await page.route(`**/*.{${resourceExclusions.join(',')}}`, (route) => {
+      await page.route(`**/*.{${resourceExclusions.join(",")}}`, (route) => {
         route.abort();
       });
     }
@@ -182,21 +197,21 @@ export class PerformanceManager {
    */
   async executeWithRetry<T>(
     operation: () => Promise<T>,
-    context: string = 'operation'
+    context: string = "operation",
   ): Promise<T> {
     if (!this.options.enableSmartRetry) {
       return await operation();
     }
 
     let lastError: any;
-    
+
     for (let attempt = 1; attempt <= this.options.maxRetries!; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error;
         this.metrics.errorCount++;
-        
+
         if (attempt === this.options.maxRetries) {
           console.error(`${context} failed after ${attempt} attempts:`, error);
           throw error;
@@ -207,7 +222,12 @@ export class PerformanceManager {
         const jitter = Math.random() * 1000; // Add jitter to prevent thundering herd
         const totalDelay = delay + jitter;
 
-        console.warn(`${context} failed (attempt ${attempt}), retrying in ${Math.round(totalDelay)}ms:`, error instanceof Error ? error.message : String(error));
+        console.warn(
+          `${context} failed (attempt ${attempt}), retrying in ${Math.round(
+            totalDelay,
+          )}ms:`,
+          error instanceof Error ? error.message : String(error),
+        );
         await this.sleep(totalDelay);
       }
     }
@@ -225,8 +245,12 @@ export class PerformanceManager {
     const memoryUsageMB = currentMemory.heapUsed / 1024 / 1024;
 
     if (memoryUsageMB > this.options.maxMemoryUsage!) {
-      console.log(`Memory usage high (${Math.round(memoryUsageMB)}MB), performing cleanup...`);
-      
+      console.log(
+        `Memory usage high (${Math.round(
+          memoryUsageMB,
+        )}MB), performing cleanup...`,
+      );
+
       // Clear cache if it exists
       if (this.requestCache.size > 0) {
         const cacheSize = this.requestCache.size;
@@ -237,7 +261,7 @@ export class PerformanceManager {
       // Force garbage collection if available
       if (global.gc) {
         global.gc();
-        console.log('Forced garbage collection');
+        console.log("Forced garbage collection");
       }
 
       this.lastCleanupTime = Date.now();
@@ -263,13 +287,15 @@ export class PerformanceManager {
     const totalRequests = this.metrics.requestCount;
     if (totalRequests > 10) {
       const errorRate = this.metrics.errorCount / totalRequests;
-      if (errorRate > 0.1) { // More than 10% error rate
+      if (errorRate > 0.1) {
+        // More than 10% error rate
         optimalConcurrency = Math.max(1, Math.floor(optimalConcurrency * 0.7));
       }
     }
 
     // Adjust based on response time
-    if (this.metrics.avgResponseTime > 5000) { // Slow responses
+    if (this.metrics.avgResponseTime > 5000) {
+      // Slow responses
       optimalConcurrency = Math.max(1, Math.floor(optimalConcurrency * 0.8));
     }
 
@@ -292,14 +318,18 @@ export class PerformanceManager {
   private logPerformanceMetrics(): void {
     const runtime = (Date.now() - this.metrics.startTime) / 1000;
     const pagesPerSecond = this.metrics.crawledPages / runtime;
-    const memoryMB = Math.round(this.metrics.memoryUsage.heapUsed / 1024 / 1024);
-    
+    const memoryMB = Math.round(
+      this.metrics.memoryUsage.heapUsed / 1024 / 1024,
+    );
+
     console.log(`Performance Report:
     Runtime: ${Math.round(runtime)}s
     Pages crawled: ${this.metrics.crawledPages}
     Pages/second: ${pagesPerSecond.toFixed(2)}
     Memory usage: ${memoryMB}MB
-    Requests: ${this.metrics.requestCount} (${this.metrics.successCount} success, ${this.metrics.errorCount} errors)
+    Requests: ${this.metrics.requestCount} (${
+      this.metrics.successCount
+    } success, ${this.metrics.errorCount} errors)
     Avg response time: ${Math.round(this.metrics.avgResponseTime)}ms
     Cache size: ${this.requestCache.size}`);
   }
@@ -309,14 +339,16 @@ export class PerformanceManager {
    */
   private recordResponseTime(responseTime: number): void {
     this.responseTimeHistory.push(responseTime);
-    
+
     // Keep only last 100 response times
     if (this.responseTimeHistory.length > 100) {
       this.responseTimeHistory.shift();
     }
 
     // Calculate average
-    this.metrics.avgResponseTime = this.responseTimeHistory.reduce((a, b) => a + b, 0) / this.responseTimeHistory.length;
+    this.metrics.avgResponseTime =
+      this.responseTimeHistory.reduce((a, b) => a + b, 0) /
+      this.responseTimeHistory.length;
   }
 
   /**
@@ -355,7 +387,7 @@ export class PerformanceManager {
    * Utility function for sleeping
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -399,8 +431,11 @@ export class ConcurrencyManager {
    * Adjust concurrency based on recent performance
    */
   private adjustConcurrency(): void {
-    const avgResponseTime = this.responseTimeHistory.reduce((a, b) => a + b, 0) / this.responseTimeHistory.length;
-    const errorRate = this.errorHistory.filter(Boolean).length / this.errorHistory.length;
+    const avgResponseTime =
+      this.responseTimeHistory.reduce((a, b) => a + b, 0) /
+      this.responseTimeHistory.length;
+    const errorRate =
+      this.errorHistory.filter(Boolean).length / this.errorHistory.length;
 
     let adjustment = 0;
 
@@ -416,11 +451,17 @@ export class ConcurrencyManager {
     if (adjustment !== 0) {
       const newConcurrency = Math.max(
         this.minConcurrency,
-        Math.min(this.maxConcurrency, this.currentConcurrency + adjustment)
+        Math.min(this.maxConcurrency, this.currentConcurrency + adjustment),
       );
 
       if (newConcurrency !== this.currentConcurrency) {
-        console.log(`Adjusting concurrency: ${this.currentConcurrency} → ${newConcurrency} (avg response: ${Math.round(avgResponseTime)}ms, error rate: ${Math.round(errorRate * 100)}%)`);
+        console.log(
+          `Adjusting concurrency: ${
+            this.currentConcurrency
+          } → ${newConcurrency} (avg response: ${Math.round(
+            avgResponseTime,
+          )}ms, error rate: ${Math.round(errorRate * 100)}%)`,
+        );
         this.currentConcurrency = newConcurrency;
       }
     }
@@ -456,7 +497,7 @@ export class ResourceMonitor {
     cpuUsage?: NodeJS.CpuUsage;
   } {
     const currentMemory = process.memoryUsage();
-    
+
     return {
       runtime: Date.now() - this.startTime,
       memoryUsage: currentMemory,
@@ -465,9 +506,11 @@ export class ResourceMonitor {
         heapTotal: currentMemory.heapTotal - this.initialMemory.heapTotal,
         heapUsed: currentMemory.heapUsed - this.initialMemory.heapUsed,
         external: currentMemory.external - this.initialMemory.external,
-        arrayBuffers: (currentMemory as any).arrayBuffers - (this.initialMemory as any).arrayBuffers || 0
+        arrayBuffers:
+          (currentMemory as any).arrayBuffers -
+            (this.initialMemory as any).arrayBuffers || 0,
       },
-      cpuUsage: process.cpuUsage ? process.cpuUsage() : undefined
+      cpuUsage: process.cpuUsage ? process.cpuUsage() : undefined,
     };
   }
 
