@@ -28,11 +28,13 @@ What actually happened.
 ## Error Information
 
 **Error Message:**
+
 ```
 Paste the complete error message here
 ```
 
 **Stack Trace (if applicable):**
+
 ```
 Paste any stack trace here
 ```
@@ -46,6 +48,7 @@ Paste any stack trace here
 ## Troubleshooting Steps Tried
 
 Please check all that apply:
+
 - [ ] Ran `./setup-mac.sh`
 - [ ] Ran `npm run install:browsers`
 - [ ] Ran `npm run fix:mac`
@@ -58,11 +61,13 @@ Please check all that apply:
 ## Configuration
 
 **config.ts snippet:**
+
 ```typescript
 // Paste relevant parts of your config.ts here
 ```
 
 **npm packages (relevant):**
+
 ```json
 // Output of: npm ls playwright
 ```
@@ -70,17 +75,20 @@ Please check all that apply:
 ## Environment Details
 
 **Terminal Output of Diagnostics:**
+
 ```bash
 # Please run: npm run diagnostics
 # And paste the output here
 ```
 
 **Free Disk Space:**
+
 ```bash
 # Output of: df -h
 ```
 
 **Available Memory:**
+
 ```bash
 # Output of: vm_stat | head -5
 ```
@@ -97,6 +105,7 @@ If you found any temporary workarounds, please describe them here.
 
 **Quick Self-Help Checklist:**
 Before submitting, please try:
+
 1. Run our Mac setup script: `./setup-mac.sh`
 2. Check our [Mac Setup Guide](../MAC_SETUP_GUIDE.md)
 3. Search existing [Mac-related issues](https://github.com/BuilderIO/gpt-crawler/issues?q=is%3Aissue+label%3Amac)

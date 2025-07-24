@@ -1,13 +1,14 @@
 # GPT Crawler <!-- omit from toc -->
 
 <!-- Keep these links. Translations will automatically update with the README. -->
-[Deutsch](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=de) | 
-[Español](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=es) | 
-[français](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=fr) | 
-[日本語](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ja) | 
-[한국어](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ko) | 
-[Português](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=pt) | 
-[Русский](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ru) | 
+
+[Deutsch](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=de) |
+[Español](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=es) |
+[français](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=fr) |
+[日本語](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ja) |
+[한국어](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ko) |
+[Português](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=pt) |
+[Русский](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=ru) |
 [中文](https://www.readme-i18n.com/BuilderIO/gpt-crawler?lang=zh)
 
 Crawl a site to generate knowledge files to create your own custom GPT from one or multiple URLs
@@ -58,9 +59,11 @@ npm i
 ```
 
 > **Mac Users**: If you encounter browser launch errors or installation issues, use our automated setup script:
+>
 > ```sh
 > chmod +x setup-mac.sh && ./setup-mac.sh
 > ```
+>
 > Or see our detailed [Mac Setup Guide](MAC_SETUP_GUIDE.md) for troubleshooting.
 
 #### Configure the crawler
@@ -165,6 +168,7 @@ Use this option for API access to your generated knowledge that you can integrat
 ### Common Issues
 
 **"Failed to launch browser" (Mac)**
+
 ```bash
 # Try the automated Mac setup
 ./setup-mac.sh
@@ -174,19 +178,23 @@ npx playwright install --with-deps
 ```
 
 **File too large for ChatGPT**
+
 - Files are automatically split when they exceed ChatGPT limits
 - See [File Size Management Guide](FILE_SIZE_GUIDE.md) for details
 
 **Can't find the right selectors**
+
 - See [Selector Guide](SELECTOR_GUIDE.md) for help with CSS selectors
 - Use browser dev tools to inspect elements
 
 **Memory issues during crawling**
+
 - Reduce `maxPagesToCrawl` in your config
 - Lower `maxConcurrency` (especially on Mac)
 - Close other applications while crawling
 
 For platform-specific help:
+
 - **Mac Users**: [Mac Setup Guide](MAC_SETUP_GUIDE.md)
 - **Docker Users**: [Container Guide](containerapp/README.md)
 - **All Users**: Check [GitHub Issues](https://github.com/BuilderIO/gpt-crawler/issues) for solutions

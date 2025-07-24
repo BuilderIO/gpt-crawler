@@ -33,15 +33,16 @@ npm start
 ### Prerequisites
 
 1. **Node.js 16 or higher**
+
    ```bash
    # Check your Node version
    node --version
-   
+
    # If you need to install/update Node.js:
    # Option 1: Download from https://nodejs.org/
    # Option 2: Use Homebrew
    brew install node
-   
+
    # Option 3: Use nvm (Node Version Manager)
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
    nvm install node
@@ -56,32 +57,37 @@ npm start
 ### Step-by-Step Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/builderio/gpt-crawler
    cd gpt-crawler
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Install Playwright browsers** (Critical step for Mac)
+
    ```bash
    # This installs browsers and system dependencies
    npx playwright install --with-deps
    ```
 
 4. **Verify Playwright installation**
+
    ```bash
    # Test that browsers can launch
    npx playwright install-deps
-   
+
    # Optional: Run a quick test
    npx playwright test --version
    ```
 
 5. **Configure your crawler**
+
    ```bash
    # Edit config.ts with your target URL and selectors
    nano config.ts
@@ -97,6 +103,7 @@ npm start
 ### Issue 1: "Failed to launch browser" Error
 
 **Symptoms:**
+
 ```
 Failed to launch browser. Please check the following:
 • Try installing the required dependencies by running `npx playwright install --with-deps`
@@ -106,19 +113,21 @@ browserType.launchPersistentContext: Target page, context or browser has been cl
 **Solutions:**
 
 1. **Install system dependencies:**
+
    ```bash
    # Install all required system libraries
    npx playwright install-deps
-   
+
    # Or install for specific browser
    npx playwright install-deps chromium
    ```
 
 2. **Reset Playwright installation:**
+
    ```bash
    # Remove existing browsers
    rm -rf ~/Library/Caches/ms-playwright
-   
+
    # Reinstall everything
    npx playwright install --with-deps
    ```
@@ -135,6 +144,7 @@ browserType.launchPersistentContext: Target page, context or browser has been cl
 ### Issue 2: "Library not loaded" / AuthenticationServices Error
 
 **Symptoms:**
+
 ```
 Library not loaded: /System/Library/Frameworks/AuthenticationServices.framework/Versions/A/AuthenticationServices
 Reason: image not found
@@ -143,15 +153,17 @@ Reason: image not found
 **Solutions:**
 
 1. **Update macOS:**
+
    ```bash
    # Check your macOS version
    sw_vers
-   
+
    # Update to latest macOS if possible
    # AuthenticationServices requires macOS 10.15+ (Catalina)
    ```
 
 2. **Use older Playwright version (if on older macOS):**
+
    ```bash
    npm install playwright@1.30.0
    npx playwright install --with-deps
@@ -166,6 +178,7 @@ Reason: image not found
 ### Issue 3: Permission Issues
 
 **Symptoms:**
+
 ```
 EACCES: permission denied
 Error: spawn EACCES
@@ -174,11 +187,12 @@ Error: spawn EACCES
 **Solutions:**
 
 1. **Fix npm permissions:**
+
    ```bash
    # Option 1: Use nvm (recommended)
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
    nvm install node
-   
+
    # Option 2: Fix npm permissions
    mkdir ~/.npm-global
    npm config set prefix '~/.npm-global'
@@ -195,6 +209,7 @@ Error: spawn EACCES
 ### Issue 4: Network/Proxy Issues
 
 **Symptoms:**
+
 ```
 Error: net::ERR_TUNNEL_CONNECTION_FAILED
 connect ECONNREFUSED 127.0.0.1:51152
@@ -203,11 +218,12 @@ connect ECONNREFUSED 127.0.0.1:51152
 **Solutions:**
 
 1. **Check corporate proxy:**
+
    ```bash
    # If you're behind a corporate proxy
    npm config set proxy http://proxy.company.com:8080
    npm config set https-proxy http://proxy.company.com:8080
-   
+
    # Or temporarily disable proxy
    npm config delete proxy
    npm config delete https-proxy
@@ -244,16 +260,18 @@ export const defaultConfig: Config = {
   selector: "main",
   maxPagesToCrawl: 50,
   outputFileName: "output.json",
-  
+
   // Mac-friendly options
   maxConcurrency: 2, // Lower concurrency for stability
-  delay: 1000,       // Add delay between requests
-  
+  delay: 1000, // Add delay between requests
+
   // Browser options that work well on Mac
-  onVisitPage: ({page}) => {
+  onVisitPage: ({ page }) => {
     // Set user agent to avoid detection
-    page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36');
-  }
+    page.setUserAgent(
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    );
+  },
 };
 ```
 
@@ -324,13 +342,13 @@ uname -m
 
 ## Mac Version Compatibility
 
-| macOS Version | Playwright Support | Recommended Version |
-|---------------|-------------------|-------------------|
-| macOS 13+ (Ventura) | ✅ Full support | Latest Playwright |
-| macOS 12 (Monterey) | ✅ Full support | Latest Playwright |
-| macOS 11 (Big Sur) | ✅ Good support | Playwright 1.35+ |
-| macOS 10.15 (Catalina) | ⚠️ Limited support | Playwright 1.30.x |
-| macOS 10.14 (Mojave) | ❌ Not supported | Use Docker instead |
+| macOS Version          | Playwright Support | Recommended Version |
+| ---------------------- | ------------------ | ------------------- |
+| macOS 13+ (Ventura)    | ✅ Full support    | Latest Playwright   |
+| macOS 12 (Monterey)    | ✅ Full support    | Latest Playwright   |
+| macOS 11 (Big Sur)     | ✅ Good support    | Playwright 1.35+    |
+| macOS 10.15 (Catalina) | ⚠️ Limited support | Playwright 1.30.x   |
+| macOS 10.14 (Mojave)   | ❌ Not supported   | Use Docker instead  |
 
 ## Docker Alternative (For Older Macs)
 
@@ -348,17 +366,20 @@ See [containerapp/README.md](containerapp/README.md) for detailed Docker instruc
 ## Performance Tips for Mac
 
 1. **Reduce concurrency on older Macs:**
+
    ```typescript
    maxConcurrency: 1, // For MacBook Air or older machines
    ```
 
 2. **Use webkit instead of chromium:**
+
    ```typescript
    // Webkit is often more efficient on Mac
    // No code change needed - Playwright will use the best browser
    ```
 
 3. **Monitor memory usage:**
+
    ```bash
    # Watch memory while crawling
    watch -n 1 'ps aux | grep node'
@@ -409,10 +430,12 @@ xcode-select --install
 If you're still experiencing issues:
 
 1. **Check the GitHub Issues:**
+
    - [Mac-related issues](https://github.com/BuilderIO/gpt-crawler/issues?q=is%3Aissue+mac+OR+macos+OR+osx)
    - [Playwright issues](https://github.com/BuilderIO/gpt-crawler/issues?q=is%3Aissue+playwright+OR+browser)
 
 2. **Create a detailed issue report:**
+
    ```bash
    # Include this information in your issue:
    echo "Node version: $(node --version)"
