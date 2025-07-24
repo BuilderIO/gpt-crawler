@@ -1,9 +1,8 @@
 ## [1.5.1](https://github.com/BuilderIO/gpt-crawler/compare/v1.5.0...v1.5.1) (2025-01-23)
 
-
 ### Bug Fixes
 
-* correctly set cookies ([567ab0b](https://github.com/BuilderIO/gpt-crawler/commit/567ab0b0a538032d02743ae3ecc51dfdc0fdb5c6))
+- correctly set cookies ([567ab0b](https://github.com/BuilderIO/gpt-crawler/commit/567ab0b0a538032d02743ae3ecc51dfdc0fdb5c6))
 
 # [1.5.0](https://github.com/BuilderIO/gpt-crawler/compare/v1.4.0...v1.5.0) (2024-07-05)
 

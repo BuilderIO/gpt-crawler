@@ -5,7 +5,11 @@ import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
-import { splitJSONFile, analyzeContent, CHATGPT_LIMITS } from "./file-splitter.js";
+import {
+  splitJSONFile,
+  analyzeContent,
+  CHATGPT_LIMITS,
+} from "./file-splitter.js";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
@@ -168,7 +172,7 @@ export async function write(config: Config) {
 
   // Collect all crawled data
   const allResults: Record<string, any>[] = [];
-  
+
   // Read and combine all JSON files
   for (const file of jsonFiles) {
     const fileContent = await readFile(file, "utf-8");
@@ -185,50 +189,73 @@ export async function write(config: Config) {
   const outputFileName = config.outputFileName;
   const combinedContent = JSON.stringify(allResults, null, 2);
   await writeFile(outputFileName, combinedContent);
-  
+
   console.log(`Wrote ${allResults.length} items to ${outputFileName}`);
 
   // Analyze the file to see if it needs splitting
   const analysis = analyzeContent(allResults);
-  
+
   // Check if file exceeds ChatGPT limits or user-specified limits
-  const exceedsTokenLimit = config.maxTokens && analysis.estimatedTokens > config.maxTokens;
-  const exceedsSizeLimit = config.maxFileSize && analysis.fileSizeBytes > (config.maxFileSize * 1024 * 1024);
-  const exceedsChatGPTLimits = analysis.estimatedTokens > CHATGPT_LIMITS.MAX_TOKENS_PER_FILE || 
-                              analysis.fileSizeBytes > CHATGPT_LIMITS.MAX_BYTES_PER_FILE;
+  const exceedsTokenLimit =
+    config.maxTokens && analysis.estimatedTokens > config.maxTokens;
+  const exceedsSizeLimit =
+    config.maxFileSize &&
+    analysis.fileSizeBytes > config.maxFileSize * 1024 * 1024;
+  const exceedsChatGPTLimits =
+    analysis.estimatedTokens > CHATGPT_LIMITS.MAX_TOKENS_PER_FILE ||
+    analysis.fileSizeBytes > CHATGPT_LIMITS.MAX_BYTES_PER_FILE;
 
   if (exceedsTokenLimit || exceedsSizeLimit || exceedsChatGPTLimits) {
     console.log(`\n📊 File Analysis:`);
     console.log(`   Items: ${allResults.length.toLocaleString()}`);
-    console.log(`   Estimated tokens: ${analysis.estimatedTokens.toLocaleString()}`);
+    console.log(
+      `   Estimated tokens: ${analysis.estimatedTokens.toLocaleString()}`,
+    );
     console.log(`   File size: ${analysis.fileSizeMB.toFixed(1)} MB`);
-    
+
     if (exceedsChatGPTLimits) {
-      console.log(`   ⚠️  File exceeds ChatGPT limits - splitting automatically...`);
+      console.log(
+        `   ⚠️  File exceeds ChatGPT limits - splitting automatically...`,
+      );
     } else {
       console.log(`   ⚠️  File exceeds your configured limits - splitting...`);
     }
 
     // Use our enhanced file splitter
     const splitResult = await splitJSONFile(outputFileName, {
-      maxTokensPerFile: config.maxTokens || CHATGPT_LIMITS.RECOMMENDED_TOKENS_PER_FILE,
-      maxBytesPerFile: config.maxFileSize ? config.maxFileSize * 1024 * 1024 : CHATGPT_LIMITS.RECOMMENDED_BYTES_PER_FILE,
-      maxFiles: CHATGPT_LIMITS.MAX_FILES_PER_GPT
+      maxTokensPerFile:
+        config.maxTokens || CHATGPT_LIMITS.RECOMMENDED_TOKENS_PER_FILE,
+      maxBytesPerFile: config.maxFileSize
+        ? config.maxFileSize * 1024 * 1024
+        : CHATGPT_LIMITS.RECOMMENDED_BYTES_PER_FILE,
+      maxFiles: CHATGPT_LIMITS.MAX_FILES_PER_GPT,
     });
 
     if (splitResult.success && splitResult.outputFiles.length > 0) {
-      console.log(`✅ Successfully split into ${splitResult.outputFiles.length} files:`);
+      console.log(
+        `✅ Successfully split into ${splitResult.outputFiles.length} files:`,
+      );
       splitResult.outputFiles.forEach((file, index) => {
-        console.log(`   ${index + 1}. ${file.filename}: ${file.itemCount} items, ${file.estimatedTokens.toLocaleString()} tokens, ${file.fileSizeMB.toFixed(1)} MB`);
+        console.log(
+          `   ${index + 1}. ${file.filename}: ${
+            file.itemCount
+          } items, ${file.estimatedTokens.toLocaleString()} tokens, ${file.fileSizeMB.toFixed(
+            1,
+          )} MB`,
+        );
       });
-      
+
       if (splitResult.warnings.length > 0) {
         console.log(`⚠️  Warnings:`);
-        splitResult.warnings.forEach(warning => console.log(`   • ${warning}`));
+        splitResult.warnings.forEach((warning) =>
+          console.log(`   • ${warning}`),
+        );
       }
-      
-      console.log(`\n💡 Upload tip: You can upload up to ${CHATGPT_LIMITS.MAX_FILES_PER_GPT} files to a single ChatGPT.`);
-      
+
+      console.log(
+        `\n💡 Upload tip: You can upload up to ${CHATGPT_LIMITS.MAX_FILES_PER_GPT} files to a single ChatGPT.`,
+      );
+
       // Return the first split file name for backward compatibility
       nextFileNameString = splitResult.outputFiles[0].path;
     } else {
@@ -237,7 +264,11 @@ export async function write(config: Config) {
     }
   } else {
     console.log(`✅ File is within limits - no splitting needed`);
-    console.log(`   Items: ${allResults.length.toLocaleString()}, Tokens: ${analysis.estimatedTokens.toLocaleString()}, Size: ${analysis.fileSizeMB.toFixed(1)} MB`);
+    console.log(
+      `   Items: ${allResults.length.toLocaleString()}, Tokens: ${analysis.estimatedTokens.toLocaleString()}, Size: ${analysis.fileSizeMB.toFixed(
+        1,
+      )} MB`,
+    );
     nextFileNameString = outputFileName;
   }
 
