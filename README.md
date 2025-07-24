@@ -73,6 +73,8 @@ export const defaultConfig: Config = {
 };
 ```
 
+**Need help with selectors?** Check out our [Selector Guide](SELECTOR_GUIDE.md) for tips on finding the right CSS selectors for your site.
+
 See [config.ts](src/config.ts) for all available options. Here is a sample of the common configuration options:
 
 ```ts
