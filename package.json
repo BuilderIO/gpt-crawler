@@ -42,7 +42,7 @@
   },
   "scripts": {
     "semantic-release": "semantic-release",
-    "preinstall": "npx playwright install",
+    "postinstall": "./scripts/postinstall.sh",
     "start": "npm run start:dev",
     "start:server": "NODE_ENV=development node swagger.js && npm run build && node dist/src/server.js",
     "start:server:prod": "npm run build && node dist/src/server.js",
@@ -53,7 +53,12 @@
     "build": "tsc",
     "fmt": "prettier --write .",
     "prettier:check": "prettier --check .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "setup:mac": "./setup-mac.sh",
+    "test:browser": "./setup-mac.sh --test-browser",
+    "diagnostics": "./setup-mac.sh --diagnostics",
+    "install:browsers": "npx playwright install --with-deps",
+    "fix:mac": "rm -rf node_modules package-lock.json ~/Library/Caches/ms-playwright && npm install && npx playwright install --with-deps"
   },
   "author": "It's not you it's me",
   "license": "ISC"

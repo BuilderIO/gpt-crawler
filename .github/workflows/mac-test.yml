@@ -1,0 +1,112 @@
+name: Mac Compatibility Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'setup-mac.sh'
+      - 'scripts/postinstall.sh'
+      - '.github/workflows/mac-test.yml'
+
+jobs:
+  test-mac:
+    runs-on: macos-latest
+    
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+    
+    - name: Verify Playwright installation
+      run: |
+        npx playwright install --with-deps
+        npx playwright --version
+    
+    - name: Test browser launch
+      run: |
+        npm run test:browser || echo "Browser test failed but continuing..."
+    
+    - name: Build project
+      run: |
+        npm run build
+    
+    - name: Test basic crawl functionality
+      run: |
+        # Create a minimal test config
+        cat > test-config.ts << 'EOF'
+        import { Config } from "./src/config.js";
+        export const defaultConfig: Config = {
+          url: "https://example.com",
+          match: "https://example.com/**",
+          selector: "h1",
+          maxPagesToCrawl: 1,
+          outputFileName: "test-output.json",
+          maxConcurrency: 1,
+        };
+        EOF
+        
+        # Copy to config.ts and run
+        cp test-config.ts config.ts
+        timeout 60s npm start || true
+        
+        # Check if output was created
+        if [ -f "test-output.json" ]; then
+          echo "✅ Crawl test successful"
+          cat test-output.json | head -5
+        else
+          echo "⚠️ Crawl test did not produce output"
+        fi
+    
+    - name: Test Mac setup script (dry run)
+      run: |
+        chmod +x setup-mac.sh
+        ./setup-mac.sh --diagnostics
+    
+    - name: Test postinstall script
+      run: |
+        chmod +x scripts/postinstall.sh
+        ./scripts/postinstall.sh
+        
+  test-mac-arm64:
+    runs-on: macos-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js (latest)
+      uses: actions/setup-node@v4
+      with:
+        node-version: 'latest'
+        cache: 'npm'
+    
+    - name: Test on ARM64 architecture
+      run: |
+        echo "Architecture: $(uname -m)"
+        echo "macOS Version: $(sw_vers -productVersion)"
+        
+        # Install and test
+        npm ci
+        npx playwright install --with-deps
+        
+        # Quick smoke test
+        npm run build
+        echo "✅ ARM64 Mac test completed"

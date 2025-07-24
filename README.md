@@ -57,6 +57,12 @@ git clone https://github.com/builderio/gpt-crawler
 npm i
 ```
 
+> **Mac Users**: If you encounter browser launch errors or installation issues, use our automated setup script:
+> ```sh
+> chmod +x setup-mac.sh && ./setup-mac.sh
+> ```
+> Or see our detailed [Mac Setup Guide](MAC_SETUP_GUIDE.md) for troubleshooting.
+
 #### Configure the crawler
 
 Open [config.ts](config.ts) and edit the `url` and `selector` properties to match your needs.
@@ -153,6 +159,37 @@ Use this option for API access to your generated knowledge that you can integrat
 3. Choose "upload" and upload the file you generated
 
 ![Gif of how to upload to an assistant](https://github.com/BuilderIO/gpt-crawler/assets/844291/06e6ad36-e2ba-4c6e-8d5a-bf329140de49)
+
+## Troubleshooting
+
+### Common Issues
+
+**"Failed to launch browser" (Mac)**
+```bash
+# Try the automated Mac setup
+./setup-mac.sh
+
+# Or install browsers manually
+npx playwright install --with-deps
+```
+
+**File too large for ChatGPT**
+- Files are automatically split when they exceed ChatGPT limits
+- See [File Size Management Guide](FILE_SIZE_GUIDE.md) for details
+
+**Can't find the right selectors**
+- See [Selector Guide](SELECTOR_GUIDE.md) for help with CSS selectors
+- Use browser dev tools to inspect elements
+
+**Memory issues during crawling**
+- Reduce `maxPagesToCrawl` in your config
+- Lower `maxConcurrency` (especially on Mac)
+- Close other applications while crawling
+
+For platform-specific help:
+- **Mac Users**: [Mac Setup Guide](MAC_SETUP_GUIDE.md)
+- **Docker Users**: [Container Guide](containerapp/README.md)
+- **All Users**: Check [GitHub Issues](https://github.com/BuilderIO/gpt-crawler/issues) for solutions
 
 ## Contributing
 
