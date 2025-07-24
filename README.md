@@ -73,6 +73,28 @@ export const defaultConfig: Config = {
 };
 ```
 
+**For sites requiring authentication (login):**
+
+```ts
+export const defaultConfig: Config = {
+  url: "https://private-docs.example.com",
+  match: "https://private-docs.example.com/**",
+  selector: ".main-content",
+  maxPagesToCrawl: 50,
+  outputFileName: "output.json",
+  
+  // Add authentication
+  authentication: {
+    credentials: {
+      username: process.env.CRAWLER_USERNAME,
+      password: process.env.CRAWLER_PASSWORD,
+    }
+  }
+};
+```
+
+See our [Authentication Guide](AUTHENTICATION_GUIDE.md) for detailed examples including GitHub, Confluence, Notion, and API token authentication.
+
 See [config.ts](src/config.ts) for all available options. Here is a sample of the common configuration options:
 
 ```ts

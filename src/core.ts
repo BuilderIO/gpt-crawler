@@ -6,9 +6,11 @@ import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
+import { AuthenticationHandler } from "./authentication.js";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
+let isAuthenticated = false;
 
 export function getPageHtml(page: Page, selector = "body") {
   return page.evaluate((selector) => {
@@ -63,6 +65,21 @@ export async function crawl(config: Config) {
           log.info(
             `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
           );
+
+          // Perform authentication on the first page or if authentication is required
+          if (!isAuthenticated && config.authentication) {
+            log.info('🔐 Performing authentication...');
+            const authHandler = new AuthenticationHandler(config, page, page.context());
+            const authResult = await authHandler.authenticate();
+            
+            if (authResult.success) {
+              log.info(`✅ Authentication successful: ${authResult.message}`);
+              isAuthenticated = true;
+            } else {
+              log.error(`❌ Authentication failed: ${authResult.message}`);
+              throw new Error(`Authentication failed: ${authResult.message}`);
+            }
+          }
 
           // Use custom handling for XPath selector
           if (config.selector) {

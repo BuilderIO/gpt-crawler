@@ -57,6 +57,69 @@ export const configSchema = z.object({
       ),
     ])
     .optional(),
+  
+  /** Authentication configuration for protected sites */
+  authentication: z.object({
+    /** Username/password authentication */
+    credentials: z.object({
+      /** Username or email for login */
+      username: z.string(),
+      /** Password for login */
+      password: z.string(),
+      /** CSS selector for username input field */
+      usernameSelector: z.string().optional(),
+      /** CSS selector for password input field */
+      passwordSelector: z.string().optional(),
+      /** CSS selector for login/submit button */
+      submitSelector: z.string().optional(),
+      /** URL of the login page (if different from starting URL) */
+      loginUrl: z.string().optional(),
+      /** Selector to wait for after successful login (indicates login success) */
+      successSelector: z.string().optional(),
+      /** Text content to wait for that indicates successful login */
+      successText: z.string().optional(),
+      /** Maximum time to wait for login completion (milliseconds) */
+      loginTimeout: z.number().optional(),
+    }).optional(),
+    
+    /** Custom headers for authentication (API keys, tokens, etc.) */
+    headers: z.record(z.string(), z.string()).optional(),
+    
+    /** Cookies for session-based authentication */
+    sessionCookies: z.array(z.object({
+      name: z.string(),
+      value: z.string(),
+      domain: z.string().optional(),
+      path: z.string().optional(),
+      httpOnly: z.boolean().optional(),
+      secure: z.boolean().optional(),
+      sameSite: z.enum(['Strict', 'Lax', 'None']).optional(),
+    })).optional(),
+    
+    /** Custom authentication function for complex login flows */
+    customLogin: z.function()
+      .args(z.object({
+        page: Page,
+        config: z.any(), // Reference to the full config
+      }))
+      .returns(z.promise(z.void()))
+      .optional(),
+      
+    /** Whether to persist session across pages (keeps login state) */
+    persistSession: z.boolean().optional(),
+    
+    /** Additional options for authentication */
+    options: z.object({
+      /** Delay after login before starting crawl (milliseconds) */
+      postLoginDelay: z.number().optional(),
+      /** Whether to take a screenshot after login for debugging */
+      debugScreenshot: z.boolean().optional(),
+      /** Whether to save cookies after login for reuse */
+      saveCookies: z.boolean().optional(),
+      /** File path to save/load session cookies */
+      cookieFile: z.string().optional(),
+    }).optional(),
+  }).optional(),
   /** Optional function to run for each page found */
   onVisitPage: z
     .function()
