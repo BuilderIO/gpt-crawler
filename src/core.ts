@@ -1,4 +1,3 @@
-// For more information, see https://crawlee.dev/
 import { Configuration, PlaywrightCrawler, downloadListOfUrls } from "crawlee";
 import { readFile, writeFile } from "fs/promises";
 import { glob } from "glob";
@@ -6,6 +5,7 @@ import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
+import { splitJSONFile, analyzeContent, CHATGPT_LIMITS } from "./file-splitter.js";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
@@ -166,75 +166,79 @@ export async function write(config: Config) {
 
   console.log(`Found ${jsonFiles.length} files to combine...`);
 
-  let currentResults: Record<string, any>[] = [];
-  let currentSize: number = 0;
-  let fileCounter: number = 1;
-  const maxBytes: number = config.maxFileSize
-    ? config.maxFileSize * 1024 * 1024
-    : Infinity;
-
-  const getStringByteSize = (str: string): number =>
-    Buffer.byteLength(str, "utf-8");
-
-  const nextFileName = (): string =>
-    `${config.outputFileName.replace(/\.json$/, "")}-${fileCounter}.json`;
-
-  const writeBatchToFile = async (): Promise<void> => {
-    nextFileNameString = nextFileName();
-    await writeFile(
-      nextFileNameString,
-      JSON.stringify(currentResults, null, 2),
-    );
-    console.log(
-      `Wrote ${currentResults.length} items to ${nextFileNameString}`,
-    );
-    currentResults = [];
-    currentSize = 0;
-    fileCounter++;
-  };
-
-  let estimatedTokens: number = 0;
-
-  const addContentOrSplit = async (
-    data: Record<string, any>,
-  ): Promise<void> => {
-    const contentString: string = JSON.stringify(data);
-    const tokenCount: number | false = isWithinTokenLimit(
-      contentString,
-      config.maxTokens || Infinity,
-    );
-
-    if (typeof tokenCount === "number") {
-      if (estimatedTokens + tokenCount > config.maxTokens!) {
-        // Only write the batch if it's not empty (something to write)
-        if (currentResults.length > 0) {
-          await writeBatchToFile();
-        }
-        // Since the addition of a single item exceeded the token limit, halve it.
-        estimatedTokens = Math.floor(tokenCount / 2);
-        currentResults.push(data);
-      } else {
-        currentResults.push(data);
-        estimatedTokens += tokenCount;
-      }
-    }
-
-    currentSize += getStringByteSize(contentString);
-    if (currentSize > maxBytes) {
-      await writeBatchToFile();
-    }
-  };
-
-  // Iterate over each JSON file and process its contents.
+  // Collect all crawled data
+  const allResults: Record<string, any>[] = [];
+  
+  // Read and combine all JSON files
   for (const file of jsonFiles) {
     const fileContent = await readFile(file, "utf-8");
     const data: Record<string, any> = JSON.parse(fileContent);
-    await addContentOrSplit(data);
+    allResults.push(data);
   }
 
-  // Check if any remaining data needs to be written to a file.
-  if (currentResults.length > 0) {
-    await writeBatchToFile();
+  if (allResults.length === 0) {
+    console.log("No data to write");
+    return config.outputFileName;
+  }
+
+  // First, write the combined file
+  const outputFileName = config.outputFileName;
+  const combinedContent = JSON.stringify(allResults, null, 2);
+  await writeFile(outputFileName, combinedContent);
+  
+  console.log(`Wrote ${allResults.length} items to ${outputFileName}`);
+
+  // Analyze the file to see if it needs splitting
+  const analysis = analyzeContent(allResults);
+  
+  // Check if file exceeds ChatGPT limits or user-specified limits
+  const exceedsTokenLimit = config.maxTokens && analysis.estimatedTokens > config.maxTokens;
+  const exceedsSizeLimit = config.maxFileSize && analysis.fileSizeBytes > (config.maxFileSize * 1024 * 1024);
+  const exceedsChatGPTLimits = analysis.estimatedTokens > CHATGPT_LIMITS.MAX_TOKENS_PER_FILE || 
+                              analysis.fileSizeBytes > CHATGPT_LIMITS.MAX_BYTES_PER_FILE;
+
+  if (exceedsTokenLimit || exceedsSizeLimit || exceedsChatGPTLimits) {
+    console.log(`\n📊 File Analysis:`);
+    console.log(`   Items: ${allResults.length.toLocaleString()}`);
+    console.log(`   Estimated tokens: ${analysis.estimatedTokens.toLocaleString()}`);
+    console.log(`   File size: ${analysis.fileSizeMB.toFixed(1)} MB`);
+    
+    if (exceedsChatGPTLimits) {
+      console.log(`   ⚠️  File exceeds ChatGPT limits - splitting automatically...`);
+    } else {
+      console.log(`   ⚠️  File exceeds your configured limits - splitting...`);
+    }
+
+    // Use our enhanced file splitter
+    const splitResult = await splitJSONFile(outputFileName, {
+      maxTokensPerFile: config.maxTokens || CHATGPT_LIMITS.RECOMMENDED_TOKENS_PER_FILE,
+      maxBytesPerFile: config.maxFileSize ? config.maxFileSize * 1024 * 1024 : CHATGPT_LIMITS.RECOMMENDED_BYTES_PER_FILE,
+      maxFiles: CHATGPT_LIMITS.MAX_FILES_PER_GPT
+    });
+
+    if (splitResult.success && splitResult.outputFiles.length > 0) {
+      console.log(`✅ Successfully split into ${splitResult.outputFiles.length} files:`);
+      splitResult.outputFiles.forEach((file, index) => {
+        console.log(`   ${index + 1}. ${file.filename}: ${file.itemCount} items, ${file.estimatedTokens.toLocaleString()} tokens, ${file.fileSizeMB.toFixed(1)} MB`);
+      });
+      
+      if (splitResult.warnings.length > 0) {
+        console.log(`⚠️  Warnings:`);
+        splitResult.warnings.forEach(warning => console.log(`   • ${warning}`));
+      }
+      
+      console.log(`\n💡 Upload tip: You can upload up to ${CHATGPT_LIMITS.MAX_FILES_PER_GPT} files to a single ChatGPT.`);
+      
+      // Return the first split file name for backward compatibility
+      nextFileNameString = splitResult.outputFiles[0].path;
+    } else {
+      console.log(`❌ Failed to split file: ${splitResult.summary}`);
+      nextFileNameString = outputFileName;
+    }
+  } else {
+    console.log(`✅ File is within limits - no splitting needed`);
+    console.log(`   Items: ${allResults.length.toLocaleString()}, Tokens: ${analysis.estimatedTokens.toLocaleString()}, Size: ${analysis.fileSizeMB.toFixed(1)} MB`);
+    nextFileNameString = outputFileName;
   }
 
   return nextFileNameString;

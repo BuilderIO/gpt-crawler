@@ -106,6 +106,32 @@ type Config = {
 npm start
 ```
 
+#### File size management
+
+GPT Crawler automatically handles large files to ensure they're compatible with ChatGPT's upload limits. When your crawled data exceeds ChatGPT's 2M token or 512MB file size limits, it will automatically split the output into multiple files.
+
+For detailed information about file size management, splitting options, and troubleshooting, see our [File Size Management Guide](FILE_SIZE_GUIDE.md).
+
+You can also use our CLI tool to analyze or manually split existing files:
+
+```sh
+# Analyze a file
+npx tsx src/split-json.ts output.json --analyze-only
+
+# Split a large file
+npx tsx src/split-json.ts output.json
+
+# Split with custom limits
+npx tsx src/split-json.ts output.json --max-tokens 1500000 --max-size 400
+```
+
+**Common scenarios:**
+- ✅ **Small sites (< 1M tokens)**: Files work directly with ChatGPT
+- ⚠️ **Medium sites (1-4M tokens)**: Automatically split into 2-3 files  
+- 📁 **Large sites (> 4M tokens)**: Split into multiple files, may need multiple GPTs
+
+For more help with CSS selectors, see our [Selector Guide](SELECTOR_GUIDE.md).
+
 ### Alternative methods
 
 #### [Running in a container with Docker](./containerapp/README.md)
@@ -140,7 +166,9 @@ Use this option for UI access to your generated knowledge that you can easily sh
 4. Choose "Create a GPT"
 5. Choose "Configure"
 6. Under "Knowledge" choose "Upload a file" and upload the file you generated
-7. if you get an error about the file being too large, you can try to split it into multiple files and upload them separately using the option maxFileSize in the config.ts file or also use tokenization to reduce the size of the file with the option maxTokens in the config.ts file
+7. If you get an error about the file being too large, see our [File Size Management Guide](FILE_SIZE_GUIDE.md) for solutions
+
+> **Tip**: If your crawl generated multiple files (e.g., `output-1.json`, `output-2.json`), you can upload up to 20 files to a single ChatGPT. This is automatically handled when files exceed ChatGPT's limits.
 
 ![Gif of how to upload a custom GPT](https://github.com/BuilderIO/gpt-crawler/assets/844291/22f27fb5-6ca5-4748-9edd-6bcf00b408cf)
 
