@@ -19,16 +19,16 @@ For most use cases, start with these simple, robust selectors:
 
 ```typescript
 // Get all content on the page
-selector: "body"
+selector: "body";
 
 // Get main content area (works on most modern sites)
-selector: "main"
+selector: "main";
 
 // Get article content (good for blogs and documentation)
-selector: "article"
+selector: "article";
 
 // Get the main content container (common pattern)
-selector: ".content, .main-content, #content, main"
+selector: ".content, .main-content, #content, main";
 ```
 
 ### The Right Way: Find Content-Specific Selectors
@@ -48,6 +48,7 @@ selector: ".content, .main-content, #content, main"
 ```
 
 **Problems with overly specific selectors:**
+
 - Break when page structure changes
 - Only target one specific element
 - Include layout-specific details (nth-child, grid classes)
@@ -69,10 +70,10 @@ main .text-content     /* Combines semantic + content class */
 
 ```typescript
 // Try these in order of preference:
-selector: "body"                    // Gets everything (good starting point)
-selector: "main"                    // Gets main content area
-selector: ".content"                // Gets content container
-selector: "article .content"        // More specific if needed
+selector: "body"; // Gets everything (good starting point)
+selector: "main"; // Gets main content area
+selector: ".content"; // Gets content container
+selector: "article .content"; // More specific if needed
 ```
 
 ### 2. Use Semantic HTML Elements
@@ -91,6 +92,7 @@ section         /* Content sections */
 ### 3. Look for Meaningful Class Names
 
 Good class names to look for:
+
 - `.content`, `.main-content`, `.page-content`
 - `.article`, `.article-body`, `.post-body`
 - `.docs`, `.documentation`, `.docs-container`
@@ -99,52 +101,57 @@ Good class names to look for:
 ### 4. Test Your Selectors
 
 **In the browser console:**
+
 ```javascript
 // Test if your selector finds content
-document.querySelector(".content")
+document.querySelector(".content");
 
 // See what text it would extract
-document.querySelector(".content")?.innerText
+document.querySelector(".content")?.innerText;
 
 // Count how many elements it finds
-document.querySelectorAll(".content").length
+document.querySelectorAll(".content").length;
 ```
 
 ## Common Patterns
 
 ### Documentation Sites
+
 ```typescript
 // Common selectors for docs sites
-selector: ".docs-content"
-selector: ".documentation"
-selector: "main .content"
-selector: "article"
+selector: ".docs-content";
+selector: ".documentation";
+selector: "main .content";
+selector: "article";
 ```
 
 ### Blog Posts
+
 ```typescript
 // Common selectors for blogs
-selector: ".post-content"
-selector: ".article-body"
-selector: "article .content"
-selector: ".entry-content"
+selector: ".post-content";
+selector: ".article-body";
+selector: "article .content";
+selector: ".entry-content";
 ```
 
 ### News Sites
+
 ```typescript
 // Common selectors for news
-selector: ".article-body"
-selector: ".story-content"
-selector: "article"
-selector: ".content"
+selector: ".article-body";
+selector: ".story-content";
+selector: "article";
+selector: ".content";
 ```
 
 ### E-commerce Product Pages
+
 ```typescript
 // Common selectors for products
-selector: ".product-description"
-selector: ".product-details"
-selector: ".product-content"
+selector: ".product-description";
+selector: ".product-details";
+selector: ".product-content";
 ```
 
 ## Troubleshooting
@@ -155,16 +162,17 @@ selector: ".product-content"
 
 ```javascript
 // Debug in browser console:
-document.querySelector("your-selector")  // Should not be null
+document.querySelector("your-selector"); // Should not be null
 ```
 
 **Try simpler selectors:**
+
 ```typescript
 // From most generic to more specific
-selector: "body"
-selector: "main"
-selector: ".content"
-selector: "article"
+selector: "body";
+selector: "main";
+selector: ".content";
+selector: "article";
 ```
 
 ### Problem: Selector Returns Too Much Content
@@ -173,8 +181,8 @@ selector: "article"
 
 ```typescript
 // Add more specificity
-selector: "main .content"        // Instead of just ".content"
-selector: "article .post-body"   // Instead of just ".post-body"
+selector: "main .content"; // Instead of just ".content"
+selector: "article .post-body"; // Instead of just ".post-body"
 ```
 
 ### Problem: Content Is Inside Multiple Elements
@@ -183,7 +191,7 @@ selector: "article .post-body"   // Instead of just ".post-body"
 
 ```typescript
 // This will try each selector and use the first one that exists
-selector: "article, .content, main, .post-body"
+selector: "article, .content, main, .post-body";
 ```
 
 ### Problem: JavaScript-Rendered Content Not Loading
@@ -205,16 +213,16 @@ GPT Crawler also supports XPath selectors:
 
 ```typescript
 // XPath selector (starts with "/")
-selector: "//article//div[contains(@class, 'content')]"
-selector: "//main"
-selector: "//*[contains(@class, 'post-body')]"
+selector: "//article//div[contains(@class, 'content')]";
+selector: "//main";
+selector: "//*[contains(@class, 'post-body')]";
 ```
 
 ### 2. Combining Multiple Approaches
 
 ```typescript
 // Use fallback selectors
-selector: "article .content, .post-body, .article-body, main"
+selector: "article .content, .post-body, .article-body, main";
 ```
 
 ### 3. Excluding Unwanted Elements
@@ -223,42 +231,48 @@ Use CSS `:not()` pseudo-selector:
 
 ```typescript
 // Get content but exclude navigation
-selector: "main :not(nav):not(.sidebar)"
+selector: "main :not(nav):not(.sidebar)";
 ```
 
 ### 4. Targeting Specific Content Types
 
 ```typescript
 // Only get paragraphs and headings
-selector: "article p, article h1, article h2, article h3"
+selector: "article p, article h1, article h2, article h3";
 
 // Get content but exclude code blocks
-selector: ".content :not(pre):not(code)"
+selector: ".content :not(pre):not(code)";
 ```
 
 ## How to Find the Right Selector
 
 ### Step 1: Inspect the Page Structure
+
 1. Right-click on the content you want to crawl
 2. Select "Inspect Element"
 3. Look at the HTML structure
 
 ### Step 2: Identify Patterns
+
 Look for:
+
 - Semantic HTML tags (`<main>`, `<article>`, `<section>`)
 - Meaningful class names (`.content`, `.article-body`)
 - Container elements that wrap the content
 
 ### Step 3: Test Different Options
+
 ```javascript
 // Test in browser console:
-document.querySelector("main")?.innerText?.substring(0, 100)
-document.querySelector(".content")?.innerText?.substring(0, 100)
-document.querySelector("article")?.innerText?.substring(0, 100)
+document.querySelector("main")?.innerText?.substring(0, 100);
+document.querySelector(".content")?.innerText?.substring(0, 100);
+document.querySelector("article")?.innerText?.substring(0, 100);
 ```
 
 ### Step 4: Choose the Most Stable Option
+
 Pick the selector that:
+
 - ✅ Gets all the content you want
 - ✅ Doesn't get content you don't want
 - ✅ Uses semantic or meaningful class names
@@ -267,43 +281,47 @@ Pick the selector that:
 ## Examples from Popular Sites
 
 ### GitHub Documentation
+
 ```typescript
-selector: ".markdown-body"
+selector: ".markdown-body";
 // or
-selector: "article"
+selector: "article";
 ```
 
 ### Medium Articles
+
 ```typescript
-selector: "article"
+selector: "article";
 // or
-selector: ".post-content"
+selector: ".post-content";
 ```
 
 ### Stack Overflow
+
 ```typescript
-selector: ".post-text"
+selector: ".post-text";
 // or for questions
-selector: ".question .post-text"
+selector: ".question .post-text";
 ```
 
 ### WordPress Blogs
+
 ```typescript
-selector: ".entry-content"
+selector: ".entry-content";
 // or
-selector: ".post-content"
+selector: ".post-content";
 ```
 
 ## Quick Reference
 
-| Content Type | Try These Selectors |
-|-------------|-------------------|
-| **Any Site** | `body`, `main`, `.content` |
-| **Blog Posts** | `article`, `.post-content`, `.entry-content` |
-| **Documentation** | `.docs-content`, `main`, `article` |
+| Content Type      | Try These Selectors                          |
+| ----------------- | -------------------------------------------- |
+| **Any Site**      | `body`, `main`, `.content`                   |
+| **Blog Posts**    | `article`, `.post-content`, `.entry-content` |
+| **Documentation** | `.docs-content`, `main`, `article`           |
 | **News Articles** | `article`, `.article-body`, `.story-content` |
-| **Product Pages** | `.product-description`, `.product-details` |
-| **Wiki Pages** | `.mw-parser-output`, `.content`, `#content` |
+| **Product Pages** | `.product-description`, `.product-details`   |
+| **Wiki Pages**    | `.mw-parser-output`, `.content`, `#content`  |
 
 ## Need Help?
 

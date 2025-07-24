@@ -1,6 +1,6 @@
 /**
  * Selector Helper Utilities for GPT Crawler
- * 
+ *
  * This file provides common selector patterns and guidance for better crawling results.
  * Use these patterns in your config.ts file.
  */
@@ -10,18 +10,18 @@
  * Try these in order of preference
  */
 export const COMMON_SELECTORS = [
-  "body",           // Gets everything (good starting point)
-  "main",           // Main content area (semantic HTML)
-  "article",        // Article content (semantic HTML)
-  ".content",       // Generic content class
-  ".main-content",  // Main content class
-  ".post-content",  // Post/blog content
-  ".article-body",  // Article body content
-  ".docs-content",  // Documentation content
+  "body", // Gets everything (good starting point)
+  "main", // Main content area (semantic HTML)
+  "article", // Article content (semantic HTML)
+  ".content", // Generic content class
+  ".main-content", // Main content class
+  ".post-content", // Post/blog content
+  ".article-body", // Article body content
+  ".docs-content", // Documentation content
   ".entry-content", // Entry content (common in CMS)
-  ".page-content",  // Page content
-  "#content",       // Content by ID
-  "[role='main']"   // Main content by ARIA role
+  ".page-content", // Page content
+  "#content", // Content by ID
+  "[role='main']", // Main content by ARIA role
 ];
 
 /**
@@ -36,7 +36,7 @@ export const SITE_PATTERNS = {
   wiki: [".mw-parser-output", "#content", ".content"],
   docs: [".docs-content", ".documentation", "main .content"],
   news: [".article-body", ".story-content", "article"],
-  blog: [".post-body", ".article-content", ".blog-content"]
+  blog: [".post-body", ".article-content", ".blog-content"],
 };
 
 /**
@@ -45,37 +45,31 @@ export const SITE_PATTERNS = {
 export const SELECTOR_SUGGESTIONS = {
   documentation: [
     ".docs-content",
-    ".documentation", 
+    ".documentation",
     "main .content",
     "article",
-    ".markdown-body"
+    ".markdown-body",
   ],
   blog: [
     ".post-content",
-    ".entry-content", 
+    ".entry-content",
     ".article-body",
     "article",
-    ".post-body"
+    ".post-body",
   ],
   news: [
     ".article-body",
     ".story-content",
     "article .content",
-    ".post-content"
+    ".post-content",
   ],
   ecommerce: [
     ".product-description",
     ".product-details",
     ".product-content",
-    ".product-info"
+    ".product-info",
   ],
-  generic: [
-    "main",
-    "article", 
-    ".content",
-    ".main-content",
-    "body"
-  ]
+  generic: ["main", "article", ".content", ".main-content", "body"],
 };
 
 /**
@@ -124,5 +118,5 @@ function findContentClasses() {
   return [...new Set(classes)];
 }
 // Usage: findContentClasses()
-`
+`,
 };
