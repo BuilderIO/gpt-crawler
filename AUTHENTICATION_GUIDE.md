@@ -24,14 +24,14 @@ export const defaultConfig: Config = {
   selector: ".main-content",
   maxPagesToCrawl: 50,
   outputFileName: "protected-content.json",
-  
+
   authentication: {
     credentials: {
       username: "your-username",
       password: "your-password",
       loginUrl: "https://example.com/login", // Optional: separate login page
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -54,8 +54,8 @@ export const defaultConfig: Config = {
   selector: ".main-content",
   maxPagesToCrawl: 50,
   outputFileName: "protected-content.json",
-  
-  authentication: createAuthFromEnv()
+
+  authentication: createAuthFromEnv(),
 };
 ```
 
@@ -68,13 +68,13 @@ export const defaultConfig: Config = {
   selector: ".documentation",
   maxPagesToCrawl: 20,
   outputFileName: "api-docs.json",
-  
+
   authentication: {
     headers: {
-      "Authorization": "Bearer your-api-token",
+      Authorization: "Bearer your-api-token",
       "X-API-Key": "your-api-key",
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -87,7 +87,7 @@ export const defaultConfig: Config = {
   selector: "main",
   maxPagesToCrawl: 30,
   outputFileName: "internal-docs.json",
-  
+
   authentication: {
     sessionCookies: [
       {
@@ -97,9 +97,9 @@ export const defaultConfig: Config = {
         path: "/",
         httpOnly: true,
         secure: true,
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
 ```
 
@@ -108,6 +108,7 @@ export const defaultConfig: Config = {
 ### 1. Username/Password Authentication
 
 The most common authentication method. GPT Crawler will:
+
 1. Navigate to the login page
 2. Fill in username and password
 3. Submit the form
@@ -119,19 +120,19 @@ authentication: {
   credentials: {
     username: "user@example.com",
     password: "secretpassword",
-    
+
     // Optional: Custom selectors for the login form
     usernameSelector: "#email",
     passwordSelector: "#password",
     submitSelector: ".login-btn",
-    
+
     // Optional: Login page URL (if different from starting URL)
     loginUrl: "https://example.com/auth/login",
-    
+
     // Optional: How to verify login worked
     successSelector: ".user-menu",
     successText: "Welcome back",
-    
+
     // Optional: Timeout for login process
     loginTimeout: 30000,
   }
@@ -174,8 +175,8 @@ authentication: {
       value: "xyz789uvw456rst123",
       domain: "example.com",
       path: "/",
-    }
-  ]
+    },
+  ];
 }
 ```
 
@@ -188,23 +189,23 @@ authentication: {
   customLogin: async ({ page, config }) => {
     // Navigate to login page
     await page.goto("https://example.com/login");
-    
+
     // Fill username
     await page.fill("#username", "your-username");
     await page.fill("#password", "your-password");
-    
+
     // Handle CAPTCHA or 2FA if needed
     await page.click("#login-btn");
-    
+
     // Wait for 2FA prompt
     await page.waitForSelector(".two-factor-code");
-    
+
     // You could pause here for manual intervention
     console.log("Please enter 2FA code manually...");
     await page.waitForSelector(".dashboard", { timeout: 60000 });
-    
+
     console.log("Login successful!");
-  }
+  };
 }
 ```
 
@@ -215,14 +216,14 @@ authentication: {
 ```typescript
 authentication: {
   // ... credential/headers/cookies config ...
-  
+
   options: {
     // Delay after login before starting crawl (milliseconds)
     postLoginDelay: 3000,
-    
+
     // Take screenshots for debugging
     debugScreenshot: true,
-    
+
     // Save session cookies for reuse
     saveCookies: true,
     cookieFile: "./session-cookies.json",
@@ -232,20 +233,20 @@ authentication: {
 
 ### Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `CRAWLER_USERNAME` | Login username/email | `user@example.com` |
-| `CRAWLER_PASSWORD` | Login password | `secretpassword` |
-| `CRAWLER_LOGIN_URL` | Login page URL | `https://site.com/login` |
-| `CRAWLER_USERNAME_SELECTOR` | CSS selector for username field | `#email` |
-| `CRAWLER_PASSWORD_SELECTOR` | CSS selector for password field | `#password` |
-| `CRAWLER_SUBMIT_SELECTOR` | CSS selector for submit button | `.login-btn` |
-| `CRAWLER_SUCCESS_SELECTOR` | CSS selector that appears after login | `.dashboard` |
-| `CRAWLER_SUCCESS_TEXT` | Text that appears after login | `Welcome back` |
-| `CRAWLER_POST_LOGIN_DELAY` | Delay after login (milliseconds) | `3000` |
-| `CRAWLER_DEBUG` | Enable debug screenshots | `true` |
-| `CRAWLER_SAVE_COOKIES` | Save session cookies | `true` |
-| `CRAWLER_COOKIE_FILE` | Cookie file path | `./cookies.json` |
+| Variable                    | Description                           | Example                  |
+| --------------------------- | ------------------------------------- | ------------------------ |
+| `CRAWLER_USERNAME`          | Login username/email                  | `user@example.com`       |
+| `CRAWLER_PASSWORD`          | Login password                        | `secretpassword`         |
+| `CRAWLER_LOGIN_URL`         | Login page URL                        | `https://site.com/login` |
+| `CRAWLER_USERNAME_SELECTOR` | CSS selector for username field       | `#email`                 |
+| `CRAWLER_PASSWORD_SELECTOR` | CSS selector for password field       | `#password`              |
+| `CRAWLER_SUBMIT_SELECTOR`   | CSS selector for submit button        | `.login-btn`             |
+| `CRAWLER_SUCCESS_SELECTOR`  | CSS selector that appears after login | `.dashboard`             |
+| `CRAWLER_SUCCESS_TEXT`      | Text that appears after login         | `Welcome back`           |
+| `CRAWLER_POST_LOGIN_DELAY`  | Delay after login (milliseconds)      | `3000`                   |
+| `CRAWLER_DEBUG`             | Enable debug screenshots              | `true`                   |
+| `CRAWLER_SAVE_COOKIES`      | Save session cookies                  | `true`                   |
+| `CRAWLER_COOKIE_FILE`       | Cookie file path                      | `./cookies.json`         |
 
 ## Common Use Cases
 
@@ -259,7 +260,7 @@ export const defaultConfig: Config = {
   selector: ".documentation",
   maxPagesToCrawl: 100,
   outputFileName: "company-docs.json",
-  
+
   authentication: {
     credentials: {
       username: process.env.CORP_USERNAME,
@@ -271,8 +272,8 @@ export const defaultConfig: Config = {
     options: {
       saveCookies: true,
       cookieFile: "./corp-session.json",
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -286,15 +287,15 @@ export const defaultConfig: Config = {
   selector: ".markdown-body, .wiki-body",
   maxPagesToCrawl: 50,
   outputFileName: "private-repo-docs.json",
-  
+
   authentication: {
     credentials: {
       username: process.env.GITHUB_USERNAME,
       password: process.env.GITHUB_TOKEN, // Use Personal Access Token
       loginUrl: "https://github.com/login",
       successSelector: ".Header-link--profile",
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -308,13 +309,13 @@ export const defaultConfig: Config = {
   selector: ".api-docs",
   maxPagesToCrawl: 25,
   outputFileName: "api-documentation.json",
-  
+
   authentication: {
     headers: {
-      "Authorization": `Bearer ${process.env.API_TOKEN}`,
-      "Accept": "text/html,application/xhtml+xml",
-    }
-  }
+      Authorization: `Bearer ${process.env.API_TOKEN}`,
+      Accept: "text/html,application/xhtml+xml",
+    },
+  },
 };
 ```
 
@@ -328,7 +329,7 @@ export const defaultConfig: Config = {
   selector: ".wiki-content, .page-content",
   maxPagesToCrawl: 200,
   outputFileName: "confluence-wiki.json",
-  
+
   authentication: {
     credentials: {
       username: process.env.ATLASSIAN_EMAIL,
@@ -337,8 +338,8 @@ export const defaultConfig: Config = {
       passwordSelector: "#password",
       submitSelector: "#login-submit",
       successSelector: "[data-testid='ContextualNavigation']",
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -363,7 +364,7 @@ authentication: {
 ```typescript
 authentication: {
   credentials: {
-    username: "your-username", 
+    username: "your-username",
     password: "your-password",
     // GitLab selectors are auto-detected
   }
@@ -401,6 +402,7 @@ authentication: {
 ### Login Not Working
 
 1. **Check selectors**: Use browser dev tools to verify CSS selectors
+
    ```typescript
    authentication: {
      credentials: {
@@ -413,6 +415,7 @@ authentication: {
    ```
 
 2. **Enable debug mode**: Take screenshots to see what's happening
+
    ```typescript
    authentication: {
      options: {
@@ -451,13 +454,13 @@ export const defaultConfig: Config = {
   // ... other config ...
   maxConcurrency: 1, // Crawl one page at a time
   delay: 3000, // 3 second delay between requests
-  
+
   authentication: {
     // ... auth config ...
     options: {
       postLoginDelay: 10000, // Wait longer after login
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -470,15 +473,15 @@ authentication: {
     await page.fill("#username", process.env.USERNAME);
     await page.fill("#password", process.env.PASSWORD);
     await page.click("#submit");
-    
+
     // Pause for manual intervention
     console.log("🤖 Please complete CAPTCHA/2FA manually...");
     console.log("⏳ Waiting for login completion...");
-    
+
     // Wait for login to complete (look for success indicator)
     await page.waitForSelector(".dashboard", { timeout: 120000 });
     console.log("✅ Login completed!");
-  }
+  };
 }
 ```
 
@@ -488,7 +491,7 @@ authentication: {
 // Add proxy configuration if needed
 export const defaultConfig: Config = {
   // ... other config ...
-  
+
   // If you need to set proxy for corporate network
   onVisitPage: async ({ page }) => {
     await page.context().setProxy({
@@ -497,10 +500,10 @@ export const defaultConfig: Config = {
       password: "proxy-pass",
     });
   },
-  
+
   authentication: {
     // ... auth config ...
-  }
+  },
 };
 ```
 
@@ -579,16 +582,16 @@ authentication: {
   customLogin: async ({ page, config }) => {
     // Step 1: Navigate to login
     await page.goto("https://example.com/login");
-    
+
     // Step 2: Fill primary credentials
     await page.fill("#username", process.env.USERNAME);
     await page.click("#next");
-    
+
     // Step 3: Wait for password page
     await page.waitForSelector("#password");
     await page.fill("#password", process.env.PASSWORD);
     await page.click("#login");
-    
+
     // Step 4: Handle 2FA if present
     try {
       await page.waitForSelector(".two-factor", { timeout: 5000 });
@@ -597,9 +600,9 @@ authentication: {
     } catch {
       // No 2FA required
     }
-    
+
     console.log("Login completed successfully");
-  }
+  };
 }
 ```
 
@@ -610,10 +613,10 @@ authentication: {
 authentication: {
   customLogin: async ({ page }) => {
     await page.goto("https://example.com/dashboard");
-    
+
     // Check if already logged in
-    const loginRequired = await page.$(".login-form") !== null;
-    
+    const loginRequired = (await page.$(".login-form")) !== null;
+
     if (loginRequired) {
       console.log("Authentication required");
       await page.fill("#username", process.env.USERNAME);
@@ -623,7 +626,7 @@ authentication: {
     } else {
       console.log("Already authenticated");
     }
-  }
+  };
 }
 ```
 

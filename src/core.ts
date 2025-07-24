@@ -68,10 +68,14 @@ export async function crawl(config: Config) {
 
           // Perform authentication on the first page or if authentication is required
           if (!isAuthenticated && config.authentication) {
-            log.info('🔐 Performing authentication...');
-            const authHandler = new AuthenticationHandler(config, page, page.context());
+            log.info("🔐 Performing authentication...");
+            const authHandler = new AuthenticationHandler(
+              config,
+              page,
+              page.context(),
+            );
             const authResult = await authHandler.authenticate();
-            
+
             if (authResult.success) {
               log.info(`✅ Authentication successful: ${authResult.message}`);
               isAuthenticated = true;

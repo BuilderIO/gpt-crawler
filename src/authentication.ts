@@ -3,10 +3,10 @@
  * Handles various authentication methods for protected sites
  */
 
-import { Page, BrowserContext } from 'playwright';
-import { Config } from './config.js';
-import { promises as fs } from 'fs';
-import { existsSync } from 'fs';
+import { Page, BrowserContext } from "playwright";
+import { Config } from "./config.js";
+import { promises as fs } from "fs";
+import { existsSync } from "fs";
 
 export interface AuthenticationResult {
   success: boolean;
@@ -21,7 +21,7 @@ export interface SessionCookie {
   path?: string;
   httpOnly?: boolean;
   secure?: boolean;
-  sameSite?: 'Strict' | 'Lax' | 'None';
+  sameSite?: "Strict" | "Lax" | "None";
 }
 
 /**
@@ -43,10 +43,10 @@ export class AuthenticationHandler {
    */
   async authenticate(): Promise<AuthenticationResult> {
     if (!this.config.authentication) {
-      return { success: true, message: 'No authentication required' };
+      return { success: true, message: "No authentication required" };
     }
 
-    console.log('🔐 Starting authentication process...');
+    console.log("🔐 Starting authentication process...");
 
     try {
       // Load saved session cookies first if available
@@ -74,11 +74,14 @@ export class AuthenticationHandler {
         return await this.performCredentialLogin();
       }
 
-      return { success: true, message: 'Authentication completed (headers/cookies only)' };
-      
+      return {
+        success: true,
+        message: "Authentication completed (headers/cookies only)",
+      };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown authentication error';
-      console.error('❌ Authentication failed:', message);
+      const message =
+        error instanceof Error ? error.message : "Unknown authentication error";
+      console.error("❌ Authentication failed:", message);
       return { success: false, message };
     }
   }
@@ -89,14 +92,14 @@ export class AuthenticationHandler {
   private async setCustomHeaders(): Promise<void> {
     if (!this.config.authentication?.headers) return;
 
-    console.log('📋 Setting custom authentication headers...');
-    
+    console.log("📋 Setting custom authentication headers...");
+
     await this.page.setExtraHTTPHeaders(this.config.authentication.headers);
-    
+
     // Also set headers for the context to apply to all pages
     await this.context.setExtraHTTPHeaders(this.config.authentication.headers);
-    
-    console.log('✅ Custom headers set successfully');
+
+    console.log("✅ Custom headers set successfully");
   }
 
   /**
@@ -105,16 +108,16 @@ export class AuthenticationHandler {
   private async setSessionCookies(): Promise<void> {
     if (!this.config.authentication?.sessionCookies) return;
 
-    console.log('🍪 Setting session cookies...');
-    
-    const cookies = this.config.authentication.sessionCookies.map(cookie => ({
+    console.log("🍪 Setting session cookies...");
+
+    const cookies = this.config.authentication.sessionCookies.map((cookie) => ({
       name: cookie.name,
       value: cookie.value,
       domain: cookie.domain || new URL(this.config.url).hostname,
-      path: cookie.path || '/',
+      path: cookie.path || "/",
       httpOnly: cookie.httpOnly || false,
       secure: cookie.secure || false,
-      sameSite: cookie.sameSite || 'Lax' as const,
+      sameSite: cookie.sameSite || ("Lax" as const),
     }));
 
     await this.context.addCookies(cookies);
@@ -129,28 +132,34 @@ export class AuthenticationHandler {
     console.log(`🔑 Performing credential login for user: ${creds.username}`);
 
     // Apply defaults for selectors
-    const usernameSelector = creds.usernameSelector || "#username, [name='username'], [name='email'], #email, #login, [type='email']";
-    const passwordSelector = creds.passwordSelector || "#password, [name='password'], [type='password']";
-    const submitSelector = creds.submitSelector || "button[type='submit'], input[type='submit'], .login-button, #login-button, .submit";
+    const usernameSelector =
+      creds.usernameSelector ||
+      "#username, [name='username'], [name='email'], #email, #login, [type='email']";
+    const passwordSelector =
+      creds.passwordSelector ||
+      "#password, [name='password'], [type='password']";
+    const submitSelector =
+      creds.submitSelector ||
+      "button[type='submit'], input[type='submit'], .login-button, #login-button, .submit";
     const loginTimeout = creds.loginTimeout || 30000;
 
     try {
       // Navigate to login page if specified, otherwise use current page
       if (creds.loginUrl) {
         console.log(`🌐 Navigating to login page: ${creds.loginUrl}`);
-        await this.page.goto(creds.loginUrl, { waitUntil: 'networkidle' });
+        await this.page.goto(creds.loginUrl, { waitUntil: "networkidle" });
       }
 
       // Wait for login form to be visible
-      console.log('⏳ Waiting for login form...');
+      console.log("⏳ Waiting for login form...");
       await this.page.waitForSelector(usernameSelector, { timeout: 10000 });
 
       // Fill username
-      console.log('👤 Filling username...');
+      console.log("👤 Filling username...");
       await this.page.fill(usernameSelector, creds.username);
 
       // Fill password
-      console.log('🔒 Filling password...');
+      console.log("🔒 Filling password...");
       await this.page.fill(passwordSelector, creds.password);
 
       // Take screenshot before login if debugging
@@ -161,14 +170,15 @@ export class AuthenticationHandler {
       }
 
       // Click submit button
-      console.log('🚀 Submitting login form...');
+      console.log("🚀 Submitting login form...");
       await Promise.all([
         this.page.waitForNavigation({ timeout: loginTimeout }),
         this.page.click(submitSelector),
       ]);
 
       // Wait for post-login delay
-      const postLoginDelay = this.config.authentication?.options?.postLoginDelay || 2000;
+      const postLoginDelay =
+        this.config.authentication?.options?.postLoginDelay || 2000;
       if (postLoginDelay > 0) {
         console.log(`⏱️  Waiting ${postLoginDelay}ms after login...`);
         await this.page.waitForTimeout(postLoginDelay);
@@ -176,7 +186,7 @@ export class AuthenticationHandler {
 
       // Verify login success
       const loginSuccess = await this.verifyLoginSuccess();
-      
+
       if (loginSuccess.success) {
         // Save session cookies if requested
         if (this.config.authentication?.options?.saveCookies) {
@@ -193,18 +203,17 @@ export class AuthenticationHandler {
       }
 
       return loginSuccess;
-
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed';
-      console.error('❌ Credential login failed:', message);
-      
+      const message = error instanceof Error ? error.message : "Login failed";
+      console.error("❌ Credential login failed:", message);
+
       // Take error screenshot if debugging
       if (this.config.authentication?.options?.debugScreenshot) {
         const screenshot = `login-error-${Date.now()}.png`;
         await this.page.screenshot({ path: screenshot });
         console.log(`📸 Error screenshot saved: ${screenshot}`);
       }
-      
+
       return { success: false, message };
     }
   }
@@ -213,8 +222,8 @@ export class AuthenticationHandler {
    * Perform custom login using provided function
    */
   private async performCustomLogin(): Promise<AuthenticationResult> {
-    console.log('🔧 Performing custom login...');
-    
+    console.log("🔧 Performing custom login...");
+
     try {
       await this.config.authentication!.customLogin!({
         page: this.page,
@@ -222,22 +231,25 @@ export class AuthenticationHandler {
       });
 
       // Wait for post-login delay
-      const postLoginDelay = this.config.authentication?.options?.postLoginDelay || 2000;
+      const postLoginDelay =
+        this.config.authentication?.options?.postLoginDelay || 2000;
       if (postLoginDelay > 0) {
         await this.page.waitForTimeout(postLoginDelay);
       }
 
       // Verify login if success indicators are provided
-      if (this.config.authentication?.credentials?.successSelector || 
-          this.config.authentication?.credentials?.successText) {
+      if (
+        this.config.authentication?.credentials?.successSelector ||
+        this.config.authentication?.credentials?.successText
+      ) {
         return await this.verifyLoginSuccess();
       }
 
-      return { success: true, message: 'Custom login completed' };
-
+      return { success: true, message: "Custom login completed" };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Custom login failed';
-      console.error('❌ Custom login failed:', message);
+      const message =
+        error instanceof Error ? error.message : "Custom login failed";
+      console.error("❌ Custom login failed:", message);
       return { success: false, message };
     }
   }
@@ -248,18 +260,22 @@ export class AuthenticationHandler {
   private async verifyLoginSuccess(): Promise<AuthenticationResult> {
     const creds = this.config.authentication?.credentials;
     if (!creds) {
-      return { success: true, message: 'No verification criteria provided' };
+      return { success: true, message: "No verification criteria provided" };
     }
 
-    console.log('🔍 Verifying login success...');
+    console.log("🔍 Verifying login success...");
 
     try {
       // Check for success selector
       if (creds.successSelector) {
-        console.log(`👀 Looking for success selector: ${creds.successSelector}`);
-        await this.page.waitForSelector(creds.successSelector, { timeout: 10000 });
-        console.log('✅ Success selector found - login verified');
-        return { success: true, message: 'Login verified by success selector' };
+        console.log(
+          `👀 Looking for success selector: ${creds.successSelector}`,
+        );
+        await this.page.waitForSelector(creds.successSelector, {
+          timeout: 10000,
+        });
+        console.log("✅ Success selector found - login verified");
+        return { success: true, message: "Login verified by success selector" };
       }
 
       // Check for success text
@@ -268,16 +284,21 @@ export class AuthenticationHandler {
         await this.page.waitForFunction(
           (text) => document.body.innerText.includes(text),
           creds.successText,
-          { timeout: 10000 }
+          { timeout: 10000 },
         );
-        console.log('✅ Success text found - login verified');
-        return { success: true, message: 'Login verified by success text' };
+        console.log("✅ Success text found - login verified");
+        return { success: true, message: "Login verified by success text" };
       }
 
       // If no specific verification criteria, check for common error indicators
       const errorSelectors = [
-        '.error', '.alert-error', '.login-error', '[class*="error"]',
-        '.invalid', '.alert-danger', '[class*="invalid"]'
+        ".error",
+        ".alert-error",
+        ".login-error",
+        '[class*="error"]',
+        ".invalid",
+        ".alert-danger",
+        '[class*="invalid"]',
       ];
 
       for (const selector of errorSelectors) {
@@ -286,19 +307,29 @@ export class AuthenticationHandler {
           const errorText = await errorElement.textContent();
           if (errorText && errorText.trim()) {
             console.log(`❌ Error found: ${errorText.trim()}`);
-            return { success: false, message: `Login error: ${errorText.trim()}` };
+            return {
+              success: false,
+              message: `Login error: ${errorText.trim()}`,
+            };
           }
         }
       }
 
       // No errors found, assume success
-      console.log('✅ No errors detected - assuming login success');
-      return { success: true, message: 'Login appears successful (no errors detected)' };
-
+      console.log("✅ No errors detected - assuming login success");
+      return {
+        success: true,
+        message: "Login appears successful (no errors detected)",
+      };
     } catch (error) {
       // If verification times out, it might still be successful
-      console.log('⚠️ Login verification inconclusive - proceeding with caution');
-      return { success: true, message: 'Login verification inconclusive but proceeding' };
+      console.log(
+        "⚠️ Login verification inconclusive - proceeding with caution",
+      );
+      return {
+        success: true,
+        message: "Login verification inconclusive but proceeding",
+      };
     }
   }
 
@@ -313,10 +344,15 @@ export class AuthenticationHandler {
     try {
       const cookies = await this.context.cookies();
       const cookieData = JSON.stringify(cookies, null, 2);
-      await fs.writeFile(this.config.authentication.options.cookieFile, cookieData);
-      console.log(`💾 Saved ${cookies.length} cookies to ${this.config.authentication.options.cookieFile}`);
+      await fs.writeFile(
+        this.config.authentication.options.cookieFile,
+        cookieData,
+      );
+      console.log(
+        `💾 Saved ${cookies.length} cookies to ${this.config.authentication.options.cookieFile}`,
+      );
     } catch (error) {
-      console.error('❌ Failed to save cookies:', error);
+      console.error("❌ Failed to save cookies:", error);
     }
   }
 
@@ -330,12 +366,14 @@ export class AuthenticationHandler {
     }
 
     try {
-      const cookieData = await fs.readFile(cookieFile, 'utf-8');
+      const cookieData = await fs.readFile(cookieFile, "utf-8");
       const cookies = JSON.parse(cookieData);
       await this.context.addCookies(cookies);
-      console.log(`🍪 Loaded ${cookies.length} saved cookies from ${cookieFile}`);
+      console.log(
+        `🍪 Loaded ${cookies.length} saved cookies from ${cookieFile}`,
+      );
     } catch (error) {
-      console.error('❌ Failed to load saved cookies:', error);
+      console.error("❌ Failed to load saved cookies:", error);
     }
   }
 }
@@ -349,11 +387,19 @@ export class AuthenticationHandler {
  */
 export function requiresAuthentication(url: string): boolean {
   const authPatterns = [
-    '/login', '/signin', '/auth', '/dashboard', '/admin',
-    '/account', '/profile', '/user', '/member', '/portal'
+    "/login",
+    "/signin",
+    "/auth",
+    "/dashboard",
+    "/admin",
+    "/account",
+    "/profile",
+    "/user",
+    "/member",
+    "/portal",
   ];
-  
-  return authPatterns.some(pattern => url.toLowerCase().includes(pattern));
+
+  return authPatterns.some((pattern) => url.toLowerCase().includes(pattern));
 }
 
 /**
@@ -361,38 +407,38 @@ export function requiresAuthentication(url: string): boolean {
  */
 export function getDefaultSelectors(site: string) {
   const hostname = new URL(site).hostname.toLowerCase();
-  
+
   // Site-specific selector patterns
   const siteSelectors: Record<string, any> = {
-    'github.com': {
-      usernameSelector: '#login_field',
-      passwordSelector: '#password',
+    "github.com": {
+      usernameSelector: "#login_field",
+      passwordSelector: "#password",
       submitSelector: '[type="submit"]',
-      successSelector: '.Header-link--profile',
+      successSelector: ".Header-link--profile",
     },
-    'gitlab.com': {
-      usernameSelector: '#user_login',
-      passwordSelector: '#user_password',
+    "gitlab.com": {
+      usernameSelector: "#user_login",
+      passwordSelector: "#user_password",
       submitSelector: '[type="submit"]',
-      successSelector: '.header-user',
+      successSelector: ".header-user",
     },
-    'atlassian.net': {
-      usernameSelector: '#username',
-      passwordSelector: '#password',
-      submitSelector: '#login-submit',
+    "atlassian.net": {
+      usernameSelector: "#username",
+      passwordSelector: "#password",
+      submitSelector: "#login-submit",
       successSelector: '[data-testid="ContextualNavigation"]',
     },
-    'notion.so': {
+    "notion.so": {
       usernameSelector: '[placeholder*="email"]',
       passwordSelector: '[placeholder*="password"]',
       submitSelector: 'button[type="submit"]',
-      successSelector: '.notion-topbar',
+      successSelector: ".notion-topbar",
     },
-    'slack.com': {
-      usernameSelector: '#email',
-      passwordSelector: '#password',
-      submitSelector: '#signin_btn',
-      successSelector: '.p-client',
+    "slack.com": {
+      usernameSelector: "#email",
+      passwordSelector: "#password",
+      submitSelector: "#signin_btn",
+      successSelector: ".p-client",
     },
   };
 
@@ -405,20 +451,22 @@ export function getDefaultSelectors(site: string) {
 
   // Return generic selectors
   return {
-    usernameSelector: '#username, [name="username"], [name="email"], #email, #login, [type="email"]',
+    usernameSelector:
+      '#username, [name="username"], [name="email"], #email, #login, [type="email"]',
     passwordSelector: '#password, [name="password"], [type="password"]',
-    submitSelector: 'button[type="submit"], input[type="submit"], .login-button, #login-button, .submit',
+    submitSelector:
+      'button[type="submit"], input[type="submit"], .login-button, #login-button, .submit',
   };
 }
 
 /**
  * Create authentication config from environment variables
  */
-export function createAuthFromEnv(): Config['authentication'] {
+export function createAuthFromEnv(): Config["authentication"] {
   const username = process.env.CRAWLER_USERNAME;
   const password = process.env.CRAWLER_PASSWORD;
   const loginUrl = process.env.CRAWLER_LOGIN_URL;
-  
+
   if (!username || !password) {
     return undefined;
   }
@@ -435,10 +483,10 @@ export function createAuthFromEnv(): Config['authentication'] {
       successText: process.env.CRAWLER_SUCCESS_TEXT || undefined,
     },
     options: {
-      postLoginDelay: parseInt(process.env.CRAWLER_POST_LOGIN_DELAY || '2000'),
-      debugScreenshot: process.env.CRAWLER_DEBUG === 'true',
-      saveCookies: process.env.CRAWLER_SAVE_COOKIES === 'true',
-      cookieFile: process.env.CRAWLER_COOKIE_FILE || './session-cookies.json',
+      postLoginDelay: parseInt(process.env.CRAWLER_POST_LOGIN_DELAY || "2000"),
+      debugScreenshot: process.env.CRAWLER_DEBUG === "true",
+      saveCookies: process.env.CRAWLER_SAVE_COOKIES === "true",
+      cookieFile: process.env.CRAWLER_COOKIE_FILE || "./session-cookies.json",
     },
   };
 }
