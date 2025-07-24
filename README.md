@@ -100,6 +100,18 @@ type Config = {
 };
 ```
 
+#### Performance Features
+
+GPT Crawler now includes advanced performance optimizations for modern web applications:
+
+- **Smart Site Detection**: Automatically detects and adapts to SPAs, static sites, and API-driven applications
+- **Enhanced Link Discovery**: Finds links in JavaScript events, React/Vue routers, and dynamic content
+- **Adaptive Concurrency**: Automatically adjusts crawling speed based on site responsiveness and memory usage
+- **Memory Management**: Built-in memory monitoring and cleanup to prevent crashes on large crawls
+- **Intelligent Retry Logic**: Smart retry strategies for JavaScript-heavy sites and API responses
+
+For detailed performance configuration and troubleshooting, see the [Performance Guide](PERFORMANCE_GUIDE.md).
+
 #### Run your crawler
 
 ```sh

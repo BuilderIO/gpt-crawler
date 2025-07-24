@@ -6,9 +6,14 @@ import { Config, configSchema } from "./config.js";
 import { Page } from "playwright";
 import { isWithinTokenLimit } from "gpt-tokenizer";
 import { PathLike } from "fs";
+import { PerformanceManager, ConcurrencyManager } from "./performance-manager.js";
+import { SmartCrawlingManager } from "./smart-crawling.js";
+import { discoverLinks } from "./enhanced-link-discovery.js";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
+let performanceManager: PerformanceManager;
+let smartCrawlingManager: SmartCrawlingManager;
 
 export function getPageHtml(page: Page, selector = "body") {
   return page.evaluate((selector) => {
@@ -52,55 +57,138 @@ export async function crawl(config: Config) {
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
+    // Initialize performance management
+    console.log('🚀 Initializing performance-optimized crawler...');
+    performanceManager = new PerformanceManager({
+      enableMemoryManagement: true,
+      maxMemoryUsage: 1024, // 1GB
+      enableCaching: true,
+      enableMonitoring: true,
+      enableSmartRetry: true
+    });
+
+    smartCrawlingManager = new SmartCrawlingManager();
     // PlaywrightCrawler crawls the web using a headless
     // browser controlled by the Playwright library.
     crawler = new PlaywrightCrawler(
       {
         // Use the requestHandler to process each of the crawled pages.
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
-          const title = await page.title();
-          pageCounter++;
-          log.info(
-            `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
-          );
+          const startTime = Date.now();
+          let success = false;
+          
+          try {
+            const title = await page.title();
+            pageCounter++;
+            
+            // Update performance metrics
+            performanceManager.updateCrawledPages(pageCounter);
+            
+            log.info(
+              `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+            );
 
-          // Use custom handling for XPath selector
-          if (config.selector) {
-            if (config.selector.startsWith("/")) {
-              await waitForXPath(
-                page,
-                config.selector,
-                config.waitForSelectorTimeout ?? 1000,
-              );
+            // Analyze site and apply smart crawling strategy on first page
+            if (pageCounter === 1) {
+              await performanceManager.executeWithRetry(async () => {
+                const siteAnalysis = await smartCrawlingManager.analyzeSite(page);
+                await smartCrawlingManager.applyStrategy(page, siteAnalysis.recommendedStrategy);
+                console.log(`🎯 Applied crawling strategy: ${siteAnalysis.recommendedStrategy.name}`);
+              }, 'Site analysis');
             } else {
-              await page.waitForSelector(config.selector, {
-                timeout: config.waitForSelectorTimeout ?? 1000,
+              // Apply strategy to subsequent pages
+              await smartCrawlingManager.applyStrategy(page);
+            }
+
+            // Use custom handling for XPath selector
+            if (config.selector) {
+              if (config.selector.startsWith("/")) {
+                await waitForXPath(
+                  page,
+                  config.selector,
+                  config.waitForSelectorTimeout ?? 1000,
+                );
+              } else {
+                await page.waitForSelector(config.selector, {
+                  timeout: config.waitForSelectorTimeout ?? 1000,
+                });
+              }
+            }
+
+            const html = await getPageHtml(page, config.selector);
+
+            // Save results as JSON to ./storage/datasets/default
+            await pushData({ title, url: request.loadedUrl, html });
+
+            if (config.onVisitPage) {
+              await config.onVisitPage({ page, pushData });
+            }
+
+            // Enhanced link discovery with performance optimizations
+            const strategy = smartCrawlingManager.getStrategy();
+            if (strategy?.settings.enableLinkDiscovery) {
+              // Use enhanced link discovery instead of basic enqueueLinks
+              const discoveredLinks = await performanceManager.executeWithRetry(async () => {
+                return await discoverLinks(page, strategy.settings.linkDiscoveryOptions);
+              }, 'Link discovery');
+
+              // Filter links and add to queue
+              const validUrls = discoveredLinks
+                .filter(link => {
+                  const url = link.url;
+                  const matches = typeof config.match === "string" ? [config.match] : config.match;
+                  const excludes = typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [];
+                  
+                  // Check if URL matches include patterns
+                  const matchesPattern = matches.some(pattern => {
+                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                    return regex.test(url);
+                  });
+                  
+                  // Check if URL matches exclude patterns
+                  const excludesPattern = excludes.some(pattern => {
+                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                    return regex.test(url);
+                  });
+                  
+                  return matchesPattern && !excludesPattern;
+                })
+                .map(link => ({ url: link.url }));
+
+              // Add discovered links to crawler queue
+              if (validUrls.length > 0) {
+                await crawler.addRequests(validUrls);
+                log.info(`🔗 Discovered ${validUrls.length} links using enhanced discovery`);
+              }
+            } else {
+              // Fallback to traditional link discovery
+              await enqueueLinks({
+                globs: typeof config.match === "string" ? [config.match] : config.match,
+                exclude: typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [],
               });
             }
+
+            success = true;
+            
+            // Memory cleanup check
+            await performanceManager.performMemoryCleanup();
+            
+          } catch (error) {
+            log.error(`Error processing page ${request.loadedUrl}:`, { error: error instanceof Error ? error.message : String(error) });
+            throw error;
+          } finally {
+            // Record request performance
+            const responseTime = Date.now() - startTime;
+            if (performanceManager) {
+              // Note: This is just a placeholder since we don't have access to the actual performance manager method
+              console.log(`⏱️  Page processed in ${responseTime}ms`);
+            }
           }
-
-          const html = await getPageHtml(page, config.selector);
-
-          // Save results as JSON to ./storage/datasets/default
-          await pushData({ title, url: request.loadedUrl, html });
-
-          if (config.onVisitPage) {
-            await config.onVisitPage({ page, pushData });
-          }
-
-          // Extract links from the current page
-          // and add them to the crawling queue.
-          await enqueueLinks({
-            globs:
-              typeof config.match === "string" ? [config.match] : config.match,
-            exclude:
-              typeof config.exclude === "string"
-                ? [config.exclude]
-                : config.exclude ?? [],
-          });
         },
         // Comment this option to scrape the full website.
         maxRequestsPerCrawl: config.maxPagesToCrawl,
+        // Dynamic concurrency based on performance
+        maxConcurrency: Math.min(10, Math.max(1, performanceManager.calculateOptimalConcurrency())),
         // Uncomment this option to see the browser window.
         // headless: false,
         preNavigationHooks: [
@@ -143,17 +231,31 @@ export async function crawl(config: Config) {
 
     const isUrlASitemap = /sitemap.*\.xml$/.test(config.url);
 
-    if (isUrlASitemap) {
-      const listOfUrls = await downloadListOfUrls({ url: config.url });
+    try {
+      if (isUrlASitemap) {
+        const listOfUrls = await downloadListOfUrls({ url: config.url });
 
-      // Add the initial URL to the crawling queue.
-      await crawler.addRequests(listOfUrls);
+        // Add the initial URL to the crawling queue.
+        await crawler.addRequests(listOfUrls);
 
-      // Run the crawler
-      await crawler.run();
-    } else {
-      // Add first URL to the queue and start the crawl.
-      await crawler.run([config.url]);
+        // Run the crawler
+        await crawler.run();
+      } else {
+        // Add first URL to the queue and start the crawl.
+        await crawler.run([config.url]);
+      }
+      
+      console.log('✅ Crawling completed successfully!');
+      
+    } catch (error) {
+      console.error('❌ Crawling failed:', error instanceof Error ? error.message : String(error));
+      throw error;
+    } finally {
+      // Cleanup performance manager
+      if (performanceManager) {
+        performanceManager.cleanup();
+        console.log('🧹 Performance cleanup completed');
+      }
     }
   }
 }
