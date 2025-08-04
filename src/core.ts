@@ -97,6 +97,36 @@ export async function crawl(config: Config) {
               typeof config.exclude === "string"
                 ? [config.exclude]
                 : config.exclude ?? [],
+            transformRequestFunction: (req) => {
+              // Enhanced URL filtering for query parameters that glob patterns can't handle properly
+              if (config.exclude) {
+                const excludePatterns = Array.isArray(config.exclude)
+                  ? config.exclude
+                  : [config.exclude];
+
+                for (const pattern of excludePatterns) {
+                  if (typeof pattern === "string") {
+                    // Handle query parameter exclusions that glob patterns miss
+                    // Check for patterns like "**hl=**" or "**?hl=**"
+                    const queryParamMatch = pattern.match(
+                      /\*\*[\?]?([^=]+)=\*\*/,
+                    );
+                    if (queryParamMatch) {
+                      const paramName = queryParamMatch[1];
+                      try {
+                        const url = new URL(req.url);
+                        if (url.searchParams.has(paramName)) {
+                          return false; // Exclude this URL
+                        }
+                      } catch {
+                        // If URL parsing fails, continue with normal processing
+                      }
+                    }
+                  }
+                }
+              }
+              return req;
+            },
           });
         },
         // Comment this option to scrape the full website.
