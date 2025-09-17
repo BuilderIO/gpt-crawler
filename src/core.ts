@@ -56,6 +56,15 @@ export async function crawl(config: Config) {
     // browser controlled by the Playwright library.
     crawler = new PlaywrightCrawler(
       {
+        // Use the system Chrome instead of the bundled Chromium to avoid
+        // local crashes seen with the cached Chromium build on this machine.
+        // Note: this forwards to playwright.chromium.launchPersistentContext
+        // under the hood, where `channel` is a valid launch option.
+        launchContext: {
+          launchOptions: {
+            channel: "chrome",
+          },
+        },
         // Use the requestHandler to process each of the crawled pages.
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
           const title = await page.title();
