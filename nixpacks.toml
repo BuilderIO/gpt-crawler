@@ -1,0 +1,16 @@
+[phases.setup]
+# Installs Node.js and the system libraries needed for browsers
+nixPkgs = ["nodejs", "playwright-driver"]
+aptPkgs = ["libgbm1", "libasound2"]
+
+[phases.install]
+# Ensures all modules (including devDependencies like swagger-autogen) are installed
+cmds = ["npm install --include=dev"]
+
+[phases.build]
+# Converts the TypeScript code into a runnable 'dist' folder
+cmds = ["npm run build"]
+
+[start]
+# Directly runs the server, skipping the broken swagger script
+cmd = "node dist/src/server.js"
