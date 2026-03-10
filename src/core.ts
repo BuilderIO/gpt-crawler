@@ -9,6 +9,7 @@ import { PathLike } from "fs";
 
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
+const seenUrls = new Set<string>();
 
 export function getPageHtml(page: Page, selector = "body") {
   return page.evaluate((selector) => {
@@ -49,6 +50,7 @@ export async function waitForXPath(page: Page, xpath: string, timeout: number) {
 }
 
 export async function crawl(config: Config) {
+  const crawlStart = Date.now();
   configSchema.parse(config);
 
   if (process.env.NO_CRAWL !== "true") {
@@ -58,10 +60,19 @@ export async function crawl(config: Config) {
       {
         // Use the requestHandler to process each of the crawled pages.
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
+          const url = request.loadedUrl ?? request.url;
+
+          // Skip already-visited URLs (deduplication)
+          if (seenUrls.has(url)) {
+            log.info(`Skipping duplicate URL: ${url}`);
+            return;
+          }
+          seenUrls.add(url);
+
           const title = await page.title();
           pageCounter++;
           log.info(
-            `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
+            `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${url}...`,
           );
 
           // Use custom handling for XPath selector
@@ -121,17 +132,23 @@ export async function crawl(config: Config) {
               });
               await page.context().addCookies(cookies);
             }
-            const RESOURCE_EXCLUSTIONS = config.resourceExclusions ?? [];
+            // Apply custom User-Agent if configured
+            if (config.userAgent) {
+              await page.setExtraHTTPHeaders({
+                "User-Agent": config.userAgent,
+              });
+            }
+            const RESOURCE_EXCLUSIONS = config.resourceExclusions ?? [];
             // If there are no resource exclusions, return
-            if (RESOURCE_EXCLUSTIONS.length === 0) {
+            if (RESOURCE_EXCLUSIONS.length === 0) {
               return;
             }
             await page.route(
-              `**\/*.{${RESOURCE_EXCLUSTIONS.join()}}`,
+              `**\/*.{${RESOURCE_EXCLUSIONS.join()}}`,
               (route) => route.abort("aborted"),
             );
             log.info(
-              `Aborting requests for as this is a resource excluded route`,
+              `Aborting requests for resource-excluded route`,
             );
           },
         ],
@@ -155,6 +172,11 @@ export async function crawl(config: Config) {
       // Add first URL to the queue and start the crawl.
       await crawler.run([config.url]);
     }
+
+    const elapsed = ((Date.now() - crawlStart) / 1000).toFixed(1);
+    console.log(
+      `\n✅ Crawl complete: ${pageCounter} page(s) crawled in ${elapsed}s\n`,
+    );
   }
 }
 

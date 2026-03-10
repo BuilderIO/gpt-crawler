@@ -86,7 +86,7 @@ program
   .option("-u, --url <string>", messages.url, "")
   .option("-m, --match <string>", messages.match, "")
   .option("-s, --selector <string>", messages.selector, "")
-  .option("-m, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
+  .option("-n, --maxPagesToCrawl <number>", messages.maxPagesToCrawl, "50")
   .option(
     "-o, --outputFileName <string>",
     messages.outputFileName,
