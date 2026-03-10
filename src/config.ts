@@ -85,6 +85,10 @@ export const configSchema = z.object({
    * @example 5000
    */
   maxTokens: z.number().int().positive().optional(),
+  /** Optional custom User-Agent string for the crawler
+   * @example "MyBot/1.0 (+https://example.com/bot)"
+   */
+  userAgent: z.string().optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
